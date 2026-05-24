@@ -207,15 +207,15 @@ function Showroom3D({onEnter,settings={}}){
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     el.appendChild(renderer.domElement);
 
-    // Environment (for realistic car reflections)
-    const pmrem=new THREE.PMREMGenerator(renderer);
-    pmrem.compileEquirectangularShader();
-    const envTexture=pmrem.fromScene(new RoomEnvironment()).texture;
-    scene.environment=envTexture;
-
+    // Scene — declare karo PEHLE
     const scene=new THREE.Scene();
     scene.background=new THREE.Color(0x0c1220);
     scene.fog=new THREE.Fog(0x0c1220,60,180);
+
+    // Environment map (realistic reflections)
+    const pmrem=new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    const envTexture=pmrem.fromScene(new RoomEnvironment()).texture;
     scene.environment=envTexture;
 
     const camera=new THREE.PerspectiveCamera(60,W/H,0.1,500);
@@ -551,7 +551,7 @@ function Showroom3D({onEnter,settings={}}){
         tl.position.set(2.44,0.7,z); grp.add(tl);
       });
       // Rear bumper
-      grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,1.8),dkMat),{position:{set:function(x,y,z){this.x=x;this.y=y;this.z=z;return this;}}}));
+      // Rear bumper
       const rb=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,1.8),dkMat);
       rb.position.set(2.44,0.48,0); grp.add(rb);
       // Exhaust
@@ -622,10 +622,11 @@ function Showroom3D({onEnter,settings={}}){
 
     // ── ANIMATION ──
     let t=0, animPhase=0, carZ=42, braking=false, camZ=42, camY=5, signBright=0, btnShown=false;
-    const lerp=(a,b,t)=>a+(b-a)*t;
+    const lerp=(a,b,f)=>a+(b-a)*f;
+    let rafId=null;
 
     const tick=()=>{
-      const raf=requestAnimationFrame(tick);
+      rafId=requestAnimationFrame(tick);
       t+=0.016;
 
       if(animPhase===0){
@@ -667,8 +668,7 @@ function Showroom3D({onEnter,settings={}}){
       cHL2.intensity=9+Math.sin(t*2.5+0.4)*0.5;
       renderer.render(scene,camera);
     };
-    const raf=tick();
-
+    tick();
     setTimeout(()=>setPhase(0),100);
 
     const onResize=()=>{
@@ -680,7 +680,7 @@ function Showroom3D({onEnter,settings={}}){
 
     return()=>{
       window.removeEventListener('resize',onResize);
-      cancelAnimationFrame(raf);
+      if(rafId) cancelAnimationFrame(rafId);
       try{el.removeChild(renderer.domElement);renderer.dispose();pmrem.dispose();}catch(e){}
     };
   },[]);
