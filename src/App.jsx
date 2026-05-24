@@ -22,6 +22,55 @@ const LS = {
 };
 const tryParse=(v,d)=>{try{return v?JSON.parse(v):d;}catch{return d;}};
 
+// ── Professional SVG Icons ────────────────────────────────────
+const ICONS = {
+  search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
+  heart: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  heartFill: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  bag: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+  user: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  menu: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  close: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  arrow: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  wa: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>,
+  location: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  phone: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.4 19.79 19.79 0 0 1 1.61 4.87 2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17l.19-.08z"/></svg>,
+  clock: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  star: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  starEmpty: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  truck: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  eye: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  tiktok: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.19a8.19 8.19 0 0 0 4.79 1.53V6.27a4.85 4.85 0 0 1-1.02-.57z"/></svg>,
+  instagram: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>,
+  // Category icons — fabric/clothing themed SVGs
+  catAll: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M3 6h18M3 12h18M3 18h18"/></svg>,
+  catMen: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M8 2h8l1 4-3 1v11H8V7L5 6z"/><path d="M10 7v11M14 7v11"/></svg>,
+  catWomenU: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M7 2h10l2 5-4 1v10H9V8L5 7z"/><path d="M9 8v10M15 8v10"/></svg>,
+  catWomenS: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M12 2c-2 0-4 2-4 4v1l-4 3v10h16V10l-4-3V6c0-2-2-4-4-4z"/></svg>,
+  catKids: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="5" r="2"/><path d="M9 8h6l1 4-2 1v7h-2v-4h-2v4H8v-7l-2-1z"/></svg>,
+};
+
+// Default cat icons map (can be overridden by settings)
+const DEFAULT_CAT_ICONS = {
+  "All": "catAll",
+  "Men's Unstitched": "catMen",
+  "Women Unstitched": "catWomenU",
+  "Women Stitched": "catWomenS",
+  "Kids": "catKids",
+};
+
+// Available icon options for admin
+const ICON_OPTIONS = [
+  {key:"catAll", label:"Grid (All)"},
+  {key:"catMen", label:"Kameez (Men)"},
+  {key:"catWomenU", label:"Kurti (Women)"},
+  {key:"catWomenS", label:"Dress (Stitched)"},
+  {key:"catKids", label:"Kids"},
+  {key:"star", label:"Star"},
+  {key:"heart", label:"Heart"},
+  {key:"location", label:"Location"},
+];
+
 // ── Global Styles ─────────────────────────────────────────────
 const G = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap');
@@ -189,18 +238,151 @@ function Showroom3D({onEnter}){
       scene.add(sw);
     });
 
-    // ── GOLD SIGN ──
+    // ── PROPER SHOP SIGNBOARD ──
     const signGroup=new THREE.Group();
-    const signBg=new THREE.Mesh(new THREE.BoxGeometry(8,1.2,0.08),new THREE.MeshStandardMaterial({color:0x1a1208,metalness:0.3,roughness:0.6}));
-    signGroup.add(signBg);
-    // Gold trim top/bottom
-    [[0.65],[-.65]].forEach(([y])=>{
-      const trim=new THREE.Mesh(new THREE.BoxGeometry(8.2,0.08,0.1),new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.1,emissive:0xd4a843,emissiveIntensity:0.3}));
-      trim.position.y=y;
-      signGroup.add(trim);
+
+    // Main board — dark wood
+    const boardMat=new THREE.MeshStandardMaterial({color:0x2a1a08,metalness:0.1,roughness:0.7});
+    const boardBg=new THREE.Mesh(new THREE.BoxGeometry(9,2.2,0.15),boardMat);
+    signGroup.add(boardBg);
+
+    // Gold frame — top
+    const frameMat=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.05,emissive:0xd4a843,emissiveIntensity:0.2});
+    [[0,1.15,true],[0,-1.15,true],[4.55,0,false],[-4.55,0,false]].forEach(([x,y,horiz])=>{
+      const f=new THREE.Mesh(new THREE.BoxGeometry(horiz?9.2:0.12,horiz?0.12:2.44,0.18),frameMat);
+      f.position.set(x,y,0);signGroup.add(f);
     });
-    signGroup.position.set(0,7.2,-9.8);
+
+    // Corner ornaments
+    [[4.4,1.0],[4.4,-1.0],[-4.4,1.0],[-4.4,-1.0]].forEach(([x,y])=>{
+      const orn=new THREE.Mesh(new THREE.SphereGeometry(0.15,12,12),frameMat);
+      orn.position.set(x,y,0.1);signGroup.add(orn);
+    });
+
+    // Gold divider line between JAMEEL FABRICS and KUNJAH
+    const divider=new THREE.Mesh(new THREE.BoxGeometry(6,0.04,0.1),frameMat);
+    divider.position.set(0,-0.08,0.1);
+    signGroup.add(divider);
+
+    // Hanging chains
+    [-3.5,3.5].forEach(x=>{
+      for(let i=0;i<5;i++){
+        const link=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.02,6,8),frameMat);
+        link.position.set(x,1.1+i*0.14,0);
+        link.rotation.x=i%2===0?Math.PI/2:0;
+        signGroup.add(link);
+      }
+    });
+
+    signGroup.position.set(0,7.0,-9.7);
     scene.add(signGroup);
+
+    // ── HANGING CLOTHES RODS (both sides) ──
+    const rodMat=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.1});
+
+    // Left side — Women clothes rack
+    const leftRod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,4,12),rodMat);
+    leftRod.rotation.z=Math.PI/2;
+    leftRod.position.set(-8,4.5,-5);
+    scene.add(leftRod);
+
+    // Support brackets for left rod
+    [-9.8,-6.2].forEach(x=>{
+      const bracket=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,1.2,8),rodMat);
+      bracket.position.set(x,5.1,-5);
+      scene.add(bracket);
+    });
+
+    // Women clothes hanging on left rod
+    const womenColors=[0xc9184a,0x7b1fa2,0x0288d1,0xe65100,0x00695c,0xad1457];
+    for(let i=0;i<6;i++){
+      const hanger=new THREE.Group();
+      // Hanger hook
+      const hookGeo=new THREE.TorusGeometry(0.12,0.025,6,14,Math.PI);
+      const hook=new THREE.Mesh(hookGeo,rodMat);
+      hook.position.y=0.12;
+      hanger.add(hook);
+      // Hanger bar
+      const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.6,6),rodMat);
+      bar.rotation.z=Math.PI/2;
+      bar.position.y=-0.05;
+      hanger.add(bar);
+      // Dress/kameez shape (cone for feminine)
+      const dressGeo=new THREE.ConeGeometry(0.28,1.3,8);
+      const dressMat=new THREE.MeshStandardMaterial({color:womenColors[i],metalness:0.0,roughness:0.9,side:THREE.DoubleSide});
+      const dress=new THREE.Mesh(dressGeo,dressMat);
+      dress.position.y=-0.9;
+      hanger.add(dress);
+      // Dupatta (thin plane hanging)
+      const duppGeo=new THREE.PlaneGeometry(0.35,0.9);
+      const duppMat=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.1,roughness:0.7,transparent:true,opacity:0.7,side:THREE.DoubleSide});
+      const dupp=new THREE.Mesh(duppGeo,duppMat);
+      dupp.position.set(0.2,-0.7,0.1);
+      dupp.rotation.z=0.2;
+      hanger.add(dupp);
+
+      hanger.position.set(-9.8+i*0.68,4.3,-5);
+      scene.add(hanger);
+    }
+
+    // Right side — Men shalwar kameez rack
+    const rightRod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,4,12),rodMat);
+    rightRod.rotation.z=Math.PI/2;
+    rightRod.position.set(8,4.5,-5);
+    scene.add(rightRod);
+
+    [6.2,9.8].forEach(x=>{
+      const bracket=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,1.2,8),rodMat);
+      bracket.position.set(x,5.1,-5);
+      scene.add(bracket);
+    });
+
+    const menColors=[0x1b5e20,0x0d47a1,0x4a148c,0x880e4f,0x4e342e,0x37474f];
+    for(let i=0;i<6;i++){
+      const hanger=new THREE.Group();
+      const hookGeo=new THREE.TorusGeometry(0.12,0.025,6,14,Math.PI);
+      const hook=new THREE.Mesh(hookGeo,rodMat);
+      hook.position.y=0.12;
+      hanger.add(hook);
+      const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.55,6),rodMat);
+      bar.rotation.z=Math.PI/2;
+      bar.position.y=-0.05;
+      hanger.add(bar);
+      // Kameez shape (more rectangular/straight)
+      const kameezGeo=new THREE.BoxGeometry(0.48,1.1,0.04);
+      const kameezMat=new THREE.MeshStandardMaterial({color:menColors[i],metalness:0.0,roughness:0.9});
+      const kameez=new THREE.Mesh(kameezGeo,kameezMat);
+      kameez.position.y=-0.75;
+      hanger.add(kameez);
+      // Shalwar (hanging below)
+      const shalwarGeo=new THREE.BoxGeometry(0.42,0.8,0.03);
+      const shalwar=new THREE.Mesh(shalwarGeo,new THREE.MeshStandardMaterial({color:menColors[(i+3)%6],metalness:0.0,roughness:0.9}));
+      shalwar.position.y=-1.75;
+      hanger.add(shalwar);
+
+      hanger.position.set(6.2+i*0.68,4.3,-5);
+      scene.add(hanger);
+    }
+
+    // ── FABRIC SHELF — Back wall ──
+    const shelfMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.1,roughness:0.6});
+    [-5,0,5].forEach(x=>{
+      const shelf=new THREE.Mesh(new THREE.BoxGeometry(3,0.08,0.5),shelfMat);
+      shelf.position.set(x,3.5,-9.2);
+      scene.add(shelf);
+      // Fabric rolls on shelf
+      const fabColors=[0xff6b6b,0x4ecdc4,0x45b7d1,0xf9c74f,0x90be6d,0xf8961e];
+      for(let r=0;r<4;r++){
+        const rollGeo=new THREE.CylinderGeometry(0.22,0.22,0.55,16);
+        const rollMat=new THREE.MeshStandardMaterial({color:fabColors[(x/5+2+r)%6],metalness:0.0,roughness:0.85});
+        const roll=new THREE.Mesh(rollGeo,rollMat);
+        roll.rotation.z=Math.PI/2;
+        roll.position.set(x-0.9+r*0.6,3.72,-9.0);
+        roll.castShadow=true;
+        scene.add(roll);
+      }
+    });
+
 
     // ── DISPLAY TABLES ──
     const tableMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.2,roughness:0.5});
@@ -458,11 +640,19 @@ function Showroom3D({onEnter}){
       {/* Text overlay */}
       <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",pointerEvents:"none",zIndex:2}}>
         <div style={{textAlign:"center",padding:"0 24px"}}>
-          {phase>=1&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(11px,1.4vw,13px)",letterSpacing:"8px",color:"#b8922a",marginBottom:"16px",fontStyle:"italic",animation:"fadeUp 0.8s ease both"}}>✦ EST. KUNJAH ✦</div>}
-          {phase>=1&&<div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(40px,7vw,90px)",fontWeight:"900",color:"#1a1208",lineHeight:1,letterSpacing:"4px",animation:"fadeUp 0.8s ease 0.15s both",textShadow:"0 4px 30px rgba(180,140,40,0.15)"}}>{BRAND}</div>}
-          {phase>=2&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(14px,2vw,20px)",letterSpacing:"12px",color:"#b8922a",marginTop:"8px",animation:"fadeUp 0.8s ease both"}}>{SUB}</div>}
-          {phase>=2&&<div style={{height:"1px",background:"linear-gradient(to right,transparent,#b8922a,transparent)",maxWidth:"260px",margin:"18px auto",animation:"lineExpand 1s ease both"}}/>}
-          {phase>=3&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.6vw,16px)",color:"#8a7a5a",fontStyle:"italic",letterSpacing:"4px",animation:"fadeUp 0.7s ease both"}}>{TAGLINE}</div>}
+          {phase>=1&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.3vw,13px)",letterSpacing:"8px",color:"#b8922a",marginBottom:"14px",fontStyle:"italic",animation:"fadeUp 0.8s ease both"}}>✦ EST. KUNJAH, GUJRAT ✦</div>}
+          {phase>=1&&<div style={{animation:"fadeUp 0.8s ease 0.15s both"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(42px,8vw,94px)",fontWeight:"900",color:"#1a1208",lineHeight:1,letterSpacing:"8px",textShadow:"0 4px 30px rgba(180,140,40,0.2)"}}>JAMEEL</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(42px,8vw,94px)",fontWeight:"900",color:"#1a1208",lineHeight:0.95,letterSpacing:"8px",textShadow:"0 4px 30px rgba(180,140,40,0.2)"}}>FABRICS</div>
+          </div>}
+          {phase>=2&&<div style={{display:"flex",alignItems:"center",gap:"12px",justifyContent:"center",margin:"14px 0 12px",animation:"fadeIn 0.8s ease both"}}>
+            <div style={{height:"1px",background:"linear-gradient(to right,transparent,#b8922a)",width:"70px"}}/>
+            <div style={{width:"5px",height:"5px",background:"#b8922a",transform:"rotate(45deg)"}}/>
+            <div style={{height:"1px",background:"linear-gradient(to left,transparent,#b8922a)",width:"70px"}}/>
+          </div>}
+          {phase>=2&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,2.4vw,26px)",letterSpacing:"18px",color:"#b8922a",animation:"fadeUp 0.8s ease both",fontWeight:"400"}}>KUNJAH</div>}
+          {phase>=3&&<div style={{height:"1px",background:"linear-gradient(to right,transparent,#b8922a44,transparent)",maxWidth:"300px",margin:"16px auto",animation:"lineExpand 1s ease both"}}/>}
+          {phase>=3&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(12px,1.5vw,15px)",color:"#8a7a5a",fontStyle:"italic",letterSpacing:"4px",animation:"fadeUp 0.7s ease both"}}>{TAGLINE}</div>}
         </div>
       </div>
 
@@ -532,12 +722,12 @@ function Navbar({cart,wishlist,page,setPage,cat,setCat,search,setSearch,customer
 
           {/* Right icons */}
           <div style={{display:"flex",alignItems:"center",gap:"4px",flexShrink:0}}>
-            <button onClick={()=>setShowSearch(s=>!s)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px",transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color="#1a1208"} onMouseLeave={e=>e.target.style.color="#8a7a5a"}>🔍</button>
-            <button onClick={()=>customer?setPage("wishlist"):setShowLogin(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color="#1a1208"} onMouseLeave={e=>e.target.style.color="#8a7a5a"}>
-              🤍{wishlist.length>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{wishlist.length}</span>}
+            <button onClick={()=>setShowSearch(s=>!s)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>{ICONS.search}</button>
+            <button onClick={()=>customer?setPage("wishlist"):setShowLogin(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>
+              {ICONS.heart}{wishlist.length>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{wishlist.length}</span>}
             </button>
-            <button onClick={()=>setShowCart(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color="#1a1208"} onMouseLeave={e=>e.target.style.color="#8a7a5a"}>
-              🛍{cartCount>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{cartCount}</span>}
+            <button onClick={()=>setShowCart(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>
+              {ICONS.bag}{cartCount>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{cartCount}</span>}
             </button>
             <button onClick={()=>customer?setPage("account"):setShowLogin(true)} style={{background:"none",border:"1px solid #d4a84366",color:"#1a1208",padding:"7px 16px",fontSize:"10px",fontWeight:"600",letterSpacing:"2px",textTransform:"uppercase",marginLeft:"4px",transition:"all 0.2s",fontFamily:"'Jost',sans-serif"}} onMouseEnter={e=>{e.currentTarget.style.background="#1a1208";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.background="none";e.currentTarget.style.color="#1a1208";}}>
               {customer?customer.name.split(" ")[0]:"Login"}
@@ -1149,9 +1339,9 @@ function Footer({settings,setShowTrack}){
             <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"12px",letterSpacing:"4px",color:"#d4a84388",marginBottom:"16px",fontStyle:"italic"}}>{SUB}</div>
             <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"15px",color:"#d4a84366",lineHeight:1.8,fontStyle:"italic",marginBottom:"20px"}}>{TAGLINE}</p>
             <div style={{display:"flex",gap:"10px"}}>
-              {settings?.tiktokUrl&&<a href={settings.tiktokUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",transition:"all 0.2s"}} onMouseEnter={e=>e.currentTarget.style.border="1px solid #d4a843"} onMouseLeave={e=>e.currentTarget.style.border="1px solid #d4a84333"}>🎵</a>}
-              {settings?.instagramUrl&&<a href={settings.instagramUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",transition:"all 0.2s"}} onMouseEnter={e=>e.currentTarget.style.border="1px solid #d4a843"} onMouseLeave={e=>e.currentTarget.style.border="1px solid #d4a84333"}>📸</a>}
-              <a href={`https://wa.me/${settings?.whatsapp||WA}`} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",background:"#25D366",border:"none",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px"}}>📱</a>
+              {settings?.tiktokUrl&&<a href={settings.tiktokUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s",color:"#d4a84388"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid #d4a843";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid #d4a84333";e.currentTarget.style.color="#d4a84388";}}>{ICONS.tiktok}</a>}
+              {settings?.instagramUrl&&<a href={settings.instagramUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s",color:"#d4a84388"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid #d4a843";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid #d4a84333";e.currentTarget.style.color="#d4a84388";}}>{ICONS.instagram}</a>}
+              <a href={`https://wa.me/${settings?.whatsapp||WA}`} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",background:"#25D366",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>{ICONS.wa}</a>
             </div>
           </div>
           <div>
@@ -1183,7 +1373,9 @@ function WAFloat({settings}){
   const [show,setShow]=useState(false);
   useEffect(()=>{setTimeout(()=>setShow(true),3000);},[]);
   return(
-    <a href={`https://wa.me/${settings?.whatsapp||WA}?text=${encodeURIComponent("Assalam! I'd like to enquire about your collection.")}`} target="_blank" rel="noreferrer" style={{position:"fixed",bottom:"24px",right:"24px",width:"54px",height:"54px",background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",boxShadow:"0 8px 24px rgba(37,211,102,0.4)",zIndex:800,opacity:show?1:0,transform:show?"scale(1)":"scale(0)",transition:"all 0.4s cubic-bezier(0.34,1.56,0.64,1)",animation:show?"pulse3d 3s ease 4s infinite":"none"}}>📱</a>
+    <a href={`https://wa.me/${settings?.whatsapp||WA}?text=${encodeURIComponent("Assalam! I'd like to enquire about your collection.")}`} target="_blank" rel="noreferrer" style={{position:"fixed",bottom:"24px",right:"24px",width:"54px",height:"54px",background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 24px rgba(37,211,102,0.4)",zIndex:800,opacity:show?1:0,transform:show?"scale(1)":"scale(0)",transition:"all 0.4s cubic-bezier(0.34,1.56,0.64,1)",animation:show?"pulse3d 3s ease 4s infinite":"none",color:"#fff"}}>
+      {ICONS.wa}
+    </a>
   );
 }
 
@@ -1268,6 +1460,7 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
             {t.l}{t.badge>0&&<span style={{position:"absolute",top:"-4px",right:"-4px",background:"#dc2626",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
           </button>)}
           <button onClick={onClose} style={{background:"#dc2626",color:"#fff",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px"}}>✕ CLOSE</button>
+          <button onClick={()=>window.open(window.location.href,"_blank")} style={{background:"#d4a843",color:"#1a1208",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px",marginLeft:"4px"}}>👁 PREVIEW</button>
         </div>
       </div>
 
@@ -1426,19 +1619,60 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
         {tab==="settings"&&<div style={{maxWidth:"580px"}}>
           <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>⚙️ Settings</div>
           <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px",marginBottom:"16px"}}>
-            <div style={{marginBottom:"14px"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Logo</div>
-              <div style={{display:"flex",gap:"8px",flexWrap:"wrap",alignItems:"center"}}>
-                <input type="file" accept="image/*" onChange={async e=>{const f=e.target.files[0];if(!f||!supabase)return;const ext=f.name.split(".").pop();const{error}=await supabase.storage.from("product-images").upload(`logo/logo-${Date.now()}.${ext}`,f,{upsert:true});if(!error){const{data:u}=supabase.storage.from("product-images").getPublicUrl(`logo/logo-${Date.now()}.${ext}`);setSEdit(s=>({...s,logoUrl:u.publicUrl}));}}} style={{fontSize:"11px",color:"#8a7a5a"}}/>
-                <input value={sEdit.logoUrl||""} onChange={e=>setSEdit(s=>({...s,logoUrl:e.target.value}))} placeholder="Or paste URL" style={{flex:1,background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif",minWidth:"160px"}}/>
+            <div style={{marginBottom:"16px"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Brand Logo</div>
+              {/* Logo preview */}
+              <div style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"16px",marginBottom:"10px",display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80px"}}>
+                {sEdit.logoUrl
+                  ?<img src={sEdit.logoUrl} alt="logo" style={{maxHeight:"60px",maxWidth:"200px",objectFit:"contain"}}/>
+                  :<div style={{textAlign:"center"}}>
+                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"16px",fontWeight:"700",color:"#1a1208",letterSpacing:"2px"}}>{BRAND}</div>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"10px",color:"#b8922a",letterSpacing:"4px"}}>{SUB}</div>
+                    <div style={{fontSize:"9px",color:"#aaa",marginTop:"4px",fontFamily:"'Jost',sans-serif"}}>No logo — text showing</div>
+                  </div>
+                }
               </div>
-              {sEdit.logoUrl&&<img src={sEdit.logoUrl} alt="logo" style={{height:"44px",objectFit:"contain",marginTop:"8px",border:"1px solid #d4a84322",padding:"6px"}}/>}
+              <div style={{display:"flex",gap:"8px",flexWrap:"wrap",alignItems:"center",marginBottom:"6px"}}>
+                <label style={{background:"#1a1208",color:"#d4a843",padding:"8px 14px",fontSize:"9px",fontWeight:"700",letterSpacing:"1px",cursor:"pointer",fontFamily:"'Jost',sans-serif",flexShrink:0}}>
+                  UPLOAD LOGO
+                  <input type="file" accept="image/png,image/jpg,image/jpeg,image/svg+xml,image/webp" style={{display:"none"}} onChange={async e=>{
+                    const f=e.target.files[0];if(!f)return;
+                    if(!supabase){alert("Supabase not connected!");return;}
+                    const ext=f.name.split(".").pop();
+                    const path=`logo/brand-logo-${Date.now()}.${ext}`;
+                    const{error}=await supabase.storage.from("product-images").upload(path,f,{upsert:true,contentType:f.type});
+                    if(error){alert("Upload failed: "+error.message);return;}
+                    const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);
+                    setSEdit(s=>({...s,logoUrl:u.publicUrl}));
+                    alert("✅ Logo uploaded!");
+                  }}/>
+                </label>
+                {sEdit.logoUrl&&<button onClick={()=>setSEdit(s=>({...s,logoUrl:""}))} style={{background:"none",border:"1px solid #dc262644",color:"#dc2626",padding:"8px 12px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>REMOVE</button>}
+              </div>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"1px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Or paste image URL</div>
+              <input value={sEdit.logoUrl||""} onChange={e=>setSEdit(s=>({...s,logoUrl:e.target.value}))} placeholder="https://..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              <div style={{fontSize:"10px",color:"#8a7a5a",marginTop:"6px",fontFamily:"'Jost',sans-serif"}}>Recommended: PNG with transparent background, min 200x80px</div>
             </div>
             {inp("WhatsApp Number","whatsapp",undefined,true)}
             {inp("TikTok ID","tiktok",undefined,true)}
             {inp("Instagram ID","instagram",undefined,true)}
             {inp("TikTok URL","tiktokUrl",undefined,true)}
             {inp("Instagram URL","instagramUrl",undefined,true)}
+            {inp("Footer Text (optional)","footerText",undefined,true)}
+
+            {/* Category Icons Editor */}
+            <div style={{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #d4a84322"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"10px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Category Bar Icons</div>
+              {CATS.map(cat=>(
+                <div key={cat} style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px",padding:"8px",background:"var(--cream2)",border:"1px solid #d4a84322"}}>
+                  <span style={{fontSize:"11px",color:"#1a1208",fontFamily:"'Jost',sans-serif",flex:1,fontWeight:"600"}}>{cat}</span>
+                  <div style={{color:"#b8922a"}}>{ICONS[(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]]||ICONS.catAll}</div>
+                  <select value={(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]} onChange={e=>setSEdit(s=>({...s,catIcons:{...(s.catIcons||{}), [cat]:e.target.value}}))} style={{background:"transparent",border:"1px solid #d4a84344",padding:"4px 8px",color:"#1a1208",fontSize:"11px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
+                    {ICON_OPTIONS.map(opt=><option key={opt.key} value={opt.key}>{opt.label}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
             <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",width:"100%"}}>SAVE SETTINGS</button>
           </div>
           {/* Password */}
@@ -1536,7 +1770,28 @@ export default function App(){
   const [cart,setCart]=useState(()=>LS.get("cart",[]));
   const [wishlist,setWishlist]=useState(()=>LS.get("wishlist",[]));
   const [customer,setCustomer]=useState(()=>LS.get("customer",null));
-  const [settings,setSettings]=useState(()=>({announcements:["✦ New Arrivals — Limited Pieces ✦","✦ Exclusive Pakistani Fabrics ✦","✦ Each Design is Unique ✦"],heroTexts:["Where Elegance Meets Heritage","Exclusive Pakistani Fabrics","Crafted with Love, Worn with Pride"],heroSubtitle:"Each piece in our collection is unique — once sold, never repeated.",tiktok:"@jameelfabrics",instagram:"@jameelfabrics",whatsapp:WA,tiktokUrl:"",instagramUrl:"",logoUrl:"",uploadedVideoUrl:"",uploadedVideoTitle:"",uploadedVideoCaption:"",showUploadedVideo:false,coupons:[{code:"WELCOME10",discount:10,type:"percent",active:true}],...LS.get("shopSettings",{})}));
+  const [settings,setSettings]=useState(()=>({
+    announcements:["✦ New Arrivals — Limited Pieces ✦","✦ Exclusive Pakistani Fabrics ✦","✦ Each Design is Unique ✦"],
+    heroTexts:["Where Elegance Meets Heritage","Exclusive Pakistani Fabrics","Crafted with Love, Worn with Pride"],
+    heroSubtitle:"Each piece in our collection is unique — once sold, never repeated.",
+    tiktok:"@jameelfabrics",instagram:"@jameelfabrics",whatsapp:WA,
+    tiktokUrl:"",instagramUrl:"",
+    logoUrl:"",
+    faviconUrl:"",
+    uploadedVideoUrl:"",uploadedVideoTitle:"",uploadedVideoCaption:"",showUploadedVideo:false,
+    coupons:[{code:"WELCOME10",discount:10,type:"percent",active:true}],
+    catIcons:{...DEFAULT_CAT_ICONS},
+    discountBanner:"",discountBannerActive:false,
+    aboutText:"Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing.\n\nLocated in the heart of Kunjah, we serve customers from across the region with pride and dedication.",
+    policiesText:"RETURN POLICY\nWe accept exchanges within 3 days of purchase with original receipt. Sale items are non-returnable.\n\nDELIVERY POLICY\nWe deliver across Pakistan. Delivery time: 3-5 working days.\n\nPAYMENT POLICY\nWe accept Cash on Delivery (COD), JazzCash, and Easypaisa.\n\nPRIVACY POLICY\nYour personal information is safe with us.",
+    heroBg:"",
+    footerText:"",
+    showReviews:true,
+    showLocation:true,
+    showAbout:true,
+    primaryColor:"#b8922a",
+    ...LS.get("shopSettings",{})
+  }));
   const [selProd,setSelProd]=useState(null);
   const [showCart,setShowCart]=useState(false);
   const [showCheckout,setShowCheckout]=useState(false);
@@ -1600,12 +1855,16 @@ export default function App(){
           {/* Category pills */}
           <div style={{background:"#fff",borderBottom:"1px solid #d4a84322",padding:"16px clamp(16px,4vw,48px)",overflowX:"auto"}}>
             <div style={{display:"flex",gap:"8px",justifyContent:"center",minWidth:"max-content",margin:"0 auto"}}>
-              {CATS.map(c=>(
-                <button key={c} onClick={()=>{setCat(c);setPage("shop");}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px",padding:"10px 18px",border:`1px solid ${cat===c?"#b8922a":"#d4a84322"}`,background:cat===c?"#b8922a11":"transparent",cursor:"pointer",transition:"all 0.3s",minWidth:"80px",transform:cat===c?"translateY(-1px)":"translateY(0)"}}>
-                  <span style={{fontSize:"20px"}}>{"🧵👔👗✨🌟"[CATS.indexOf(c)]||"🧵"}</span>
-                  <span style={{fontSize:"9px",fontWeight:"700",color:cat===c?"#b8922a":"#8a7a5a",letterSpacing:"1.5px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>{c==="All"?"All":c.split(" ")[0]}</span>
-                </button>
-              ))}
+              {CATS.map(c=>{
+                const iconKey = (settings.catIcons||{})[c] || DEFAULT_CAT_ICONS[c] || "catAll";
+                const iconEl = ICONS[iconKey] || ICONS.catAll;
+                return(
+                  <button key={c} onClick={()=>{setCat(c);setPage("shop");}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"6px",padding:"10px 18px",border:`1px solid ${cat===c?"#b8922a":"#d4a84322"}`,background:cat===c?"#b8922a11":"transparent",cursor:"pointer",transition:"all 0.3s",minWidth:"80px",transform:cat===c?"translateY(-1px)":"translateY(0)"}}>
+                    <span style={{color:cat===c?"#b8922a":"#8a7a5a",transition:"color 0.2s"}}>{iconEl}</span>
+                    <span style={{fontSize:"9px",fontWeight:"700",color:cat===c?"#b8922a":"#8a7a5a",letterSpacing:"1.5px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>{c==="All"?"All":c.split(" ")[0]}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
