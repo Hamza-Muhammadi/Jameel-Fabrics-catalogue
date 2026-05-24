@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 // ── Config ────────────────────────────────────────────────────
 const SUPA_URL = process.env.REACT_APP_SUPABASE_URL || "";
@@ -186,580 +188,537 @@ function TiltCard({children,style,className=""}){
 
 // ── THREE.JS 3D SHOWROOM ──────────────────────────────────────
 function Showroom3D({onEnter,settings={}}){
-  const mountRef = useRef(null);
-  const [phase, setPhase] = useState(0);
-  const [showBtn, setShowBtn] = useState(false);
-  const rendererRef = useRef(null);
+  const mountRef=useRef(null);
+  const [phase,setPhase]=useState(0);
+  const [showBtn,setShowBtn]=useState(false);
 
   useEffect(()=>{
-    const el = mountRef.current;
-    if(!el) return;
-    const W = el.clientWidth || window.innerWidth;
-    const H = el.clientHeight || window.innerHeight;
+    const el=mountRef.current; if(!el)return;
+    const W=el.clientWidth||window.innerWidth, H=el.clientHeight||window.innerHeight;
 
-    // ── Renderer ──
-    const renderer = new THREE.WebGLRenderer({antialias:true});
-    renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    // Renderer
+    const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
+    renderer.setSize(W,H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.1;
+    renderer.outputColorSpace=THREE.SRGBColorSpace;
     el.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d1520);
-    scene.fog = new THREE.FogExp2(0x0d1520, 0.010);
+    // Environment (for realistic car reflections)
+    const pmrem=new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    const envTexture=pmrem.fromScene(new RoomEnvironment()).texture;
+    scene.environment=envTexture;
 
-    const camera = new THREE.PerspectiveCamera(65, W/H, 0.1, 500);
-    camera.position.set(0, 4, 38);
-    camera.lookAt(0, 3, 0);
+    const scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x0c1220);
+    scene.fog=new THREE.Fog(0x0c1220,60,180);
+    scene.environment=envTexture;
 
-    // ── GROUND / ROAD ──
-    const road = new THREE.Mesh(
-      new THREE.PlaneGeometry(20, 160),
-      new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.95, metalness:0.05})
+    const camera=new THREE.PerspectiveCamera(60,W/H,0.1,500);
+    camera.position.set(0,5,42);
+    camera.lookAt(0,3,0);
+
+    // ── ROAD ──
+    const road=new THREE.Mesh(
+      new THREE.PlaneGeometry(24,180),
+      new THREE.MeshStandardMaterial({color:0x161616,roughness:0.92,metalness:0.08})
     );
-    road.rotation.x = -Math.PI/2;
-    road.receiveShadow = true;
-    scene.add(road);
+    road.rotation.x=-Math.PI/2; road.receiveShadow=true; scene.add(road);
 
-    // Sidewalks
-    [-12, 12].forEach(x=>{
-      const sw = new THREE.Mesh(
-        new THREE.PlaneGeometry(8, 160),
-        new THREE.MeshStandardMaterial({color:0x2a2828, roughness:1})
-      );
-      sw.rotation.x = -Math.PI/2;
-      sw.position.set(x > 0 ? 14 : -14, 0.01, 0);
-      scene.add(sw);
-    });
-
-    // Road markings
-    for(let z = -70; z < 70; z += 7){
-      const dash = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.18, 3.5),
-        new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xffffff, emissiveIntensity:0.5})
-      );
-      dash.rotation.x = -Math.PI/2;
-      dash.position.set(0, 0.02, z);
-      scene.add(dash);
+    // Road center lines
+    for(let z=-80;z<80;z+=8){
+      const d=new THREE.Mesh(new THREE.PlaneGeometry(0.2,4),
+        new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.6}));
+      d.rotation.x=-Math.PI/2; d.position.set(0,0.02,z); scene.add(d);
     }
-    // Yellow lines
-    [-3.5, 3.5].forEach(x=>{
-      const yl = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.12, 160),
-        new THREE.MeshStandardMaterial({color:0xddbb22, emissive:0xddbb22, emissiveIntensity:0.3})
-      );
-      yl.rotation.x = -Math.PI/2;
-      yl.position.set(x, 0.02, 0);
-      scene.add(yl);
+    // Yellow lane lines
+    [-4,4].forEach(x=>{
+      const yl=new THREE.Mesh(new THREE.PlaneGeometry(0.14,180),
+        new THREE.MeshStandardMaterial({color:0xddaa00,emissive:0xddaa00,emissiveIntensity:0.3}));
+      yl.rotation.x=-Math.PI/2; yl.position.set(x,0.015,0); scene.add(yl);
     });
 
-    // ── STORE BUILDING ──
-    // Main body — white/cream luxury
-    const bMat = new THREE.MeshStandardMaterial({color:0xf8f4ec, metalness:0.05, roughness:0.6});
-    const building = new THREE.Mesh(new THREE.BoxGeometry(26, 16, 10), bMat);
-    building.position.set(0, 8, -18);
-    building.castShadow = true;
-    building.receiveShadow = true;
-    scene.add(building);
+    // Pavement
+    [-13,13].forEach(side=>{
+      const pw=new THREE.Mesh(new THREE.PlaneGeometry(10,180),
+        new THREE.MeshStandardMaterial({color:0x222222,roughness:0.98}));
+      pw.rotation.x=-Math.PI/2; pw.position.set(side>0?18:-18,0.005,0); scene.add(pw);
+    });
 
-    // Building top cornice — gold
-    const cornMat = new THREE.MeshStandardMaterial({color:0xd4a843, metalness:0.85, roughness:0.1, emissive:0xd4a843, emissiveIntensity:0.05});
-    const cornice = new THREE.Mesh(new THREE.BoxGeometry(26.6, 0.6, 10.6), cornMat);
-    cornice.position.set(0, 16.3, -18);
-    scene.add(cornice);
+    // ── LUXURY STORE EXTERIOR ──
+    const cream=new THREE.MeshStandardMaterial({color:0xf5f0e6,metalness:0.04,roughness:0.55,envMapIntensity:0.3});
+    const gold=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.05,emissive:0xd4a843,emissiveIntensity:0.08,envMapIntensity:1.0});
 
-    // Rooftop parapet
-    const parapet = new THREE.Mesh(new THREE.BoxGeometry(26.6, 1.2, 0.4), bMat);
-    parapet.position.set(0, 17.0, -13);
-    scene.add(parapet);
+    // Main building
+    const bldg=new THREE.Mesh(new THREE.BoxGeometry(28,18,12),cream);
+    bldg.position.set(0,9,-22); bldg.castShadow=true; bldg.receiveShadow=true; scene.add(bldg);
 
-    // Gold pillars — 6 pillars
-    [-10, -5, 0, 5, 10].forEach(x=>{
-      const pillar = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.22, 0.25, 10, 16),
-        new THREE.MeshStandardMaterial({color:0xf0edd8, metalness:0.1, roughness:0.5})
-      );
-      pillar.position.set(x, 5, -13);
-      pillar.castShadow = true;
-      scene.add(pillar);
+    // Gold top cornice
+    const cornice=new THREE.Mesh(new THREE.BoxGeometry(28.8,0.7,12.8),gold);
+    cornice.position.set(0,18.35,-22); scene.add(cornice);
+
+    // Second floor band
+    const band=new THREE.Mesh(new THREE.BoxGeometry(28.8,0.25,12.4),gold);
+    band.position.set(0,10.1,-22); scene.add(band);
+
+    // 6 classical pillars
+    [-11,-5.5,0,5.5,11].forEach((x,i)=>{
+      if(i===2) return; // skip center for door
+      const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.32,11,18),
+        new THREE.MeshStandardMaterial({color:0xfaf6ee,metalness:0.05,roughness:0.5}));
+      pillar.position.set(x,5.5,-16.2); pillar.castShadow=true; scene.add(pillar);
       // Capital
-      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.22, 0.3, 16), cornMat);
-      cap.position.set(x, 10.15, -13);
-      scene.add(cap);
+      const cap=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.4,0.7),gold);
+      cap.position.set(x,11.2,-16.2); scene.add(cap);
       // Base
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.25, 16), cornMat);
-      base.position.set(x, 0.12, -13);
-      scene.add(base);
+      const base=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,0.3,16),gold);
+      base.position.set(x,0.15,-16.2); scene.add(base);
     });
 
-    // ── ENTRANCE ──
-    // Entrance arch frame
-    const archMat = new THREE.MeshStandardMaterial({color:0xd4a843, metalness:0.9, roughness:0.05});
-    // Left/right arch pillars
-    [-3.8, 3.8].forEach(x=>{
-      const ap = new THREE.Mesh(new THREE.BoxGeometry(0.5, 7.5, 0.5), archMat);
-      ap.position.set(x, 3.75, -13);
-      scene.add(ap);
+    // Pediment (triangular top)
+    const pedGeo=new THREE.BufferGeometry();
+    const pv=new Float32Array([-14.5,18.4,-16, 14.5,18.4,-16, 0,22,-16]);
+    pedGeo.setAttribute('position',new THREE.BufferAttribute(pv,3));
+    pedGeo.setIndex([0,1,2]); pedGeo.computeVertexNormals();
+    const ped=new THREE.Mesh(pedGeo,cream); scene.add(ped);
+    // Pediment border
+    [[[-14.5,18.4],[0,22]],[[0,22],[14.5,18.4]],[[-14.5,18.4],[14.5,18.4]]].forEach(([[x1,y1],[x2,y2]])=>{
+      const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy);
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(len,0.2,0.2),gold);
+      bar.position.set((x1+x2)/2,(y1+y2)/2,-15.9);
+      bar.rotation.z=Math.atan2(dy,dx); scene.add(bar);
+    });
+
+    // ── ENTRANCE ARCH ──
+    const archMat=gold;
+    // Left/right pillar
+    [-4.2,4.2].forEach(x=>{
+      const ap=new THREE.Mesh(new THREE.BoxGeometry(0.55,9,0.55),archMat);
+      ap.position.set(x,4.5,-16.1); scene.add(ap);
     });
     // Arch top beam
-    const archTop = new THREE.Mesh(new THREE.BoxGeometry(8.1, 0.45, 0.5), archMat);
-    archTop.position.set(0, 7.7, -13);
-    scene.add(archTop);
+    const archBeam=new THREE.Mesh(new THREE.BoxGeometry(9.0,0.5,0.55),archMat);
+    archBeam.position.set(0,9.25,-16.1); scene.add(archBeam);
+    // Arch semicircle
+    for(let a=0;a<=180;a+=10){
+      const rad=a*Math.PI/180;
+      const sm=new THREE.Mesh(new THREE.BoxGeometry(0.45,0.45,0.5),archMat);
+      sm.position.set(Math.cos(rad)*4.2,9.3+Math.sin(rad)*2.2,-16.1); scene.add(sm);
+    }
 
-    // Glass doors — 2 panels
-    const doorMat = new THREE.MeshStandardMaterial({
-      color:0x99ccee, metalness:0.0, roughness:0.0,
-      transparent:true, opacity:0.22
+    // Glass doors
+    const glassDoorMat=new THREE.MeshPhysicalMaterial({
+      color:0xaaccee, metalness:0, roughness:0,
+      transmission:0.88, transparent:true, opacity:0.15,
+      envMapIntensity:0.5
     });
-    [-1.5, 1.5].forEach(x=>{
-      const door = new THREE.Mesh(new THREE.BoxGeometry(3.2, 7.0, 0.08), doorMat);
-      door.position.set(x, 3.5, -12.96);
-      scene.add(door);
-      // Door frame
-      const df = new THREE.Mesh(new THREE.BoxGeometry(3.28, 7.1, 0.12), archMat);
-      df.position.set(x, 3.5, -13.05);
-      scene.add(df);
+    [-1.6,1.6].forEach(x=>{
+      const door=new THREE.Mesh(new THREE.BoxGeometry(3.0,8.5,0.07),glassDoorMat);
+      door.position.set(x,4.25,-16.0); scene.add(door);
+      // Gold door frame
+      const df=new THREE.Mesh(new THREE.BoxGeometry(3.1,8.6,0.12),archMat);
+      df.position.set(x,4.25,-16.12); scene.add(df);
     });
-    // Door handles
-    [[-1.1, 3.4], [1.1, 3.4]].forEach(([x,y])=>{
-      const h = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.55, 8), archMat);
-      h.rotation.z = Math.PI/2;
-      h.position.set(x, y, -12.88);
-      scene.add(h);
+    // Handle
+    [-1.15,1.15].forEach(x=>{
+      const h=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.6,8),
+        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:1,roughness:0}));
+      h.rotation.z=Math.PI/2; h.position.set(x,4.0,-15.88); scene.add(h);
     });
 
     // ── SIGNBOARD ──
-    const signGrp = new THREE.Group();
-
-    // Board bg — dark premium wood
-    const boardBg = new THREE.Mesh(
-      new THREE.BoxGeometry(11, 3.2, 0.2),
-      new THREE.MeshStandardMaterial({color:0x100c06, metalness:0.15, roughness:0.6})
-    );
+    const signGrp=new THREE.Group();
+    // Board background
+    const boardBg=new THREE.Mesh(new THREE.BoxGeometry(12.5,3.5,0.22),
+      new THREE.MeshStandardMaterial({color:0x0d0a05,metalness:0.2,roughness:0.5}));
     signGrp.add(boardBg);
-
-    // Gold outer frame
-    const fMat = new THREE.MeshStandardMaterial({color:0xd4a843, metalness:0.95, roughness:0.05, emissive:0xd4a843, emissiveIntensity:0.35});
-    // Top/bottom bars
-    [[0, 1.65, true],[0, -1.65, true],[5.6, 0, false],[-5.6, 0, false]].forEach(([x,y,h])=>{
-      const bar = new THREE.Mesh(
-        new THREE.BoxGeometry(h ? 11.4 : 0.18, h ? 0.18 : 3.56, 0.26),
-        fMat
-      );
-      bar.position.set(x, y, 0);
-      signGrp.add(bar);
+    // Gold frame
+    const fm=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.04,emissive:0xd4a843,emissiveIntensity:0.4,envMapIntensity:1.0});
+    [[0,1.85,true],[0,-1.85,true],[6.35,0,false],[-6.35,0,false]].forEach(([x,y,h])=>{
+      const b=new THREE.Mesh(new THREE.BoxGeometry(h?13.0:0.18,h?0.18:3.86,0.28),fm);
+      b.position.set(x,y,0); signGrp.add(b);
     });
-
-    // JF Monogram circle
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.1, 12, 40), fMat);
-    ring.position.set(0, 0.45, 0.14);
-    signGrp.add(ring);
-    const innerCirc = new THREE.Mesh(
-      new THREE.CircleGeometry(0.6, 40),
-      new THREE.MeshStandardMaterial({color:0xd4a843, emissive:0xd4a843, emissiveIntensity:0.25})
-    );
-    innerCirc.position.set(0, 0.45, 0.15);
-    signGrp.add(innerCirc);
-
-    // Divider line
-    const div = new THREE.Mesh(new THREE.BoxGeometry(8, 0.05, 0.12), fMat);
-    div.position.set(0, -0.3, 0.12);
-    signGrp.add(div);
-
+    // JF ring monogram
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.75,0.1,14,48),fm);
+    ring.position.set(0,0.5,0.14); signGrp.add(ring);
+    const innerC=new THREE.Mesh(new THREE.CircleGeometry(0.62,48),
+      new THREE.MeshStandardMaterial({color:0xd4a843,emissive:0xd4a843,emissiveIntensity:0.3}));
+    innerC.position.set(0,0.5,0.15); signGrp.add(innerC);
+    // Divider
+    const div=new THREE.Mesh(new THREE.BoxGeometry(9,0.06,0.12),fm);
+    div.position.set(0,-0.32,0.13); signGrp.add(div);
     // Corner diamonds
-    [[5.0, 1.4],[5.0, -1.4],[-5.0, 1.4],[-5.0, -1.4]].forEach(([x,y])=>{
-      const d = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.18), fMat);
-      d.rotation.z = Math.PI/4;
-      d.position.set(x, y, 0.14);
-      signGrp.add(d);
+    [[5.8,1.6],[5.8,-1.6],[-5.8,1.6],[-5.8,-1.6]].forEach(([x,y])=>{
+      const d=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.25,0.18),fm);
+      d.rotation.z=Math.PI/4; d.position.set(x,y,0.14); signGrp.add(d);
     });
-
-    signGrp.position.set(0, 12.2, -12.8);
+    signGrp.position.set(0,13.5,-15.7);
     scene.add(signGrp);
 
     // Sign spotlights
-    const signLights = [];
-    [[-4, 16, -8],[4, 16, -8]].forEach(([x,y,z])=>{
-      const sl = new THREE.SpotLight(0xfff5dd, 0, 14, Math.PI/6, 0.35);
-      sl.position.set(x, y, z);
-      sl.target = signGrp;
+    const signLights=[];
+    [[-5,18,-10],[5,18,-10]].forEach(([x,y,z])=>{
+      const sl=new THREE.SpotLight(0xfff8dd,0,20,Math.PI/6,0.35);
+      sl.position.set(x,y,z); sl.target=signGrp;
       scene.add(sl); scene.add(sl.target);
       signLights.push(sl);
     });
 
-    // ── STREET LAMPS ──
-    [-8, 8].forEach(side=>{
-      const pole = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.13, 9, 10),
-        new THREE.MeshStandardMaterial({color:0x2a2a2a, metalness:0.7})
-      );
-      pole.position.set(side, 4.5, 4);
-      scene.add(pole);
-      const arm = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, 2.4, 8),
-        new THREE.MeshStandardMaterial({color:0x2a2a2a, metalness:0.7})
-      );
-      arm.rotation.z = side > 0 ? -Math.PI/5 : Math.PI/5;
-      arm.position.set(side + (side>0?0.8:-0.8), 9.4, 4);
-      scene.add(arm);
-      const lBulb = new THREE.Mesh(
-        new THREE.SphereGeometry(0.3, 12, 12),
-        new THREE.MeshStandardMaterial({color:0xfffce0, emissive:0xfffce0, emissiveIntensity:1.5})
-      );
-      lBulb.position.set(side+(side>0?1.6:-1.6), 9.3, 4);
-      scene.add(lBulb);
-      const lp = new THREE.PointLight(0xfff8cc, 1.8, 18);
-      lp.position.set(side+(side>0?1.6:-1.6), 9.0, 4);
-      scene.add(lp);
+    // ── STORE INTERIOR (visible through glass) ──
+    // Marble floor inside
+    const marbleMat=new THREE.MeshStandardMaterial({color:0xf0ebe0,metalness:0.15,roughness:0.3,envMapIntensity:0.6});
+    const marbleFloor=new THREE.Mesh(new THREE.PlaneGeometry(26,14),marbleMat);
+    marbleFloor.rotation.x=-Math.PI/2; marbleFloor.position.set(0,0.02,-24); scene.add(marbleFloor);
+    // Marble tiles pattern
+    for(let i=-6;i<=6;i++) for(let j=-4;j<=4;j++){
+      if((i+j)%2!==0) continue;
+      const tile=new THREE.Mesh(new THREE.PlaneGeometry(1.9,1.9),
+        new THREE.MeshStandardMaterial({color:0xe8e2d4,metalness:0.12,roughness:0.35}));
+      tile.rotation.x=-Math.PI/2; tile.position.set(i*2,0.03,j*2-24); scene.add(tile);
+    }
+    // Interior walls
+    const intWallMat=new THREE.MeshStandardMaterial({color:0xfaf7f0,metalness:0,roughness:0.8});
+    const backWall=new THREE.Mesh(new THREE.PlaneGeometry(28,18),intWallMat);
+    backWall.position.set(0,9,-31); scene.add(backWall);
+
+    // Interior chandelier
+    const chandGrp=new THREE.Group(); chandGrp.position.set(0,15,-22);
+    const chandBase=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.18,24),
+      new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.1}));
+    chandGrp.add(chandBase);
+    for(let i=0;i<10;i++){
+      const a=(i/10)*Math.PI*2;
+      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,1.6,8),
+        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9}));
+      arm.rotation.z=Math.PI/3.5*Math.sign(Math.cos(a));
+      arm.position.set(Math.cos(a)*0.9,-0.4,Math.sin(a)*0.9); chandGrp.add(arm);
+      const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),
+        new THREE.MeshStandardMaterial({color:0xfffce0,emissive:0xfffce0,emissiveIntensity:1.5}));
+      bulb.position.set(Math.cos(a)*1.4,-1.0,Math.sin(a)*1.4); chandGrp.add(bulb);
+    }
+    scene.add(chandGrp);
+    const chandLight=new THREE.PointLight(0xfff5e0,4,25);
+    chandLight.position.set(0,14,-22); scene.add(chandLight);
+
+    // Interior display counters
+    [-6,0,6].forEach(x=>{
+      const counter=new THREE.Mesh(new THREE.BoxGeometry(3.5,1.05,1.2),
+        new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.2,roughness:0.4}));
+      counter.position.set(x,0.52,-22); scene.add(counter);
+      // Glass top
+      const glTop=new THREE.Mesh(new THREE.BoxGeometry(3.6,0.06,1.25),
+        new THREE.MeshPhysicalMaterial({color:0x88aacc,transmission:0.7,transparent:true,opacity:0.3,roughness:0,metalness:0}));
+      glTop.position.set(x,1.08,-22); scene.add(glTop);
+      // Gold trim
+      const trim=new THREE.Mesh(new THREE.BoxGeometry(3.62,0.1,1.27),
+        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.05}));
+      trim.position.set(x,1.02,-22); scene.add(trim);
     });
 
-    // ── SPORTS CAR ──
-    // Silver/white luxury sedan — clearly visible
-    const carGrp = new THREE.Group();
-
-    const bodyMat = new THREE.MeshStandardMaterial({color:0xd8d8d8, metalness:0.9, roughness:0.08}); // bright silver
-    const darkMat = new THREE.MeshStandardMaterial({color:0x222222, metalness:0.5, roughness:0.4});
-    const goldM = new THREE.MeshStandardMaterial({color:0xd4a843, metalness:0.95, roughness:0.05});
-    const glassM = new THREE.MeshStandardMaterial({color:0x334466, metalness:0.0, roughness:0, transparent:true, opacity:0.55});
-    const tireM = new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.95});
-    const rimM = new THREE.MeshStandardMaterial({color:0xdddddd, metalness:0.98, roughness:0.04});
-
-    // Main body
-    const bodyLow = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.75, 2.1), bodyMat);
-    bodyLow.position.y = 0.65;
-    bodyLow.castShadow = true;
-    carGrp.add(bodyLow);
-
-    // Cabin upper
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.7, 1.9), bodyMat);
-    cabin.position.set(-0.15, 1.3, 0);
-    cabin.castShadow = true;
-    carGrp.add(cabin);
-
-    // Hood slant
-    const hoodMesh = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 2.0), bodyMat);
-    hoodMesh.rotation.z = -0.28;
-    hoodMesh.position.set(-1.82, 1.04, 0);
-    carGrp.add(hoodMesh);
-
-    // Rear trunk
-    const trunk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 2.0), bodyMat);
-    trunk.rotation.z = 0.2;
-    trunk.position.set(1.52, 1.02, 0);
-    carGrp.add(trunk);
-
-    // Spoiler
-    const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 2.0), darkMat);
-    spoiler.position.set(1.85, 1.2, 0);
-    carGrp.add(spoiler);
-
-    // Gold accent lines
-    [0.98, -0.98].forEach(z=>{
-      const acc = new THREE.Mesh(new THREE.BoxGeometry(4.62, 0.07, 0.07), goldM);
-      acc.position.set(0, 1.02, z);
-      carGrp.add(acc);
-    });
-
-    // Windshield
-    const wsMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.85), glassM);
-    wsMesh.rotation.y = Math.PI/2;
-    wsMesh.rotation.z = 0.35;
-    wsMesh.position.set(-1.05, 1.34, 0);
-    carGrp.add(wsMesh);
-
-    // Rear window
-    const rwMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.7), glassM);
-    rwMesh.rotation.y = Math.PI/2;
-    rwMesh.rotation.z = -0.32;
-    rwMesh.position.set(0.95, 1.28, 0);
-    carGrp.add(rwMesh);
-
-    // Side windows
-    [-0.2, 0.55].forEach(x=>{
-      [0.96, -0.96].forEach(z=>{
-        const sw = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.5), glassM);
-        sw.rotation.x = Math.PI/2;
-        sw.position.set(x, 1.42, z > 0 ? 0.97 : -0.97);
-        carGrp.add(sw);
+    // Wall shelves with fabric rolls
+    const shelfMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.1,roughness:0.6});
+    [-12,12].forEach(wallX=>{
+      [4,6.5,9].forEach(y=>{
+        const shelf=new THREE.Mesh(new THREE.BoxGeometry(0.4,3.5,0.5),shelfMat);
+        shelf.position.set(wallX>0?wallX-0.5:wallX+0.5,y,-22); scene.add(shelf);
+        // Fabric rolls
+        const fabColors=[0xc0392b,0x2980b9,0x27ae60,0x8e44ad,0xf39c12,0x1abc9c,0xe74c3c,0x3498db];
+        for(let r=0;r<5;r++){
+          const roll=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.55,16),
+            new THREE.MeshStandardMaterial({color:fabColors[(Math.abs(wallX)+r+y)%8],roughness:0.9}));
+          roll.rotation.z=Math.PI/2; roll.position.set(wallX>0?wallX-1.2:wallX+1.2,y,r*0.6-23.2); scene.add(roll);
+        }
       });
     });
 
-    // Front bumper/grill
-    const bumper = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 2.0), darkMat);
-    bumper.position.set(-2.37, 0.5, 0);
-    carGrp.add(bumper);
+    // Interior JAMEEL FABRICS text sign on back wall
+    const backSignGrp=new THREE.Group();
+    const bs=new THREE.Mesh(new THREE.BoxGeometry(14,2.5,0.12),
+      new THREE.MeshStandardMaterial({color:0x0d0a05,metalness:0.2,roughness:0.5}));
+    backSignGrp.add(bs);
+    const bsFrame=new THREE.Mesh(new THREE.BoxGeometry(14.3,2.8,0.08),
+      new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.05,emissive:0xd4a843,emissiveIntensity:0.2}));
+    backSignGrp.add(bsFrame);
+    backSignGrp.position.set(0,12,-30.8); scene.add(backSignGrp);
 
-    // Grill mesh look
-    const grill = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 1.4), new THREE.MeshStandardMaterial({color:0x222222,metalness:0.5}));
-    grill.position.set(-2.38, 0.5, 0);
-    carGrp.add(grill);
-
-    // Headlights — bright LED style
-    const hlMat = new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xffffff, emissiveIntensity:2.0});
-    [0.72, -0.72].forEach(z=>{
-      const hl = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.22, 0.4), hlMat);
-      hl.position.set(-2.38, 0.7, z);
-      carGrp.add(hl);
-      const drl = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.55), hlMat);
-      drl.position.set(-2.38, 0.9, z);
-      carGrp.add(drl);
+    // ── STREET LAMPS ──
+    [-9,9].forEach(side=>{
+      const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.13,10,10),
+        new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.7}));
+      pole.position.set(side,5,5); scene.add(pole);
+      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,2.5,8),
+        new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.7}));
+      arm.rotation.z=side>0?-Math.PI/5.5:Math.PI/5.5;
+      arm.position.set(side+(side>0?0.9:-0.9),10.2,5); scene.add(arm);
+      const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),
+        new THREE.MeshStandardMaterial({color:0xfffce0,emissive:0xfffce0,emissiveIntensity:2.0}));
+      bulb.position.set(side+(side>0?1.8:-1.8),10.1,5); scene.add(bulb);
+      const lpt=new THREE.PointLight(0xfff8cc,2.2,22);
+      lpt.position.set(side+(side>0?1.8:-1.8),9.8,5); scene.add(lpt);
     });
-
-    // Tail lights — red
-    const tlMat = new THREE.MeshStandardMaterial({color:0xff1111, emissive:0xff1111, emissiveIntensity:1.2});
-    [0.72, -0.72].forEach(z=>{
-      const tl = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.2, 0.38), tlMat);
-      tl.position.set(2.37, 0.68, z);
-      carGrp.add(tl);
-    });
-
-    // Rear bumper
-    const rBump = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.35, 1.8), darkMat);
-    rBump.position.set(2.38, 0.48, 0);
-    carGrp.add(rBump);
-
-    // Exhaust
-    [0.55, -0.55].forEach(z=>{
-      const ex = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.22, 10),
-        new THREE.MeshStandardMaterial({color:0xbbbbbb, metalness:0.9}));
-      ex.rotation.z = Math.PI/2;
-      ex.position.set(2.46, 0.3, z);
-      carGrp.add(ex);
-    });
-
-    // Wheels — 4
-    [[-1.55, 1.1],[-1.55,-1.1],[1.55,1.1],[1.55,-1.1]].forEach(([x,z])=>{
-      const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.32, 24), tireM);
-      tire.rotation.x = Math.PI/2;
-      tire.position.set(x, 0.42, z);
-      tire.castShadow = true;
-      carGrp.add(tire);
-
-      const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.34, 10), rimM);
-      rim.rotation.x = Math.PI/2;
-      rim.position.set(x, 0.42, z+(z>0?0.01:-0.01));
-      carGrp.add(rim);
-
-      // Spoke details
-      for(let s=0;s<5;s++){
-        const angle = (s/5)*Math.PI*2;
-        const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.55, 0.06), rimM);
-        spoke.rotation.x = Math.PI/2;
-        spoke.rotation.y = angle;
-        spoke.position.set(x, 0.42, z+(z>0?0.02:-0.02));
-        carGrp.add(spoke);
-      }
-
-      // Arch
-      const arch = new THREE.Mesh(
-        new THREE.TorusGeometry(0.46, 0.07, 8, 24, Math.PI),
-        bodyMat
-      );
-      arch.rotation.x = Math.PI/2;
-      arch.rotation.z = Math.PI;
-      arch.position.set(x, 0.46, z);
-      carGrp.add(arch);
-    });
-
-    // Car headlight beams (actual lights)
-    const carHL1 = new THREE.SpotLight(0xfff8dd, 0, 55, Math.PI/10, 0.25);
-    carHL1.position.set(-2.4, 0.8, 0.72);
-    carHL1.target.position.set(-40, 0, 0.72);
-    carGrp.add(carHL1); carGrp.add(carHL1.target);
-
-    const carHL2 = new THREE.SpotLight(0xfff8dd, 0, 55, Math.PI/10, 0.25);
-    carHL2.position.set(-2.4, 0.8, -0.72);
-    carHL2.target.position.set(-40, 0, -0.72);
-    carGrp.add(carHL2); carGrp.add(carHL2.target);
-
-    carGrp.position.set(0, 0, 42);
-    carGrp.rotation.y = Math.PI/2; // facing store (negative Z direction)
-    scene.add(carGrp);
-
-    // Car fill light — so car body is clearly visible
-    const carFillLight = new THREE.PointLight(0xfff0cc, 2.5, 12);
-    carFillLight.position.set(2, 4, 42);
-    scene.add(carFillLight);
 
     // ── STARS ──
-    const starGeo = new THREE.BufferGeometry();
-    const sPos = new Float32Array(800*3);
-    for(let i=0;i<800*3;i+=3){
-      sPos[i]=(Math.random()-0.5)*300;
-      sPos[i+1]=20+Math.random()*80;
-      sPos[i+2]=(Math.random()-0.5)*300;
-    }
-    starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
-    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.2, transparent:true, opacity:0.8})));
+    const sGeo=new THREE.BufferGeometry();
+    const sPos=new Float32Array(1000*3);
+    for(let i=0;i<1000*3;i+=3){sPos[i]=(Math.random()-0.5)*400;sPos[i+1]=20+Math.random()*100;sPos[i+2]=(Math.random()-0.5)*400;}
+    sGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
+    scene.add(new THREE.Points(sGeo,new THREE.PointsMaterial({color:0xffffff,size:0.18,transparent:true,opacity:0.85})));
 
-    // ── AMBIENT LIGHTS ──
-    scene.add(new THREE.AmbientLight(0x2a3a5a, 1.2));
-    const moon = new THREE.DirectionalLight(0x4a6a9a, 0.6);
-    moon.position.set(-15, 25, 10);
-    scene.add(moon);
+    // ── LIGHTS ──
+    scene.add(new THREE.AmbientLight(0x253050,0.9));
+    const moonDir=new THREE.DirectionalLight(0x4466aa,0.5);
+    moonDir.position.set(-20,30,15);
+    moonDir.castShadow=true;
+    scene.add(moonDir);
 
-    // Store interior warm glow through doors
-    const intGlow = new THREE.PointLight(0xfff5e0, 3.5, 22);
-    intGlow.position.set(0, 4, -14);
-    scene.add(intGlow);
+    // Store interior warm light
+    const storeWarm=new THREE.PointLight(0xfff5e0,3.0,25);
+    storeWarm.position.set(0,5,-20); scene.add(storeWarm);
+
+    // ── CAR (GLTF + Geometric Fallback) ──
+    const carGrp=new THREE.Group();
+    carGrp.position.set(0,0,42);
+    carGrp.rotation.y=Math.PI/2;
+    scene.add(carGrp);
+
+    // Geometric car (visible immediately, replaced by GLTF if loaded)
+    const buildGeoCar=(grp)=>{
+      const bMat=new THREE.MeshPhysicalMaterial({
+        color:0xcccccc, metalness:0.9, roughness:0.1,
+        clearcoat:1.0, clearcoatRoughness:0.05, envMapIntensity:1.2
+      });
+      const dkMat=new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.5,roughness:0.4});
+      const glMat=new THREE.MeshPhysicalMaterial({color:0x334455,roughness:0,metalness:0,transmission:0.6,transparent:true,opacity:0.5});
+      const auMat=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.05,envMapIntensity:1.0});
+      const tiMat=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.95});
+      const riMat=new THREE.MeshPhysicalMaterial({color:0xdddddd,metalness:0.98,roughness:0.03,clearcoat:0.8});
+
+      // Body
+      const body=new THREE.Mesh(new THREE.BoxGeometry(4.8,0.72,2.1),bMat);
+      body.position.y=0.62; body.castShadow=true; grp.add(body);
+      // Cabin
+      const cabin=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.68,1.95),bMat);
+      cabin.position.set(-0.1,1.28,0); grp.add(cabin);
+      // Hood slope
+      const hood=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.1,2.05),bMat);
+      hood.rotation.z=-0.25; hood.position.set(-1.9,1.0,0); grp.add(hood);
+      // Trunk
+      const trunk=new THREE.Mesh(new THREE.BoxGeometry(0.85,0.1,2.0),bMat);
+      trunk.rotation.z=0.18; trunk.position.set(1.55,0.98,0); grp.add(trunk);
+      // Spoiler
+      const spoiler=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.08,2.0),dkMat);
+      spoiler.position.set(1.9,1.18,0); grp.add(spoiler);
+      // Gold stripes
+      [0.98,-0.98].forEach(z=>{
+        const s=new THREE.Mesh(new THREE.BoxGeometry(4.82,0.07,0.06),auMat);
+        s.position.set(0,0.99,z); grp.add(s);
+      });
+      // Windshield
+      const ws=new THREE.Mesh(new THREE.PlaneGeometry(2.3,0.9),glMat);
+      ws.rotation.y=Math.PI/2; ws.rotation.z=0.32; ws.position.set(-1.1,1.32,0); grp.add(ws);
+      // Rear window
+      const rw=new THREE.Mesh(new THREE.PlaneGeometry(1.9,0.72),glMat);
+      rw.rotation.y=Math.PI/2; rw.rotation.z=-0.3; rw.position.set(0.95,1.24,0); grp.add(rw);
+      // Side windows
+      [-0.2,0.52].forEach(x=>{
+        [0.97,-0.97].forEach(z=>{
+          const sw=new THREE.Mesh(new THREE.PlaneGeometry(0.72,0.52),glMat);
+          sw.rotation.x=Math.PI/2; sw.position.set(x,1.42,z>0?0.98:-0.98); grp.add(sw);
+        });
+      });
+      // Front bumper/grill
+      const bumper=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.38,1.95),dkMat);
+      bumper.position.set(-2.44,0.5,0); grp.add(bumper);
+      const grill=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.26,1.3),
+        new THREE.MeshStandardMaterial({color:0x111111,metalness:0.4}));
+      grill.position.set(-2.45,0.52,0); grp.add(grill);
+      // Headlights
+      const hlMat=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:2.5});
+      [0.7,-0.7].forEach(z=>{
+        const hl=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.22,0.42),hlMat);
+        hl.position.set(-2.45,0.72,z); grp.add(hl);
+        const drl=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.07,0.56),hlMat);
+        drl.position.set(-2.45,0.92,z); grp.add(drl);
+      });
+      // Tail lights
+      const tlMat=new THREE.MeshStandardMaterial({color:0xff1111,emissive:0xff1111,emissiveIntensity:1.5});
+      [0.7,-0.7].forEach(z=>{
+        const tl=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.2,0.4),tlMat);
+        tl.position.set(2.44,0.7,z); grp.add(tl);
+      });
+      // Rear bumper
+      grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,1.8),dkMat),{position:{set:function(x,y,z){this.x=x;this.y=y;this.z=z;return this;}}}));
+      const rb=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,1.8),dkMat);
+      rb.position.set(2.44,0.48,0); grp.add(rb);
+      // Exhaust
+      [0.55,-0.55].forEach(z=>{
+        const ex=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.22,10),
+          new THREE.MeshStandardMaterial({color:0xbbbbbb,metalness:0.9,roughness:0.1}));
+        ex.rotation.z=Math.PI/2; ex.position.set(2.5,0.3,z); grp.add(ex);
+      });
+      // Wheels
+      [[-1.6,1.08],[-1.6,-1.08],[1.6,1.08],[1.6,-1.08]].forEach(([x,z])=>{
+        const tire=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.3,24),tiMat);
+        tire.rotation.x=Math.PI/2; tire.position.set(x,0.42,z); tire.castShadow=true; grp.add(tire);
+        const rim=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.32,10),riMat);
+        rim.rotation.x=Math.PI/2; rim.position.set(x,0.42,z+(z>0?0.01:-0.01)); grp.add(rim);
+        for(let s=0;s<5;s++){
+          const ang=(s/5)*Math.PI*2;
+          const spk=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.55,0.06),riMat);
+          spk.rotation.x=Math.PI/2; spk.rotation.y=ang;
+          spk.position.set(x,0.42,z+(z>0?0.02:-0.02)); grp.add(spk);
+        }
+        const arch=new THREE.Mesh(new THREE.TorusGeometry(0.46,0.07,8,24,Math.PI),bMat);
+        arch.rotation.x=Math.PI/2; arch.rotation.z=Math.PI;
+        arch.position.set(x,0.46,z); grp.add(arch);
+      });
+    };
+    buildGeoCar(carGrp);
+
+    // Try GLTF car model
+    try{
+      const loader=new GLTFLoader();
+      loader.load(
+        'https://threejs.org/examples/models/gltf/ferrari.glb',
+        (gltf)=>{
+          // Remove geometric car
+          while(carGrp.children.length>0) carGrp.remove(carGrp.children[0]);
+          const carModel=gltf.scene;
+          carModel.scale.set(1.1,1.1,1.1);
+          carModel.position.set(0,0,0);
+          // Apply environment to all meshes
+          carModel.traverse(node=>{
+            if(node.isMesh){
+              node.castShadow=true;
+              if(node.material){
+                node.material.envMap=envTexture;
+                node.material.envMapIntensity=1.2;
+                node.material.needsUpdate=true;
+              }
+            }
+          });
+          carGrp.add(carModel);
+        },
+        undefined,
+        (err)=>{ console.log('GLTF load failed, using geo car'); }
+      );
+    }catch(e){ console.log('GLTF not available'); }
+
+    // Car headlights
+    const cHL1=new THREE.SpotLight(0xfff8dd,9,60,Math.PI/11,0.28);
+    cHL1.position.set(-2.5,0.8,0.7); cHL1.target.position.set(-40,0,0.7);
+    carGrp.add(cHL1); carGrp.add(cHL1.target);
+    const cHL2=new THREE.SpotLight(0xfff8dd,9,60,Math.PI/11,0.28);
+    cHL2.position.set(-2.5,0.8,-0.7); cHL2.target.position.set(-40,0,-0.7);
+    carGrp.add(cHL2); carGrp.add(cHL2.target);
+
+    // Car fill light (moves with car)
+    const carFill=new THREE.PointLight(0xfff0cc,3.5,14);
+    carFill.position.set(2,5,42); scene.add(carFill);
 
     // ── ANIMATION ──
-    let t = 0;
-    let animPhase = 0;
-    let carZ = 42;
-    let carBraking = false;
-    let camZ = 38, camY = 4;
-    let signBright = 0;
-    let btnShown = false;
+    let t=0, animPhase=0, carZ=42, braking=false, camZ=42, camY=5, signBright=0, btnShown=false;
+    const lerp=(a,b,t)=>a+(b-a)*t;
 
-    // Tween helper
-    const lerp = (a,b,t) => a + (b-a)*t;
+    const tick=()=>{
+      const raf=requestAnimationFrame(tick);
+      t+=0.016;
 
-    const animate = () => {
-      const id = requestAnimationFrame(animate);
-      t += 0.016;
-
-      // ── Phase 0: Car arrives ──
-      if(animPhase === 0){
-        // Headlights on from start
-        carHL1.intensity = 9; carHL2.intensity = 9;
-
-        if(!carBraking) {
-          carZ -= 0.21;
-          if(carZ < 7) carBraking = true;
-        } else {
-          carZ = lerp(carZ, 5.5, 0.07);
-          if(Math.abs(carZ - 5.5) < 0.05){
-            carZ = 5.5; animPhase = 1;
-            setTimeout(()=>setPhase(1), 50);
-          }
-        }
-        carGrp.position.z = carZ;
-        carFillLight.position.z = carZ;
-
-        // Wheels spin while moving
-        if(!carBraking){
-          carGrp.children.forEach(c=>{
-            if(c.material?.roughness===1) c.rotation.y += 0.22;
-          });
-        }
-
-        // Camera follows at distance
-        camera.position.set(0, camY, camZ);
-        camera.lookAt(0, 3, carZ - 12);
+      if(animPhase===0){
+        cHL1.intensity=10; cHL2.intensity=10;
+        if(!braking){ carZ-=0.2; if(carZ<8) braking=true; }
+        else{ carZ=lerp(carZ,6,0.08); if(Math.abs(carZ-6)<0.06){carZ=6;animPhase=1;setTimeout(()=>setPhase(1),50);} }
+        carGrp.position.z=carZ;
+        carFill.position.z=carZ;
+        camera.position.set(0,camY,camZ);
+        camera.lookAt(0,3,carZ-14);
+        // Wheel spin
+        if(!braking) carGrp.children.forEach(c=>{if(c.material?.roughness>=0.9) c.rotation.y+=0.2;});
       }
 
-      // ── Phase 1: Sign lights up ──
-      if(animPhase === 1){
-        signBright = Math.min(signBright + 0.025, 1);
-        signLights.forEach(l => l.intensity = signBright * 4.5);
-        signGrp.children.forEach(c=>{
-          if(c.material?.emissive) c.material.emissiveIntensity = signBright * 0.5;
-        });
-
-        // Slow camera pull back toward sign
-        camera.position.set(lerp(camera.position.x, 0, 0.05), lerp(camera.position.y, 5, 0.03), lerp(camera.position.z, 22, 0.025));
-        camera.lookAt(0, 10, -13);
-
-        if(signBright >= 1){
-          animPhase = 2;
-          setTimeout(()=>setPhase(2), 50);
-        }
+      if(animPhase===1){
+        signBright=Math.min(signBright+0.02,1);
+        signLights.forEach(l=>l.intensity=signBright*5.5);
+        signGrp.children.forEach(c=>{if(c.material?.emissive) c.material.emissiveIntensity=0.08+signBright*0.5;});
+        camera.position.set(lerp(camera.position.x,0,0.04),lerp(camera.position.y,6,0.03),lerp(camera.position.z,24,0.022));
+        camera.lookAt(0,12,-16);
+        if(signBright>=1){animPhase=2;setTimeout(()=>setPhase(2),50);}
       }
 
-      // ── Phase 2: Zoom toward entrance ──
-      if(animPhase === 2){
-        camZ = lerp(camZ, 3, 0.028);
-        camY = lerp(camY, 2.5, 0.025);
-        camera.position.set(Math.sin(t*0.25)*0.4, camY, camZ);
-        camera.lookAt(0, 3.5, -13);
-
-        if(camZ < 4.5 && !btnShown){
-          btnShown = true;
-          setShowBtn(true);
-          setTimeout(()=>setPhase(3), 50);
-        }
+      if(animPhase===2){
+        camZ=lerp(camZ,2.5,0.025); camY=lerp(camY,3.0,0.022);
+        camera.position.set(Math.sin(t*0.22)*0.5,camY,camZ);
+        camera.lookAt(0,4,-16);
+        if(camZ<4&&!btnShown){btnShown=true;setShowBtn(true);setTimeout(()=>setPhase(3),50);}
       }
 
-      // ── Phase 3: Hold ──
-      if(animPhase >= 3){
-        camera.position.set(Math.sin(t*0.2)*0.5, 2.5, 3.5);
-        camera.lookAt(0, 4, -13);
+      if(animPhase>=3){
+        camera.position.set(Math.sin(t*0.18)*0.6,3.0,2.5);
+        camera.lookAt(0,4.5,-16);
       }
 
-      // Interior glow flicker
-      intGlow.intensity = 2.3 + Math.sin(t*0.8)*0.2;
-
-      renderer.render(scene, camera);
+      chandLight.intensity=3.8+Math.sin(t*0.7)*0.3;
+      storeWarm.intensity=2.8+Math.sin(t*0.5)*0.2;
+      cHL1.intensity=9+Math.sin(t*2.5)*0.5;
+      cHL2.intensity=9+Math.sin(t*2.5+0.4)*0.5;
+      renderer.render(scene,camera);
     };
+    const raf=tick();
 
-    const raf = requestAnimationFrame(animate);
+    setTimeout(()=>setPhase(0),100);
 
-    // Timers
-    const t1 = setTimeout(()=>{ setPhase(0); }, 100);
-
-    // Resize
-    const onResize = ()=>{
-      const w = el.clientWidth, h = el.clientHeight;
-      if(!w||!h) return;
-      camera.aspect = w/h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+    const onResize=()=>{
+      const w=el.clientWidth,h=el.clientHeight;
+      if(!w||!h)return;
+      camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize',onResize);
 
-    return ()=>{
-      window.removeEventListener('resize', onResize);
+    return()=>{
+      window.removeEventListener('resize',onResize);
       cancelAnimationFrame(raf);
-      clearTimeout(t1);
-      try{ el.removeChild(renderer.domElement); renderer.dispose(); }catch(e){}
+      try{el.removeChild(renderer.domElement);renderer.dispose();pmrem.dispose();}catch(e){}
     };
   },[]);
 
-  const brand1 = settings.intro_brand1 || 'JAMEEL';
-  const brand2 = settings.intro_brand2 || 'FABRICS';
-  const subTxt = settings.intro_sub || 'KUNJAH';
-  const taglineTxt = settings.intro_tagline || TAGLINE;
-  const enterTxt = settings.intro_enter_btn || 'Enter the Store';
+  const b1=settings.intro_brand1||'JAMEEL';
+  const b2=settings.intro_brand2||'FABRICS';
+  const sub=settings.intro_sub||'KUNJAH';
+  const tag=settings.intro_tagline||TAGLINE;
+  const btn=settings.intro_enter_btn||'Enter the Store';
 
   return(
-    <div style={{position:'fixed',inset:0,zIndex:99999,background:'#0a0e1a'}}>
+    <div style={{position:'fixed',inset:0,zIndex:99999,background:'#0c1220'}}>
       <div ref={mountRef} style={{width:'100%',height:'100%'}}/>
+      {/* Cinematic bars */}
+      <div style={{position:'absolute',top:0,left:0,right:0,height:'clamp(18px,3.5vw,42px)',background:'#000',zIndex:2}}/>
+      <div style={{position:'absolute',bottom:0,left:0,right:0,height:'clamp(18px,3.5vw,42px)',background:'#000',zIndex:2}}/>
 
-      {/* Cinematic letterbox */}
-      <div style={{position:'absolute',top:0,left:0,right:0,height:'clamp(20px,4vw,44px)',background:'#000',zIndex:2}}/>
-      <div style={{position:'absolute',bottom:0,left:0,right:0,height:'clamp(20px,4vw,44px)',background:'#000',zIndex:2}}/>
-
-      {/* Brand text — appears when sign lights up */}
+      {/* Brand overlay */}
       {phase>=1&&(
-        <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:3,animation:'fadeIn 1s ease both'}}>
-          <div style={{textAlign:'center',padding:'0 20px'}}>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(9px,1.1vw,12px)',letterSpacing:'8px',color:'#d4a843bb',marginBottom:'12px',fontStyle:'italic',animation:'fadeUp 0.8s ease both'}}>
+        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:3}}>
+          <div style={{textAlign:'center',padding:'0 20px',animation:'fadeIn 1s ease both'}}>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(9px,1vw,12px)',letterSpacing:'8px',color:'#d4a843bb',marginBottom:'10px',fontStyle:'italic',animation:'fadeUp 0.8s ease both'}}>
               {settings.intro_line1||'✦ EST. KUNJAH, DISTT GUJRAT ✦'}
             </div>
-            <div style={{animation:'fadeUp 0.9s ease 0.1s both'}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(30px,5.5vw,72px)',fontWeight:'900',color:'#fefcf8',lineHeight:1,letterSpacing:'8px',textShadow:'0 0 50px rgba(212,168,67,0.5),0 2px 4px rgba(0,0,0,0.8)'}}>
-                {brand1}
-              </div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(30px,5.5vw,72px)',fontWeight:'900',color:'#fefcf8',lineHeight:0.95,letterSpacing:'8px',textShadow:'0 0 50px rgba(212,168,67,0.5),0 2px 4px rgba(0,0,0,0.8)'}}>
-                {brand2}
-              </div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(28px,5vw,68px)',fontWeight:'900',color:'#fefcf8',lineHeight:1,letterSpacing:'8px',textShadow:'0 0 60px rgba(212,168,67,0.6),0 2px 8px rgba(0,0,0,0.9)',animation:'fadeUp 0.9s ease 0.1s both'}}>
+              {b1}
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',margin:'14px 0 11px',animation:'fadeUp 0.8s ease 0.3s both'}}>
-              <div style={{height:'1px',background:'linear-gradient(to right,transparent,#d4a843)',width:'55px'}}/>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(28px,5vw,68px)',fontWeight:'900',color:'#fefcf8',lineHeight:0.95,letterSpacing:'8px',textShadow:'0 0 60px rgba(212,168,67,0.6),0 2px 8px rgba(0,0,0,0.9)',animation:'fadeUp 0.9s ease 0.2s both'}}>
+              {b2}
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',margin:'13px 0 10px',animation:'fadeUp 0.8s ease 0.3s both'}}>
+              <div style={{height:'1px',background:'linear-gradient(to right,transparent,#d4a843)',width:'50px'}}/>
               <div style={{width:'5px',height:'5px',background:'#d4a843',transform:'rotate(45deg)',flexShrink:0}}/>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(12px,1.8vw,20px)',letterSpacing:'14px',color:'#d4a843',fontWeight:'400'}}>
-                {subTxt}
-              </div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(11px,1.6vw,18px)',letterSpacing:'14px',color:'#d4a843'}}>{sub}</div>
               <div style={{width:'5px',height:'5px',background:'#d4a843',transform:'rotate(45deg)',flexShrink:0}}/>
-              <div style={{height:'1px',background:'linear-gradient(to left,transparent,#d4a843)',width:'55px'}}/>
+              <div style={{height:'1px',background:'linear-gradient(to left,transparent,#d4a843)',width:'50px'}}/>
             </div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(10px,1.2vw,13px)',color:'#d4a84388',fontStyle:'italic',letterSpacing:'3px',animation:'fadeUp 0.8s ease 0.5s both'}}>
-              {taglineTxt}
-            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(9px,1.1vw,13px)',color:'#d4a84377',fontStyle:'italic',letterSpacing:'3px',animation:'fadeUp 0.8s ease 0.4s both'}}>{tag}</div>
           </div>
         </div>
       )}
@@ -767,21 +726,19 @@ function Showroom3D({onEnter,settings={}}){
       {/* Enter button */}
       {showBtn&&(
         <div style={{position:'absolute',bottom:'11%',left:0,right:0,display:'flex',justifyContent:'center',zIndex:4,animation:'fadeUp 0.6s ease both'}}>
-          <button
-            onClick={()=>{ if(onEnter) onEnter(); }}
+          <button onClick={()=>{if(onEnter)onEnter();}}
             style={{background:'transparent',color:'#d4a843',border:'1px solid #d4a843',padding:'13px 50px',fontSize:'11px',fontWeight:'600',letterSpacing:'4px',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Jost',sans-serif",transition:'all 0.3s',backdropFilter:'blur(6px)'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='#d4a843';e.currentTarget.style.color='#0a0e1a';}}
+            onMouseEnter={e=>{e.currentTarget.style.background='#d4a843';e.currentTarget.style.color='#0c1220';}}
             onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#d4a843';}}>
-            {enterTxt}
+            {btn}
           </button>
         </div>
       )}
 
       {/* Skip */}
       {settings.intro_skip!==false&&(
-        <button
-          onClick={()=>{ if(onEnter) onEnter(); }}
-          style={{position:'absolute',top:'clamp(28px,5vw,52px)',right:'20px',background:'none',border:'1px solid #d4a84333',padding:'5px 15px',color:'#d4a84366',fontSize:'10px',cursor:'pointer',letterSpacing:'2px',zIndex:5,fontFamily:"'Jost',sans-serif",transition:'all 0.2s'}}
+        <button onClick={()=>{if(onEnter)onEnter();}}
+          style={{position:'absolute',top:'clamp(26px,4vw,50px)',right:'20px',background:'none',border:'1px solid #d4a84333',padding:'5px 15px',color:'#d4a84366',fontSize:'10px',cursor:'pointer',letterSpacing:'2px',zIndex:5,fontFamily:"'Jost',sans-serif",transition:'all 0.2s'}}
           onMouseEnter={e=>e.currentTarget.style.color='#d4a843'}
           onMouseLeave={e=>e.currentTarget.style.color='#d4a84366'}>
           SKIP ›
