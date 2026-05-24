@@ -1843,6 +1843,9 @@ function OrdersAdmin(){
 // ── MAIN APP ──────────────────────────────────────────────────
 export default function App(){
   const [show3D,setShow3D]=useState(true);
+  const handleEnter = useCallback(()=>{
+    setShow3D(false);
+  },[]);
   const [page,setPage]=useState("home");
   const [cat,setCat]=useState("All");
   const [search,setSearch]=useState("");
@@ -1918,8 +1921,7 @@ export default function App(){
       <style>{`@media(min-width:769px){.show-mob{display:none!important}}`}</style>
 
       {/* 3D Showroom */}
-      {show3D&&<Showroom3D onEnter={()=>setShow3D(false)} settings={settings}/>}
-
+      {show3D&&<div style={{position:"fixed",inset:0,zIndex:99999}}><Showroom3D onEnter={handleEnter} settings={settings}/></div>}
       {!show3D&&<>
         <AnnouncementBar texts={settings.announcements}/>
 
