@@ -208,8 +208,8 @@ function Showroom3D({onEnter,settings={}}){
     rendererRef.current = renderer;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0e1a);
-    scene.fog = new THREE.FogExp2(0x0a0e1a, 0.012);
+    scene.background = new THREE.Color(0x0d1520);
+    scene.fog = new THREE.FogExp2(0x0d1520, 0.010);
 
     const camera = new THREE.PerspectiveCamera(65, W/H, 0.1, 500);
     camera.position.set(0, 4, 38);
@@ -420,12 +420,12 @@ function Showroom3D({onEnter,settings={}}){
     // Silver/white luxury sedan — clearly visible
     const carGrp = new THREE.Group();
 
-    const bodyMat = new THREE.MeshStandardMaterial({color:0xe8e8e8, metalness:0.85, roughness:0.12}); // Silver
-    const darkMat = new THREE.MeshStandardMaterial({color:0x1a1a1a, metalness:0.6, roughness:0.3});
+    const bodyMat = new THREE.MeshStandardMaterial({color:0xd8d8d8, metalness:0.9, roughness:0.08}); // bright silver
+    const darkMat = new THREE.MeshStandardMaterial({color:0x222222, metalness:0.5, roughness:0.4});
     const goldM = new THREE.MeshStandardMaterial({color:0xd4a843, metalness:0.95, roughness:0.05});
-    const glassM = new THREE.MeshStandardMaterial({color:0x224466, metalness:0.1, roughness:0, transparent:true, opacity:0.5});
-    const tireM = new THREE.MeshStandardMaterial({color:0x111111, roughness:1});
-    const rimM = new THREE.MeshStandardMaterial({color:0xcccccc, metalness:0.95, roughness:0.05});
+    const glassM = new THREE.MeshStandardMaterial({color:0x334466, metalness:0.0, roughness:0, transparent:true, opacity:0.55});
+    const tireM = new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.95});
+    const rimM = new THREE.MeshStandardMaterial({color:0xdddddd, metalness:0.98, roughness:0.04});
 
     // Main body
     const bodyLow = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.75, 2.1), bodyMat);
@@ -579,6 +579,11 @@ function Showroom3D({onEnter,settings={}}){
     carGrp.rotation.y = Math.PI/2; // facing store (negative Z direction)
     scene.add(carGrp);
 
+    // Car fill light — so car body is clearly visible
+    const carFillLight = new THREE.PointLight(0xfff0cc, 2.5, 12);
+    carFillLight.position.set(2, 4, 42);
+    scene.add(carFillLight);
+
     // ── STARS ──
     const starGeo = new THREE.BufferGeometry();
     const sPos = new Float32Array(800*3);
@@ -591,11 +596,13 @@ function Showroom3D({onEnter,settings={}}){
     scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.2, transparent:true, opacity:0.8})));
 
     // ── AMBIENT LIGHTS ──
-    scene.add(new THREE.AmbientLight(0x1a2040, 0.7));
-    scene.add(new THREE.DirectionalLight(0x334466, 0.25)); // moonlight
+    scene.add(new THREE.AmbientLight(0x2a3a5a, 1.2));
+    const moon = new THREE.DirectionalLight(0x4a6a9a, 0.6);
+    moon.position.set(-15, 25, 10);
+    scene.add(moon);
 
     // Store interior warm glow through doors
-    const intGlow = new THREE.PointLight(0xfff5e0, 2.5, 18);
+    const intGlow = new THREE.PointLight(0xfff5e0, 3.5, 22);
     intGlow.position.set(0, 4, -14);
     scene.add(intGlow);
 
@@ -631,6 +638,7 @@ function Showroom3D({onEnter,settings={}}){
           }
         }
         carGrp.position.z = carZ;
+        carFillLight.position.z = carZ;
 
         // Wheels spin while moving
         if(!carBraking){
@@ -1917,8 +1925,10 @@ function OrdersAdmin(){
 // ── MAIN APP ──────────────────────────────────────────────────
 export default function App(){
   const [show3D,setShow3D]=useState(true);
+  const [fading,setFading]=useState(false);
   const handleEnter = useCallback(()=>{
-    setShow3D(false);
+    setFading(true);
+    setTimeout(()=>setShow3D(false), 600);
   },[]);
   const [page,setPage]=useState("home");
   const [cat,setCat]=useState("All");
@@ -1995,7 +2005,7 @@ export default function App(){
       <style>{`@media(min-width:769px){.show-mob{display:none!important}}`}</style>
 
       {/* 3D Showroom */}
-      {show3D&&<div style={{position:"fixed",inset:0,zIndex:99999}}><Showroom3D onEnter={handleEnter} settings={settings}/></div>}
+      {show3D&&<div style={{position:"fixed",inset:0,zIndex:99999,opacity:fading?0:1,transition:"opacity 0.6s ease",pointerEvents:fading?"none":"auto"}}><Showroom3D onEnter={handleEnter} settings={settings}/></div>}
       {!show3D&&<>
         <AnnouncementBar texts={settings.announcements}/>
 
