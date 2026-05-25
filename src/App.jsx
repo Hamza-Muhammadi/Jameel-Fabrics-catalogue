@@ -185,190 +185,190 @@ function TiltCard({children,style,className=""}){
 
 // ── THREE.JS 3D SHOWROOM ──────────────────────────────────────
 function Showroom3D({onEnter,settings={}}){
-  const [phase,setPhase]=useState(0);
-  const [showBtn,setShowBtn]=useState(false);
-  const timersRef=useRef([]);
-  const T=(fn,ms)=>{timersRef.current.push(setTimeout(fn,ms));};
+  const [step,setStep]=useState(0);
+  const timers=useRef([]);
+  const T=(fn,ms)=>timers.current.push(setTimeout(fn,ms));
 
   useEffect(()=>{
-    const td = settings.t_door  ?? 2200;
-    const to = settings.t_open  ?? 3600;
-    const ti = settings.t_int   ?? 4800;
-    const tb = settings.t_board ?? 5500;
-    const tl = settings.t_lb    ?? 5900;
-    T(()=>setPhase(1),td);
-    T(()=>setPhase(2),to);
-    T(()=>setPhase(3),ti);
-    T(()=>{setPhase(4);setShowBtn(true);},tb);
-    T(()=>setPhase(5),tl);
-    return()=>timersRef.current.forEach(clearTimeout);
+    T(()=>setStep(1),300);
+    T(()=>setStep(2),900);
+    T(()=>setStep(3),1500);
+    T(()=>setStep(4),2200);
+    return()=>timers.current.forEach(clearTimeout);
   },[]);
 
-  const imgExt  = settings.img_ext  || 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=1800&q=85';
-  const imgDoor = settings.img_door || 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=1800&q=85';
-  const imgInt  = settings.img_int  || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1800&q=85';
-  const b1 = settings.intro_brand1 || 'JAMEEL';
-  const b2 = settings.intro_brand2 || 'FABRICS';
-  const sub= settings.intro_sub    || 'KUNJAH';
-  const enterTxt = settings.intro_enter_btn || 'Enter the Store';
+  const b1  = settings.intro_brand1    || "JAMEEL";
+  const b2  = settings.intro_brand2    || "FABRICS";
+  const sub = settings.intro_sub       || "KUNJAH";
+  const btn = settings.intro_enter_btn || "Enter the Store";
   const showSkip = settings.intro_skip !== false;
   const showJF   = settings.intro_show_jf !== false;
 
-  const animCss=`
-    @keyframes s1z{0%{transform:scale(1);filter:brightness(.75)}100%{transform:scale(1.22);filter:brightness(.42)}}
-    @keyframes bIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes jfSpin{from{opacity:0;transform:scale(.5) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-    @keyframes gPulse{0%,100%{text-shadow:0 0 20px rgba(212,168,67,.5)}50%{text-shadow:0 0 55px rgba(212,168,67,1),0 0 100px rgba(212,168,67,.3)}}
-    @keyframes btnFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes lbClose{to{height:0}}
-    @keyframes doorFade{from{opacity:0}to{opacity:1}}
-  `;
-
-  const lbStyle=(top)=>({
-    position:'absolute',[top?'top':'bottom']:0,left:0,right:0,height:'10vh',
-    background:'#000',zIndex:20,
-    ...(phase>=5?{animation:'lbClose 1.5s cubic-bezier(.77,0,.18,1) .3s forwards'}:{})
-  });
-
-  const doorStyle=(isLeft)=>({
-    flex:1,background:'rgba(8,6,4,.88)',position:'relative',overflow:'hidden',
-    transformOrigin:isLeft?'left center':'right center',
-    transform:phase>=2?(isLeft?'perspective(900px) rotateY(-122deg)':'perspective(900px) rotateY(122deg)'):'none',
-    transition:'transform 1.4s cubic-bezier(.77,0,.18,1)'
-  });
-
-  const cornerStyle=(t,l)=>({
-    position:'absolute',
-    ...(t==='top'?{top:'-1px'}:{bottom:'-1px'}),
-    ...(l==='left'?{left:'-1px'}:{right:'-1px'}),
-    width:'12px',height:'12px',
-    [t==='top'?'borderTop':'borderBottom']:'2px solid rgba(201,168,76,.8)',
-    [l==='left'?'borderLeft':'borderRight']:'2px solid rgba(201,168,76,.8)'
-  });
-
   return(
-    <div style={{position:'fixed',inset:0,zIndex:99999,background:'#000',overflow:'hidden',fontFamily:"'Jost',sans-serif"}}>
-      <style>{animCss}</style>
-      <div style={lbStyle(true)}/>
-      <div style={lbStyle(false)}/>
+    <div style={{
+      position:"fixed",inset:0,zIndex:99999,
+      background:"linear-gradient(135deg,#0a0806 0%,#0f0d09 50%,#080604 100%)",
+      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+      overflow:"hidden",fontFamily:"'Jost',sans-serif",
+    }}>
+      <style>{`
+        @keyframes jf_fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes jf_scale{from{opacity:0;transform:scale(.55) rotate(-12deg)}to{opacity:1;transform:scale(1) rotate(0deg)}}
+        @keyframes jf_glow{0%,100%{text-shadow:0 0 18px rgba(212,168,67,.45)}50%{text-shadow:0 0 48px rgba(212,168,67,.95),0 0 90px rgba(212,168,67,.25)}}
+        @keyframes jf_line{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+        @keyframes jf_dust{0%{opacity:0;transform:translateY(0) scale(1)}20%{opacity:.55}80%{opacity:.15}100%{opacity:0;transform:translateY(-70px) scale(.3)}}
+        @keyframes jf_pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 22px 4px rgba(201,168,76,.18)}}
+      `}</style>
 
-      {/* Exterior */}
-      <div style={{position:'absolute',inset:0,zIndex:1,
-        backgroundImage:"linear-gradient(to bottom,rgba(0,0,0,.5) 0%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.55) 100%),url('"+imgExt+"')",
-        backgroundSize:'cover',backgroundPosition:'center',
-        animation:'s1z 3.5s cubic-bezier(.25,.46,.45,.94) forwards'}}/>
+      {/* Gold dust particles */}
+      {[...Array(18)].map((_,i)=>(
+        <div key={i} style={{
+          position:"absolute",
+          borderRadius:"50%",
+          background:"rgba(201,168,76,.6)",
+          width:`${Math.random()*3+1}px`,
+          height:`${Math.random()*3+1}px`,
+          left:`${5+i*5.2}%`,
+          bottom:`${8+Math.sin(i)*18}%`,
+          animation:`jf_dust ${3+Math.sin(i*2)*1.5}s ease ${i*0.28}s infinite`,
+          pointerEvents:"none",
+        }}/>
+      ))}
 
-      {/* Door scene */}
-      <div style={{position:'absolute',inset:0,zIndex:2,
-        backgroundImage:"url('"+imgDoor+"')",
-        backgroundSize:'cover',backgroundPosition:'center',
-        opacity:phase>=1?1:0,
-        transform:phase>=1?'scale(1.4)':'scale(1.15)',
-        filter:'brightness('+(phase>=1?0.72:0.55)+')',
-        transition:'opacity .6s ease,transform 2.5s cubic-bezier(.25,.46,.45,.94),filter 2.5s ease'}}/>
-
-      {/* Door panels */}
-      {phase>=1&&(
-        <div style={{position:'absolute',inset:0,zIndex:3,display:'flex',animation:'doorFade .4s ease both'}}>
-          <div style={doorStyle(true)}>
-            <div style={{position:'absolute',inset:'8%',border:'1.5px solid rgba(212,168,67,.45)'}}/>
-            <div style={{position:'absolute',top:'22%',bottom:'22%',left:'16%',right:'20%',border:'1px solid rgba(212,168,67,.25)'}}/>
-            <div style={{position:'absolute',top:'32%',bottom:'32%',left:'20%',right:'24%',border:'1px solid rgba(212,168,67,.14)'}}/>
-            <div style={{position:'absolute',top:'50%',right:'13%',width:'5px',height:'42px',
-              background:'linear-gradient(to bottom,#8a6020,#c9a84c,#e8d5a3,#c9a84c,#8a6020)',
-              borderRadius:'3px',transform:'translateY(-50%)',boxShadow:'0 0 10px rgba(201,168,76,.5)'}}/>
-          </div>
-          <div style={doorStyle(false)}>
-            <div style={{position:'absolute',inset:'8%',border:'1.5px solid rgba(212,168,67,.45)'}}/>
-            <div style={{position:'absolute',top:'22%',bottom:'22%',left:'20%',right:'16%',border:'1px solid rgba(212,168,67,.25)'}}/>
-            <div style={{position:'absolute',top:'32%',bottom:'32%',left:'24%',right:'20%',border:'1px solid rgba(212,168,67,.14)'}}/>
-            <div style={{position:'absolute',top:'50%',left:'13%',width:'5px',height:'42px',
-              background:'linear-gradient(to bottom,#8a6020,#c9a84c,#e8d5a3,#c9a84c,#8a6020)',
-              borderRadius:'3px',transform:'translateY(-50%)',boxShadow:'0 0 10px rgba(201,168,76,.5)'}}/>
-          </div>
+      {/* JF Monogram */}
+      {step>=1&&showJF&&(
+        <div style={{marginBottom:"clamp(14px,2.5vw,22px)",animation:"jf_scale .7s cubic-bezier(.16,1,.3,1) both"}}>
+          <svg width="clamp(54px,7vw,74px)" height="clamp(54px,7vw,74px)" viewBox="0 0 74 74" fill="none">
+            <circle cx="37" cy="37" r="34" stroke="#c9a84c" strokeWidth="1.4" opacity=".82"/>
+            <circle cx="37" cy="37" r="27" stroke="#c9a84c" strokeWidth=".6" opacity=".32"/>
+            <path d="M37 5 L39.5 11 L37 17 L34.5 11 Z" fill="#c9a84c" opacity=".82"/>
+            <path d="M37 69 L39.5 63 L37 57 L34.5 63 Z" fill="#c9a84c" opacity=".82"/>
+            <path d="M5 37 L11 34.5 L17 37 L11 39.5 Z" fill="#c9a84c" opacity=".82"/>
+            <path d="M69 37 L63 34.5 L57 37 L63 39.5 Z" fill="#c9a84c" opacity=".82"/>
+            <text x="15" y="50" fontFamily="Playfair Display,serif" fontSize="27" fontWeight="900" fill="#c9a84c" opacity=".96">JF</text>
+          </svg>
         </div>
       )}
 
-      {/* Interior */}
-      <div style={{position:'absolute',inset:0,zIndex:4,
-        backgroundImage:"linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 35%,rgba(0,0,0,.35) 100%),url('"+imgInt+"')",
-        backgroundSize:'cover',backgroundPosition:'center 35%',
-        opacity:phase>=3?1:0,
-        transform:phase>=3?'scale(1.03)':'scale(1.25)',
-        filter:'brightness('+(phase>=3?0.9:0.25)+')',
-        transition:'opacity .7s ease,transform 3s cubic-bezier(.25,.46,.45,.94),filter 3s ease'}}/>
+      {/* Sign Board */}
+      {step>=2&&(
+        <div style={{
+          position:"relative",
+          background:"linear-gradient(135deg,rgba(10,8,4,.97),rgba(22,16,6,.98))",
+          border:"1.5px solid rgba(201,168,76,.65)",
+          padding:"clamp(14px,2.5vw,24px) clamp(32px,6vw,70px)",
+          textAlign:"center",
+          animation:"jf_fadeUp .7s cubic-bezier(.16,1,.3,1) both",
+          boxShadow:"0 0 50px rgba(201,168,76,.2),0 0 120px rgba(201,168,76,.07),inset 0 0 40px rgba(201,168,76,.03)",
+        }}>
+          {/* Corner marks */}
+          {[["top","-1px","left","-1px","borderTop","borderLeft"],
+            ["top","-1px","right","-1px","borderTop","borderRight"],
+            ["bottom","-1px","left","-1px","borderBottom","borderLeft"],
+            ["bottom","-1px","right","-1px","borderBottom","borderRight"],
+          ].map(([tk,tv,lk,lv,b1k,b2k],i)=>(
+            <div key={i} style={{position:"absolute",[tk]:tv,[lk]:lv,width:"12px",height:"12px",
+              [b1k]:"2px solid rgba(201,168,76,.82)",[b2k]:"2px solid rgba(201,168,76,.82)"}}/>
+          ))}
 
-      {/* Board */}
-      {showBtn&&(
-        <div style={{position:'absolute',inset:0,zIndex:5,display:'flex',flexDirection:'column',
-          alignItems:'center',justifyContent:'center',animation:'bIn .8s cubic-bezier(.16,1,.3,1) both'}}>
-          {showJF&&(
-            <div style={{marginBottom:'clamp(12px,2vw,20px)',animation:'jfSpin .8s cubic-bezier(.16,1,.3,1) both'}}>
-              <svg width="clamp(52px,7vw,72px)" height="clamp(52px,7vw,72px)" viewBox="0 0 72 72" fill="none">
-                <circle cx="36" cy="36" r="33" stroke="#c9a84c" strokeWidth="1.4" opacity=".82"/>
-                <circle cx="36" cy="36" r="26" stroke="#c9a84c" strokeWidth=".6" opacity=".35"/>
-                <path d="M36 4 L38.5 10 L36 16 L33.5 10 Z" fill="#c9a84c" opacity=".82"/>
-                <path d="M36 68 L38.5 62 L36 56 L33.5 62 Z" fill="#c9a84c" opacity=".82"/>
-                <path d="M4 36 L10 33.5 L16 36 L10 38.5 Z" fill="#c9a84c" opacity=".82"/>
-                <path d="M68 36 L62 33.5 L56 36 L62 38.5 Z" fill="#c9a84c" opacity=".82"/>
-                <text x="14" y="49" fontFamily="Playfair Display,serif" fontSize="26" fontWeight="900" fill="#c9a84c" opacity=".95">JF</text>
-              </svg>
-            </div>
-          )}
-          <div style={{position:'relative',
-            background:'linear-gradient(135deg,rgba(10,8,4,.97),rgba(20,14,6,.98))',
-            border:'1.5px solid rgba(201,168,76,.65)',
-            padding:'clamp(12px,2vw,22px) clamp(28px,5vw,64px)',textAlign:'center',
-            boxShadow:'0 0 50px rgba(201,168,76,.22),0 0 120px rgba(201,168,76,.08),inset 0 0 40px rgba(201,168,76,.03)'}}>
-            <div style={cornerStyle('top','left')}/>
-            <div style={cornerStyle('top','right')}/>
-            <div style={cornerStyle('bottom','left')}/>
-            <div style={cornerStyle('bottom','right')}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(18px,4vw,52px)',
-              fontWeight:900,letterSpacing:'clamp(5px,1vw,11px)',color:'#fdfaf4',lineHeight:1,
-              animation:'gPulse 3s ease-in-out infinite'}}>{b1}</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(18px,4vw,52px)',
-              fontWeight:900,letterSpacing:'clamp(5px,1vw,11px)',color:'#fdfaf4',lineHeight:.95,marginBottom:'6px',
-              animation:'gPulse 3s ease-in-out .15s infinite'}}>{b2}</div>
-            <div style={{display:'flex',alignItems:'center',gap:'8px',margin:'6px 0 5px'}}>
-              <div style={{flex:1,height:'1px',background:'linear-gradient(to right,transparent,rgba(201,168,76,.7),transparent)'}}/>
-              <div style={{width:'5px',height:'5px',background:'#c9a84c',transform:'rotate(45deg)',flexShrink:0}}/>
-              <div style={{flex:1,height:'1px',background:'linear-gradient(to left,transparent,rgba(201,168,76,.7),transparent)'}}/>
-            </div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(10px,1.5vw,16px)',
-              letterSpacing:'12px',color:'rgba(201,168,76,.88)',fontStyle:'italic'}}>{sub}</div>
+          {/* JAMEEL */}
+          <div style={{
+            fontFamily:"'Playfair Display',serif",
+            fontSize:"clamp(22px,4.5vw,58px)",fontWeight:900,
+            letterSpacing:"clamp(6px,1.2vw,13px)",color:"#fdfaf4",lineHeight:1,
+            animation:"jf_glow 3s ease-in-out infinite",
+          }}>{b1}</div>
+
+          {/* FABRICS */}
+          <div style={{
+            fontFamily:"'Playfair Display',serif",
+            fontSize:"clamp(22px,4.5vw,58px)",fontWeight:900,
+            letterSpacing:"clamp(6px,1.2vw,13px)",color:"#fdfaf4",lineHeight:.95,
+            marginBottom:"clamp(8px,1.2vw,14px)",
+            animation:"jf_glow 3s ease-in-out .2s infinite",
+          }}>{b2}</div>
+
+          {/* Divider */}
+          <div style={{display:"flex",alignItems:"center",gap:"10px",margin:"0 0 clamp(6px,1vw,10px)"}}>
+            <div style={{flex:1,height:"1px",background:"linear-gradient(to right,transparent,rgba(201,168,76,.75),transparent)",
+              animation:"jf_line .8s ease both"}}/>
+            <div style={{width:"5px",height:"5px",background:"#c9a84c",transform:"rotate(45deg)",flexShrink:0}}/>
+            <div style={{flex:1,height:"1px",background:"linear-gradient(to left,transparent,rgba(201,168,76,.75),transparent)",
+              animation:"jf_line .8s ease both"}}/>
           </div>
-          <button onClick={()=>{if(onEnter)onEnter();}}
-            style={{marginTop:'clamp(16px,2.5vw,26px)',padding:'12px clamp(36px,5vw,56px)',
-              background:'transparent',border:'1px solid rgba(201,168,76,.65)',
-              color:'rgba(201,168,76,.9)',fontFamily:"'Jost',sans-serif",
-              fontSize:'11px',fontWeight:600,letterSpacing:'4px',textTransform:'uppercase',
-              cursor:'pointer',animation:'btnFade .8s cubic-bezier(.16,1,.3,1) .3s both',
-              backdropFilter:'blur(6px)',transition:'all .3s'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,.9)';e.currentTarget.style.color='#0a0806';e.currentTarget.style.letterSpacing='6px';}}
-            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='rgba(201,168,76,.9)';e.currentTarget.style.letterSpacing='4px';}}>
-            {enterTxt}
-          </button>
+
+          {/* KUNJAH */}
+          <div style={{
+            fontFamily:"'Cormorant Garamond',serif",
+            fontSize:"clamp(11px,1.6vw,18px)",
+            letterSpacing:"clamp(10px,1.5vw,18px)",
+            color:"rgba(201,168,76,.9)",fontStyle:"italic",
+          }}>{sub}</div>
         </div>
       )}
 
-      {/* Skip — bright & visible */}
+      {/* Tagline */}
+      {step>=3&&(
+        <div style={{
+          marginTop:"clamp(12px,1.8vw,18px)",
+          fontFamily:"'Cormorant Garamond',serif",
+          fontSize:"clamp(11px,1.2vw,14px)",
+          letterSpacing:"4px",color:"rgba(201,168,76,.5)",
+          fontStyle:"italic",
+          animation:"jf_fadeUp .7s ease both",
+        }}>
+          {settings.intro_tagline||TAGLINE}
+        </div>
+      )}
+
+      {/* Enter Button */}
+      {step>=4&&(
+        <button
+          onClick={()=>onEnter&&onEnter()}
+          style={{
+            marginTop:"clamp(20px,3vw,32px)",
+            padding:"13px clamp(40px,5vw,60px)",
+            background:"transparent",
+            border:"1px solid rgba(201,168,76,.65)",
+            color:"rgba(201,168,76,.92)",
+            fontFamily:"'Jost',sans-serif",
+            fontSize:"11px",fontWeight:600,
+            letterSpacing:"4px",textTransform:"uppercase",
+            cursor:"pointer",
+            animation:"jf_fadeUp .7s cubic-bezier(.16,1,.3,1) both, jf_pulse 2.5s ease-in-out 1s infinite",
+            backdropFilter:"blur(6px)",
+            transition:"all .3s",
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.background="rgba(201,168,76,.92)";e.currentTarget.style.color="#0a0806";e.currentTarget.style.letterSpacing="6px";}}
+          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(201,168,76,.92)";e.currentTarget.style.letterSpacing="4px";}}>
+          {btn}
+        </button>
+      )}
+
+      {/* Skip */}
       {showSkip&&(
-        <button onClick={()=>{if(onEnter)onEnter();}}
-          style={{position:'absolute',top:'clamp(24px,4vw,52px)',right:'20px',zIndex:30,
-            background:'rgba(201,168,76,.18)',border:'1px solid rgba(201,168,76,.65)',
-            color:'rgba(255,250,210,.95)',fontFamily:"'Jost',sans-serif",
-            fontSize:'10px',fontWeight:600,letterSpacing:'2px',padding:'7px 18px',
-            cursor:'pointer',backdropFilter:'blur(4px)',
-            textShadow:'0 0 12px rgba(201,168,76,.6)',transition:'all .2s'}}
-          onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,.35)';e.currentTarget.style.color='#fff';}}
-          onMouseLeave={e=>{e.currentTarget.style.background='rgba(201,168,76,.18)';e.currentTarget.style.color='rgba(255,250,210,.95)';}}>
+        <button
+          onClick={()=>onEnter&&onEnter()}
+          style={{
+            position:"absolute",top:"clamp(22px,4vw,50px)",right:"20px",
+            background:"rgba(201,168,76,.15)",
+            border:"1px solid rgba(201,168,76,.55)",
+            color:"rgba(255,250,210,.92)",
+            fontFamily:"'Jost',sans-serif",
+            fontSize:"10px",fontWeight:600,letterSpacing:"2px",
+            padding:"7px 18px",cursor:"pointer",
+            backdropFilter:"blur(4px)",
+            transition:"all .2s",
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.background="rgba(201,168,76,.32)";e.currentTarget.style.color="#fff";}}
+          onMouseLeave={e=>{e.currentTarget.style.background="rgba(201,168,76,.15)";e.currentTarget.style.color="rgba(255,250,210,.92)";}}>
           SKIP ›
         </button>
       )}
     </div>
   );
 }
+
 // ── ANNOUNCEMENT BAR ──────────────────────────────────────────
 function AnnouncementBar({texts=[]}){
   const all=[...texts,...texts];
