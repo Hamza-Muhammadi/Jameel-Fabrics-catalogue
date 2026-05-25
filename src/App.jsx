@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 // ── Config ────────────────────────────────────────────────────
 const SUPA_URL = process.env.REACT_APP_SUPABASE_URL || "";
@@ -188,559 +185,184 @@ function TiltCard({children,style,className=""}){
 
 // ── THREE.JS 3D SHOWROOM ──────────────────────────────────────
 function Showroom3D({onEnter,settings={}}){
-  const mountRef=useRef(null);
   const [phase,setPhase]=useState(0);
   const [showBtn,setShowBtn]=useState(false);
+  const timersRef=useRef([]);
+  const T=(fn,ms)=>{timersRef.current.push(setTimeout(fn,ms));};
 
   useEffect(()=>{
-    const el=mountRef.current; if(!el)return;
-    const W=el.clientWidth||window.innerWidth, H=el.clientHeight||window.innerHeight;
-
-    // Renderer
-    const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
-    renderer.setSize(W,H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-    renderer.shadowMap.enabled=true;
-    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.1;
-    renderer.outputColorSpace=THREE.SRGBColorSpace;
-    el.appendChild(renderer.domElement);
-
-    // Scene — declare karo PEHLE
-    const scene=new THREE.Scene();
-    scene.background=new THREE.Color(0x0c1220);
-    scene.fog=new THREE.Fog(0x0c1220,60,180);
-
-    // Environment map (realistic reflections)
-    const pmrem=new THREE.PMREMGenerator(renderer);
-    pmrem.compileEquirectangularShader();
-    const envTexture=pmrem.fromScene(new RoomEnvironment()).texture;
-    scene.environment=envTexture;
-
-    const camera=new THREE.PerspectiveCamera(60,W/H,0.1,500);
-    camera.position.set(0,5,42);
-    camera.lookAt(0,3,0);
-
-    // ── ROAD ──
-    const road=new THREE.Mesh(
-      new THREE.PlaneGeometry(24,180),
-      new THREE.MeshStandardMaterial({color:0x161616,roughness:0.92,metalness:0.08})
-    );
-    road.rotation.x=-Math.PI/2; road.receiveShadow=true; scene.add(road);
-
-    // Road center lines
-    for(let z=-80;z<80;z+=8){
-      const d=new THREE.Mesh(new THREE.PlaneGeometry(0.2,4),
-        new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.6}));
-      d.rotation.x=-Math.PI/2; d.position.set(0,0.02,z); scene.add(d);
-    }
-    // Yellow lane lines
-    [-4,4].forEach(x=>{
-      const yl=new THREE.Mesh(new THREE.PlaneGeometry(0.14,180),
-        new THREE.MeshStandardMaterial({color:0xddaa00,emissive:0xddaa00,emissiveIntensity:0.3}));
-      yl.rotation.x=-Math.PI/2; yl.position.set(x,0.015,0); scene.add(yl);
-    });
-
-    // Pavement
-    [-13,13].forEach(side=>{
-      const pw=new THREE.Mesh(new THREE.PlaneGeometry(10,180),
-        new THREE.MeshStandardMaterial({color:0x222222,roughness:0.98}));
-      pw.rotation.x=-Math.PI/2; pw.position.set(side>0?18:-18,0.005,0); scene.add(pw);
-    });
-
-    // ── LUXURY STORE EXTERIOR ──
-    const cream=new THREE.MeshStandardMaterial({color:0xf5f0e6,metalness:0.04,roughness:0.55,envMapIntensity:0.3});
-    const gold=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.05,emissive:0xd4a843,emissiveIntensity:0.08,envMapIntensity:1.0});
-
-    // Main building
-    const bldg=new THREE.Mesh(new THREE.BoxGeometry(28,18,12),cream);
-    bldg.position.set(0,9,-22); bldg.castShadow=true; bldg.receiveShadow=true; scene.add(bldg);
-
-    // Gold top cornice
-    const cornice=new THREE.Mesh(new THREE.BoxGeometry(28.8,0.7,12.8),gold);
-    cornice.position.set(0,18.35,-22); scene.add(cornice);
-
-    // Second floor band
-    const band=new THREE.Mesh(new THREE.BoxGeometry(28.8,0.25,12.4),gold);
-    band.position.set(0,10.1,-22); scene.add(band);
-
-    // 6 classical pillars
-    [-11,-5.5,0,5.5,11].forEach((x,i)=>{
-      if(i===2) return; // skip center for door
-      const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.32,11,18),
-        new THREE.MeshStandardMaterial({color:0xfaf6ee,metalness:0.05,roughness:0.5}));
-      pillar.position.set(x,5.5,-16.2); pillar.castShadow=true; scene.add(pillar);
-      // Capital
-      const cap=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.4,0.7),gold);
-      cap.position.set(x,11.2,-16.2); scene.add(cap);
-      // Base
-      const base=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,0.3,16),gold);
-      base.position.set(x,0.15,-16.2); scene.add(base);
-    });
-
-    // Pediment (triangular top)
-    const pedGeo=new THREE.BufferGeometry();
-    const pv=new Float32Array([-14.5,18.4,-16, 14.5,18.4,-16, 0,22,-16]);
-    pedGeo.setAttribute('position',new THREE.BufferAttribute(pv,3));
-    pedGeo.setIndex([0,1,2]); pedGeo.computeVertexNormals();
-    const ped=new THREE.Mesh(pedGeo,cream); scene.add(ped);
-    // Pediment border
-    [[[-14.5,18.4],[0,22]],[[0,22],[14.5,18.4]],[[-14.5,18.4],[14.5,18.4]]].forEach(([[x1,y1],[x2,y2]])=>{
-      const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy);
-      const bar=new THREE.Mesh(new THREE.BoxGeometry(len,0.2,0.2),gold);
-      bar.position.set((x1+x2)/2,(y1+y2)/2,-15.9);
-      bar.rotation.z=Math.atan2(dy,dx); scene.add(bar);
-    });
-
-    // ── ENTRANCE ARCH ──
-    const archMat=gold;
-    // Left/right pillar
-    [-4.2,4.2].forEach(x=>{
-      const ap=new THREE.Mesh(new THREE.BoxGeometry(0.55,9,0.55),archMat);
-      ap.position.set(x,4.5,-16.1); scene.add(ap);
-    });
-    // Arch top beam
-    const archBeam=new THREE.Mesh(new THREE.BoxGeometry(9.0,0.5,0.55),archMat);
-    archBeam.position.set(0,9.25,-16.1); scene.add(archBeam);
-    // Arch semicircle
-    for(let a=0;a<=180;a+=10){
-      const rad=a*Math.PI/180;
-      const sm=new THREE.Mesh(new THREE.BoxGeometry(0.45,0.45,0.5),archMat);
-      sm.position.set(Math.cos(rad)*4.2,9.3+Math.sin(rad)*2.2,-16.1); scene.add(sm);
-    }
-
-    // Glass doors
-    const glassDoorMat=new THREE.MeshPhysicalMaterial({
-      color:0xaaccee, metalness:0, roughness:0,
-      transmission:0.88, transparent:true, opacity:0.15,
-      envMapIntensity:0.5
-    });
-    [-1.6,1.6].forEach(x=>{
-      const door=new THREE.Mesh(new THREE.BoxGeometry(3.0,8.5,0.07),glassDoorMat);
-      door.position.set(x,4.25,-16.0); scene.add(door);
-      // Gold door frame
-      const df=new THREE.Mesh(new THREE.BoxGeometry(3.1,8.6,0.12),archMat);
-      df.position.set(x,4.25,-16.12); scene.add(df);
-    });
-    // Handle
-    [-1.15,1.15].forEach(x=>{
-      const h=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.6,8),
-        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:1,roughness:0}));
-      h.rotation.z=Math.PI/2; h.position.set(x,4.0,-15.88); scene.add(h);
-    });
-
-    // ── SIGNBOARD ──
-    const signGrp=new THREE.Group();
-    // Board background
-    const boardBg=new THREE.Mesh(new THREE.BoxGeometry(12.5,3.5,0.22),
-      new THREE.MeshStandardMaterial({color:0x0d0a05,metalness:0.2,roughness:0.5}));
-    signGrp.add(boardBg);
-    // Gold frame
-    const fm=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.04,emissive:0xd4a843,emissiveIntensity:0.4,envMapIntensity:1.0});
-    [[0,1.85,true],[0,-1.85,true],[6.35,0,false],[-6.35,0,false]].forEach(([x,y,h])=>{
-      const b=new THREE.Mesh(new THREE.BoxGeometry(h?13.0:0.18,h?0.18:3.86,0.28),fm);
-      b.position.set(x,y,0); signGrp.add(b);
-    });
-    // JF ring monogram
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.75,0.1,14,48),fm);
-    ring.position.set(0,0.5,0.14); signGrp.add(ring);
-    const innerC=new THREE.Mesh(new THREE.CircleGeometry(0.62,48),
-      new THREE.MeshStandardMaterial({color:0xd4a843,emissive:0xd4a843,emissiveIntensity:0.3}));
-    innerC.position.set(0,0.5,0.15); signGrp.add(innerC);
-    // Divider
-    const div=new THREE.Mesh(new THREE.BoxGeometry(9,0.06,0.12),fm);
-    div.position.set(0,-0.32,0.13); signGrp.add(div);
-    // Corner diamonds
-    [[5.8,1.6],[5.8,-1.6],[-5.8,1.6],[-5.8,-1.6]].forEach(([x,y])=>{
-      const d=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.25,0.18),fm);
-      d.rotation.z=Math.PI/4; d.position.set(x,y,0.14); signGrp.add(d);
-    });
-    signGrp.position.set(0,13.5,-15.7);
-    scene.add(signGrp);
-
-    // Sign spotlights
-    const signLights=[];
-    [[-5,18,-10],[5,18,-10]].forEach(([x,y,z])=>{
-      const sl=new THREE.SpotLight(0xfff8dd,0,20,Math.PI/6,0.35);
-      sl.position.set(x,y,z); sl.target=signGrp;
-      scene.add(sl); scene.add(sl.target);
-      signLights.push(sl);
-    });
-
-    // ── STORE INTERIOR (visible through glass) ──
-    // Marble floor inside
-    const marbleMat=new THREE.MeshStandardMaterial({color:0xf0ebe0,metalness:0.15,roughness:0.3,envMapIntensity:0.6});
-    const marbleFloor=new THREE.Mesh(new THREE.PlaneGeometry(26,14),marbleMat);
-    marbleFloor.rotation.x=-Math.PI/2; marbleFloor.position.set(0,0.02,-24); scene.add(marbleFloor);
-    // Marble tiles pattern
-    for(let i=-6;i<=6;i++) for(let j=-4;j<=4;j++){
-      if((i+j)%2!==0) continue;
-      const tile=new THREE.Mesh(new THREE.PlaneGeometry(1.9,1.9),
-        new THREE.MeshStandardMaterial({color:0xe8e2d4,metalness:0.12,roughness:0.35}));
-      tile.rotation.x=-Math.PI/2; tile.position.set(i*2,0.03,j*2-24); scene.add(tile);
-    }
-    // Interior walls
-    const intWallMat=new THREE.MeshStandardMaterial({color:0xfaf7f0,metalness:0,roughness:0.8});
-    const backWall=new THREE.Mesh(new THREE.PlaneGeometry(28,18),intWallMat);
-    backWall.position.set(0,9,-31); scene.add(backWall);
-
-    // Interior chandelier
-    const chandGrp=new THREE.Group(); chandGrp.position.set(0,15,-22);
-    const chandBase=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.18,24),
-      new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.1}));
-    chandGrp.add(chandBase);
-    for(let i=0;i<10;i++){
-      const a=(i/10)*Math.PI*2;
-      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,1.6,8),
-        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9}));
-      arm.rotation.z=Math.PI/3.5*Math.sign(Math.cos(a));
-      arm.position.set(Math.cos(a)*0.9,-0.4,Math.sin(a)*0.9); chandGrp.add(arm);
-      const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),
-        new THREE.MeshStandardMaterial({color:0xfffce0,emissive:0xfffce0,emissiveIntensity:1.5}));
-      bulb.position.set(Math.cos(a)*1.4,-1.0,Math.sin(a)*1.4); chandGrp.add(bulb);
-    }
-    scene.add(chandGrp);
-    const chandLight=new THREE.PointLight(0xfff5e0,4,25);
-    chandLight.position.set(0,14,-22); scene.add(chandLight);
-
-    // Interior display counters
-    [-6,0,6].forEach(x=>{
-      const counter=new THREE.Mesh(new THREE.BoxGeometry(3.5,1.05,1.2),
-        new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.2,roughness:0.4}));
-      counter.position.set(x,0.52,-22); scene.add(counter);
-      // Glass top
-      const glTop=new THREE.Mesh(new THREE.BoxGeometry(3.6,0.06,1.25),
-        new THREE.MeshPhysicalMaterial({color:0x88aacc,transmission:0.7,transparent:true,opacity:0.3,roughness:0,metalness:0}));
-      glTop.position.set(x,1.08,-22); scene.add(glTop);
-      // Gold trim
-      const trim=new THREE.Mesh(new THREE.BoxGeometry(3.62,0.1,1.27),
-        new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.05}));
-      trim.position.set(x,1.02,-22); scene.add(trim);
-    });
-
-    // Wall shelves with fabric rolls
-    const shelfMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.1,roughness:0.6});
-    [-12,12].forEach(wallX=>{
-      [4,6.5,9].forEach(y=>{
-        const shelf=new THREE.Mesh(new THREE.BoxGeometry(0.4,3.5,0.5),shelfMat);
-        shelf.position.set(wallX>0?wallX-0.5:wallX+0.5,y,-22); scene.add(shelf);
-        // Fabric rolls
-        const fabColors=[0xc0392b,0x2980b9,0x27ae60,0x8e44ad,0xf39c12,0x1abc9c,0xe74c3c,0x3498db];
-        for(let r=0;r<5;r++){
-          const roll=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.55,16),
-            new THREE.MeshStandardMaterial({color:fabColors[(Math.abs(wallX)+r+y)%8],roughness:0.9}));
-          roll.rotation.z=Math.PI/2; roll.position.set(wallX>0?wallX-1.2:wallX+1.2,y,r*0.6-23.2); scene.add(roll);
-        }
-      });
-    });
-
-    // Interior JAMEEL FABRICS text sign on back wall
-    const backSignGrp=new THREE.Group();
-    const bs=new THREE.Mesh(new THREE.BoxGeometry(14,2.5,0.12),
-      new THREE.MeshStandardMaterial({color:0x0d0a05,metalness:0.2,roughness:0.5}));
-    backSignGrp.add(bs);
-    const bsFrame=new THREE.Mesh(new THREE.BoxGeometry(14.3,2.8,0.08),
-      new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.9,roughness:0.05,emissive:0xd4a843,emissiveIntensity:0.2}));
-    backSignGrp.add(bsFrame);
-    backSignGrp.position.set(0,12,-30.8); scene.add(backSignGrp);
-
-    // ── STREET LAMPS ──
-    [-9,9].forEach(side=>{
-      const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.13,10,10),
-        new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.7}));
-      pole.position.set(side,5,5); scene.add(pole);
-      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,2.5,8),
-        new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.7}));
-      arm.rotation.z=side>0?-Math.PI/5.5:Math.PI/5.5;
-      arm.position.set(side+(side>0?0.9:-0.9),10.2,5); scene.add(arm);
-      const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),
-        new THREE.MeshStandardMaterial({color:0xfffce0,emissive:0xfffce0,emissiveIntensity:2.0}));
-      bulb.position.set(side+(side>0?1.8:-1.8),10.1,5); scene.add(bulb);
-      const lpt=new THREE.PointLight(0xfff8cc,2.2,22);
-      lpt.position.set(side+(side>0?1.8:-1.8),9.8,5); scene.add(lpt);
-    });
-
-    // ── STARS ──
-    const sGeo=new THREE.BufferGeometry();
-    const sPos=new Float32Array(1000*3);
-    for(let i=0;i<1000*3;i+=3){sPos[i]=(Math.random()-0.5)*400;sPos[i+1]=20+Math.random()*100;sPos[i+2]=(Math.random()-0.5)*400;}
-    sGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
-    scene.add(new THREE.Points(sGeo,new THREE.PointsMaterial({color:0xffffff,size:0.18,transparent:true,opacity:0.85})));
-
-    // ── LIGHTS ──
-    scene.add(new THREE.AmbientLight(0x253050,0.9));
-    const moonDir=new THREE.DirectionalLight(0x4466aa,0.5);
-    moonDir.position.set(-20,30,15);
-    moonDir.castShadow=true;
-    scene.add(moonDir);
-
-    // Store interior warm light
-    const storeWarm=new THREE.PointLight(0xfff5e0,3.0,25);
-    storeWarm.position.set(0,5,-20); scene.add(storeWarm);
-
-    // ── CAR (GLTF + Geometric Fallback) ──
-    const carGrp=new THREE.Group();
-    carGrp.position.set(0,0,42);
-    carGrp.rotation.y=Math.PI/2;
-    scene.add(carGrp);
-
-    // Geometric car (visible immediately, replaced by GLTF if loaded)
-    const buildGeoCar=(grp)=>{
-      const bMat=new THREE.MeshPhysicalMaterial({
-        color:0xcccccc, metalness:0.9, roughness:0.1,
-        clearcoat:1.0, clearcoatRoughness:0.05, envMapIntensity:1.2
-      });
-      const dkMat=new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.5,roughness:0.4});
-      const glMat=new THREE.MeshPhysicalMaterial({color:0x334455,roughness:0,metalness:0,transmission:0.6,transparent:true,opacity:0.5});
-      const auMat=new THREE.MeshStandardMaterial({color:0xd4a843,metalness:0.95,roughness:0.05,envMapIntensity:1.0});
-      const tiMat=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.95});
-      const riMat=new THREE.MeshPhysicalMaterial({color:0xdddddd,metalness:0.98,roughness:0.03,clearcoat:0.8});
-
-      // Body
-      const body=new THREE.Mesh(new THREE.BoxGeometry(4.8,0.72,2.1),bMat);
-      body.position.y=0.62; body.castShadow=true; grp.add(body);
-      // Cabin
-      const cabin=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.68,1.95),bMat);
-      cabin.position.set(-0.1,1.28,0); grp.add(cabin);
-      // Hood slope
-      const hood=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.1,2.05),bMat);
-      hood.rotation.z=-0.25; hood.position.set(-1.9,1.0,0); grp.add(hood);
-      // Trunk
-      const trunk=new THREE.Mesh(new THREE.BoxGeometry(0.85,0.1,2.0),bMat);
-      trunk.rotation.z=0.18; trunk.position.set(1.55,0.98,0); grp.add(trunk);
-      // Spoiler
-      const spoiler=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.08,2.0),dkMat);
-      spoiler.position.set(1.9,1.18,0); grp.add(spoiler);
-      // Gold stripes
-      [0.98,-0.98].forEach(z=>{
-        const s=new THREE.Mesh(new THREE.BoxGeometry(4.82,0.07,0.06),auMat);
-        s.position.set(0,0.99,z); grp.add(s);
-      });
-      // Windshield
-      const ws=new THREE.Mesh(new THREE.PlaneGeometry(2.3,0.9),glMat);
-      ws.rotation.y=Math.PI/2; ws.rotation.z=0.32; ws.position.set(-1.1,1.32,0); grp.add(ws);
-      // Rear window
-      const rw=new THREE.Mesh(new THREE.PlaneGeometry(1.9,0.72),glMat);
-      rw.rotation.y=Math.PI/2; rw.rotation.z=-0.3; rw.position.set(0.95,1.24,0); grp.add(rw);
-      // Side windows
-      [-0.2,0.52].forEach(x=>{
-        [0.97,-0.97].forEach(z=>{
-          const sw=new THREE.Mesh(new THREE.PlaneGeometry(0.72,0.52),glMat);
-          sw.rotation.x=Math.PI/2; sw.position.set(x,1.42,z>0?0.98:-0.98); grp.add(sw);
-        });
-      });
-      // Front bumper/grill
-      const bumper=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.38,1.95),dkMat);
-      bumper.position.set(-2.44,0.5,0); grp.add(bumper);
-      const grill=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.26,1.3),
-        new THREE.MeshStandardMaterial({color:0x111111,metalness:0.4}));
-      grill.position.set(-2.45,0.52,0); grp.add(grill);
-      // Headlights
-      const hlMat=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:2.5});
-      [0.7,-0.7].forEach(z=>{
-        const hl=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.22,0.42),hlMat);
-        hl.position.set(-2.45,0.72,z); grp.add(hl);
-        const drl=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.07,0.56),hlMat);
-        drl.position.set(-2.45,0.92,z); grp.add(drl);
-      });
-      // Tail lights
-      const tlMat=new THREE.MeshStandardMaterial({color:0xff1111,emissive:0xff1111,emissiveIntensity:1.5});
-      [0.7,-0.7].forEach(z=>{
-        const tl=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.2,0.4),tlMat);
-        tl.position.set(2.44,0.7,z); grp.add(tl);
-      });
-      // Rear bumper
-      // Rear bumper
-      const rb=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,1.8),dkMat);
-      rb.position.set(2.44,0.48,0); grp.add(rb);
-      // Exhaust
-      [0.55,-0.55].forEach(z=>{
-        const ex=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.22,10),
-          new THREE.MeshStandardMaterial({color:0xbbbbbb,metalness:0.9,roughness:0.1}));
-        ex.rotation.z=Math.PI/2; ex.position.set(2.5,0.3,z); grp.add(ex);
-      });
-      // Wheels
-      [[-1.6,1.08],[-1.6,-1.08],[1.6,1.08],[1.6,-1.08]].forEach(([x,z])=>{
-        const tire=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.3,24),tiMat);
-        tire.rotation.x=Math.PI/2; tire.position.set(x,0.42,z); tire.castShadow=true; grp.add(tire);
-        const rim=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.32,10),riMat);
-        rim.rotation.x=Math.PI/2; rim.position.set(x,0.42,z+(z>0?0.01:-0.01)); grp.add(rim);
-        for(let s=0;s<5;s++){
-          const ang=(s/5)*Math.PI*2;
-          const spk=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.55,0.06),riMat);
-          spk.rotation.x=Math.PI/2; spk.rotation.y=ang;
-          spk.position.set(x,0.42,z+(z>0?0.02:-0.02)); grp.add(spk);
-        }
-        const arch=new THREE.Mesh(new THREE.TorusGeometry(0.46,0.07,8,24,Math.PI),bMat);
-        arch.rotation.x=Math.PI/2; arch.rotation.z=Math.PI;
-        arch.position.set(x,0.46,z); grp.add(arch);
-      });
-    };
-    buildGeoCar(carGrp);
-
-    // Try GLTF car model
-    try{
-      const loader=new GLTFLoader();
-      loader.load(
-        'https://threejs.org/examples/models/gltf/ferrari.glb',
-        (gltf)=>{
-          // Remove geometric car
-          while(carGrp.children.length>0) carGrp.remove(carGrp.children[0]);
-          const carModel=gltf.scene;
-          carModel.scale.set(1.1,1.1,1.1);
-          carModel.position.set(0,0,0);
-          // Apply environment to all meshes
-          carModel.traverse(node=>{
-            if(node.isMesh){
-              node.castShadow=true;
-              if(node.material){
-                node.material.envMap=envTexture;
-                node.material.envMapIntensity=1.2;
-                node.material.needsUpdate=true;
-              }
-            }
-          });
-          carGrp.add(carModel);
-        },
-        undefined,
-        (err)=>{ console.log('GLTF load failed, using geo car'); }
-      );
-    }catch(e){ console.log('GLTF not available'); }
-
-    // Car headlights
-    const cHL1=new THREE.SpotLight(0xfff8dd,9,60,Math.PI/11,0.28);
-    cHL1.position.set(-2.5,0.8,0.7); cHL1.target.position.set(-40,0,0.7);
-    carGrp.add(cHL1); carGrp.add(cHL1.target);
-    const cHL2=new THREE.SpotLight(0xfff8dd,9,60,Math.PI/11,0.28);
-    cHL2.position.set(-2.5,0.8,-0.7); cHL2.target.position.set(-40,0,-0.7);
-    carGrp.add(cHL2); carGrp.add(cHL2.target);
-
-    // Car fill light (moves with car)
-    const carFill=new THREE.PointLight(0xfff0cc,3.5,14);
-    carFill.position.set(2,5,42); scene.add(carFill);
-
-    // ── ANIMATION ──
-    let t=0, animPhase=0, carZ=42, braking=false, camZ=42, camY=5, signBright=0, btnShown=false;
-    const lerp=(a,b,f)=>a+(b-a)*f;
-    let rafId=null;
-
-    const tick=()=>{
-      rafId=requestAnimationFrame(tick);
-      t+=0.016;
-
-      if(animPhase===0){
-        cHL1.intensity=10; cHL2.intensity=10;
-        if(!braking){ carZ-=0.2; if(carZ<8) braking=true; }
-        else{ carZ=lerp(carZ,6,0.08); if(Math.abs(carZ-6)<0.06){carZ=6;animPhase=1;setTimeout(()=>setPhase(1),50);} }
-        carGrp.position.z=carZ;
-        carFill.position.z=carZ;
-        camera.position.set(0,camY,camZ);
-        camera.lookAt(0,3,carZ-14);
-        // Wheel spin
-        if(!braking) carGrp.children.forEach(c=>{if(c.material?.roughness>=0.9) c.rotation.y+=0.2;});
-      }
-
-      if(animPhase===1){
-        signBright=Math.min(signBright+0.02,1);
-        signLights.forEach(l=>l.intensity=signBright*5.5);
-        signGrp.children.forEach(c=>{if(c.material?.emissive) c.material.emissiveIntensity=0.08+signBright*0.5;});
-        camera.position.set(lerp(camera.position.x,0,0.04),lerp(camera.position.y,6,0.03),lerp(camera.position.z,24,0.022));
-        camera.lookAt(0,12,-16);
-        if(signBright>=1){animPhase=2;setTimeout(()=>setPhase(2),50);}
-      }
-
-      if(animPhase===2){
-        camZ=lerp(camZ,2.5,0.025); camY=lerp(camY,3.0,0.022);
-        camera.position.set(Math.sin(t*0.22)*0.5,camY,camZ);
-        camera.lookAt(0,4,-16);
-        if(camZ<4&&!btnShown){btnShown=true;setShowBtn(true);setTimeout(()=>setPhase(3),50);}
-      }
-
-      if(animPhase>=3){
-        camera.position.set(Math.sin(t*0.18)*0.6,3.0,2.5);
-        camera.lookAt(0,4.5,-16);
-      }
-
-      chandLight.intensity=3.8+Math.sin(t*0.7)*0.3;
-      storeWarm.intensity=2.8+Math.sin(t*0.5)*0.2;
-      cHL1.intensity=9+Math.sin(t*2.5)*0.5;
-      cHL2.intensity=9+Math.sin(t*2.5+0.4)*0.5;
-      renderer.render(scene,camera);
-    };
-    tick();
-    setTimeout(()=>setPhase(0),100);
-
-    const onResize=()=>{
-      const w=el.clientWidth,h=el.clientHeight;
-      if(!w||!h)return;
-      camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
-    };
-    window.addEventListener('resize',onResize);
-
-    return()=>{
-      window.removeEventListener('resize',onResize);
-      if(rafId) cancelAnimationFrame(rafId);
-      try{el.removeChild(renderer.domElement);renderer.dispose();pmrem.dispose();}catch(e){}
-    };
+    const td = settings.t_door  ?? 2200;
+    const to = settings.t_open  ?? 3600;
+    const ti = settings.t_int   ?? 4800;
+    const tb = settings.t_board ?? 5500;
+    const tl = settings.t_lb    ?? 5900;
+    T(()=>setPhase(1),td);
+    T(()=>setPhase(2),to);
+    T(()=>setPhase(3),ti);
+    T(()=>{setPhase(4);setShowBtn(true);},tb);
+    T(()=>setPhase(5),tl);
+    return()=>timersRef.current.forEach(clearTimeout);
   },[]);
 
-  const b1=settings.intro_brand1||'JAMEEL';
-  const b2=settings.intro_brand2||'FABRICS';
-  const sub=settings.intro_sub||'KUNJAH';
-  const tag=settings.intro_tagline||TAGLINE;
-  const btn=settings.intro_enter_btn||'Enter the Store';
+  const imgExt  = settings.img_ext  || 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=1800&q=85';
+  const imgDoor = settings.img_door || 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=1800&q=85';
+  const imgInt  = settings.img_int  || 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1800&q=85';
+  const b1 = settings.intro_brand1 || 'JAMEEL';
+  const b2 = settings.intro_brand2 || 'FABRICS';
+  const sub= settings.intro_sub    || 'KUNJAH';
+  const enterTxt = settings.intro_enter_btn || 'Enter the Store';
+  const showSkip = settings.intro_skip !== false;
+  const showJF   = settings.intro_show_jf !== false;
+
+  const animCss=`
+    @keyframes s1z{0%{transform:scale(1);filter:brightness(.75)}100%{transform:scale(1.22);filter:brightness(.42)}}
+    @keyframes bIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes jfSpin{from{opacity:0;transform:scale(.5) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes gPulse{0%,100%{text-shadow:0 0 20px rgba(212,168,67,.5)}50%{text-shadow:0 0 55px rgba(212,168,67,1),0 0 100px rgba(212,168,67,.3)}}
+    @keyframes btnFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes lbClose{to{height:0}}
+    @keyframes doorFade{from{opacity:0}to{opacity:1}}
+  `;
+
+  const lbStyle=(top)=>({
+    position:'absolute',[top?'top':'bottom']:0,left:0,right:0,height:'10vh',
+    background:'#000',zIndex:20,
+    ...(phase>=5?{animation:'lbClose 1.5s cubic-bezier(.77,0,.18,1) .3s forwards'}:{})
+  });
+
+  const doorStyle=(isLeft)=>({
+    flex:1,background:'rgba(8,6,4,.88)',position:'relative',overflow:'hidden',
+    transformOrigin:isLeft?'left center':'right center',
+    transform:phase>=2?(isLeft?'perspective(900px) rotateY(-122deg)':'perspective(900px) rotateY(122deg)'):'none',
+    transition:'transform 1.4s cubic-bezier(.77,0,.18,1)'
+  });
+
+  const cornerStyle=(t,l)=>({
+    position:'absolute',
+    ...(t==='top'?{top:'-1px'}:{bottom:'-1px'}),
+    ...(l==='left'?{left:'-1px'}:{right:'-1px'}),
+    width:'12px',height:'12px',
+    [t==='top'?'borderTop':'borderBottom']:'2px solid rgba(201,168,76,.8)',
+    [l==='left'?'borderLeft':'borderRight']:'2px solid rgba(201,168,76,.8)'
+  });
 
   return(
-    <div style={{position:'fixed',inset:0,zIndex:99999,background:'#0c1220'}}>
-      <div ref={mountRef} style={{width:'100%',height:'100%'}}/>
-      {/* Cinematic bars */}
-      <div style={{position:'absolute',top:0,left:0,right:0,height:'clamp(18px,3.5vw,42px)',background:'#000',zIndex:2}}/>
-      <div style={{position:'absolute',bottom:0,left:0,right:0,height:'clamp(18px,3.5vw,42px)',background:'#000',zIndex:2}}/>
+    <div style={{position:'fixed',inset:0,zIndex:99999,background:'#000',overflow:'hidden',fontFamily:"'Jost',sans-serif"}}>
+      <style>{animCss}</style>
+      <div style={lbStyle(true)}/>
+      <div style={lbStyle(false)}/>
 
-      {/* Brand overlay */}
+      {/* Exterior */}
+      <div style={{position:'absolute',inset:0,zIndex:1,
+        backgroundImage:"linear-gradient(to bottom,rgba(0,0,0,.5) 0%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.55) 100%),url('"+imgExt+"')",
+        backgroundSize:'cover',backgroundPosition:'center',
+        animation:'s1z 3.5s cubic-bezier(.25,.46,.45,.94) forwards'}}/>
+
+      {/* Door scene */}
+      <div style={{position:'absolute',inset:0,zIndex:2,
+        backgroundImage:"url('"+imgDoor+"')",
+        backgroundSize:'cover',backgroundPosition:'center',
+        opacity:phase>=1?1:0,
+        transform:phase>=1?'scale(1.4)':'scale(1.15)',
+        filter:'brightness('+(phase>=1?0.72:0.55)+')',
+        transition:'opacity .6s ease,transform 2.5s cubic-bezier(.25,.46,.45,.94),filter 2.5s ease'}}/>
+
+      {/* Door panels */}
       {phase>=1&&(
-        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:3}}>
-          <div style={{textAlign:'center',padding:'0 20px',animation:'fadeIn 1s ease both'}}>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(9px,1vw,12px)',letterSpacing:'8px',color:'#d4a843bb',marginBottom:'10px',fontStyle:'italic',animation:'fadeUp 0.8s ease both'}}>
-              {settings.intro_line1||'✦ EST. KUNJAH, DISTT GUJRAT ✦'}
-            </div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(28px,5vw,68px)',fontWeight:'900',color:'#fefcf8',lineHeight:1,letterSpacing:'8px',textShadow:'0 0 60px rgba(212,168,67,0.6),0 2px 8px rgba(0,0,0,0.9)',animation:'fadeUp 0.9s ease 0.1s both'}}>
-              {b1}
-            </div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(28px,5vw,68px)',fontWeight:'900',color:'#fefcf8',lineHeight:0.95,letterSpacing:'8px',textShadow:'0 0 60px rgba(212,168,67,0.6),0 2px 8px rgba(0,0,0,0.9)',animation:'fadeUp 0.9s ease 0.2s both'}}>
-              {b2}
-            </div>
-            <div style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',margin:'13px 0 10px',animation:'fadeUp 0.8s ease 0.3s both'}}>
-              <div style={{height:'1px',background:'linear-gradient(to right,transparent,#d4a843)',width:'50px'}}/>
-              <div style={{width:'5px',height:'5px',background:'#d4a843',transform:'rotate(45deg)',flexShrink:0}}/>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(11px,1.6vw,18px)',letterSpacing:'14px',color:'#d4a843'}}>{sub}</div>
-              <div style={{width:'5px',height:'5px',background:'#d4a843',transform:'rotate(45deg)',flexShrink:0}}/>
-              <div style={{height:'1px',background:'linear-gradient(to left,transparent,#d4a843)',width:'50px'}}/>
-            </div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(9px,1.1vw,13px)',color:'#d4a84377',fontStyle:'italic',letterSpacing:'3px',animation:'fadeUp 0.8s ease 0.4s both'}}>{tag}</div>
+        <div style={{position:'absolute',inset:0,zIndex:3,display:'flex',animation:'doorFade .4s ease both'}}>
+          <div style={doorStyle(true)}>
+            <div style={{position:'absolute',inset:'8%',border:'1.5px solid rgba(212,168,67,.45)'}}/>
+            <div style={{position:'absolute',top:'22%',bottom:'22%',left:'16%',right:'20%',border:'1px solid rgba(212,168,67,.25)'}}/>
+            <div style={{position:'absolute',top:'32%',bottom:'32%',left:'20%',right:'24%',border:'1px solid rgba(212,168,67,.14)'}}/>
+            <div style={{position:'absolute',top:'50%',right:'13%',width:'5px',height:'42px',
+              background:'linear-gradient(to bottom,#8a6020,#c9a84c,#e8d5a3,#c9a84c,#8a6020)',
+              borderRadius:'3px',transform:'translateY(-50%)',boxShadow:'0 0 10px rgba(201,168,76,.5)'}}/>
+          </div>
+          <div style={doorStyle(false)}>
+            <div style={{position:'absolute',inset:'8%',border:'1.5px solid rgba(212,168,67,.45)'}}/>
+            <div style={{position:'absolute',top:'22%',bottom:'22%',left:'20%',right:'16%',border:'1px solid rgba(212,168,67,.25)'}}/>
+            <div style={{position:'absolute',top:'32%',bottom:'32%',left:'24%',right:'20%',border:'1px solid rgba(212,168,67,.14)'}}/>
+            <div style={{position:'absolute',top:'50%',left:'13%',width:'5px',height:'42px',
+              background:'linear-gradient(to bottom,#8a6020,#c9a84c,#e8d5a3,#c9a84c,#8a6020)',
+              borderRadius:'3px',transform:'translateY(-50%)',boxShadow:'0 0 10px rgba(201,168,76,.5)'}}/>
           </div>
         </div>
       )}
 
-      {/* Enter button */}
+      {/* Interior */}
+      <div style={{position:'absolute',inset:0,zIndex:4,
+        backgroundImage:"linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 35%,rgba(0,0,0,.35) 100%),url('"+imgInt+"')",
+        backgroundSize:'cover',backgroundPosition:'center 35%',
+        opacity:phase>=3?1:0,
+        transform:phase>=3?'scale(1.03)':'scale(1.25)',
+        filter:'brightness('+(phase>=3?0.9:0.25)+')',
+        transition:'opacity .7s ease,transform 3s cubic-bezier(.25,.46,.45,.94),filter 3s ease'}}/>
+
+      {/* Board */}
       {showBtn&&(
-        <div style={{position:'absolute',bottom:'11%',left:0,right:0,display:'flex',justifyContent:'center',zIndex:4,animation:'fadeUp 0.6s ease both'}}>
+        <div style={{position:'absolute',inset:0,zIndex:5,display:'flex',flexDirection:'column',
+          alignItems:'center',justifyContent:'center',animation:'bIn .8s cubic-bezier(.16,1,.3,1) both'}}>
+          {showJF&&(
+            <div style={{marginBottom:'clamp(12px,2vw,20px)',animation:'jfSpin .8s cubic-bezier(.16,1,.3,1) both'}}>
+              <svg width="clamp(52px,7vw,72px)" height="clamp(52px,7vw,72px)" viewBox="0 0 72 72" fill="none">
+                <circle cx="36" cy="36" r="33" stroke="#c9a84c" strokeWidth="1.4" opacity=".82"/>
+                <circle cx="36" cy="36" r="26" stroke="#c9a84c" strokeWidth=".6" opacity=".35"/>
+                <path d="M36 4 L38.5 10 L36 16 L33.5 10 Z" fill="#c9a84c" opacity=".82"/>
+                <path d="M36 68 L38.5 62 L36 56 L33.5 62 Z" fill="#c9a84c" opacity=".82"/>
+                <path d="M4 36 L10 33.5 L16 36 L10 38.5 Z" fill="#c9a84c" opacity=".82"/>
+                <path d="M68 36 L62 33.5 L56 36 L62 38.5 Z" fill="#c9a84c" opacity=".82"/>
+                <text x="14" y="49" fontFamily="Playfair Display,serif" fontSize="26" fontWeight="900" fill="#c9a84c" opacity=".95">JF</text>
+              </svg>
+            </div>
+          )}
+          <div style={{position:'relative',
+            background:'linear-gradient(135deg,rgba(10,8,4,.97),rgba(20,14,6,.98))',
+            border:'1.5px solid rgba(201,168,76,.65)',
+            padding:'clamp(12px,2vw,22px) clamp(28px,5vw,64px)',textAlign:'center',
+            boxShadow:'0 0 50px rgba(201,168,76,.22),0 0 120px rgba(201,168,76,.08),inset 0 0 40px rgba(201,168,76,.03)'}}>
+            <div style={cornerStyle('top','left')}/>
+            <div style={cornerStyle('top','right')}/>
+            <div style={cornerStyle('bottom','left')}/>
+            <div style={cornerStyle('bottom','right')}/>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(18px,4vw,52px)',
+              fontWeight:900,letterSpacing:'clamp(5px,1vw,11px)',color:'#fdfaf4',lineHeight:1,
+              animation:'gPulse 3s ease-in-out infinite'}}>{b1}</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:'clamp(18px,4vw,52px)',
+              fontWeight:900,letterSpacing:'clamp(5px,1vw,11px)',color:'#fdfaf4',lineHeight:.95,marginBottom:'6px',
+              animation:'gPulse 3s ease-in-out .15s infinite'}}>{b2}</div>
+            <div style={{display:'flex',alignItems:'center',gap:'8px',margin:'6px 0 5px'}}>
+              <div style={{flex:1,height:'1px',background:'linear-gradient(to right,transparent,rgba(201,168,76,.7),transparent)'}}/>
+              <div style={{width:'5px',height:'5px',background:'#c9a84c',transform:'rotate(45deg)',flexShrink:0}}/>
+              <div style={{flex:1,height:'1px',background:'linear-gradient(to left,transparent,rgba(201,168,76,.7),transparent)'}}/>
+            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(10px,1.5vw,16px)',
+              letterSpacing:'12px',color:'rgba(201,168,76,.88)',fontStyle:'italic'}}>{sub}</div>
+          </div>
           <button onClick={()=>{if(onEnter)onEnter();}}
-            style={{background:'transparent',color:'#d4a843',border:'1px solid #d4a843',padding:'13px 50px',fontSize:'11px',fontWeight:'600',letterSpacing:'4px',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Jost',sans-serif",transition:'all 0.3s',backdropFilter:'blur(6px)'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='#d4a843';e.currentTarget.style.color='#0c1220';}}
-            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#d4a843';}}>
-            {btn}
+            style={{marginTop:'clamp(16px,2.5vw,26px)',padding:'12px clamp(36px,5vw,56px)',
+              background:'transparent',border:'1px solid rgba(201,168,76,.65)',
+              color:'rgba(201,168,76,.9)',fontFamily:"'Jost',sans-serif",
+              fontSize:'11px',fontWeight:600,letterSpacing:'4px',textTransform:'uppercase',
+              cursor:'pointer',animation:'btnFade .8s cubic-bezier(.16,1,.3,1) .3s both',
+              backdropFilter:'blur(6px)',transition:'all .3s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,.9)';e.currentTarget.style.color='#0a0806';e.currentTarget.style.letterSpacing='6px';}}
+            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='rgba(201,168,76,.9)';e.currentTarget.style.letterSpacing='4px';}}>
+            {enterTxt}
           </button>
         </div>
       )}
 
-      {/* Skip */}
-      {settings.intro_skip!==false&&(
+      {/* Skip — bright & visible */}
+      {showSkip&&(
         <button onClick={()=>{if(onEnter)onEnter();}}
-          style={{position:'absolute',top:'clamp(26px,4vw,50px)',right:'20px',background:'none',border:'1px solid #d4a84333',padding:'5px 15px',color:'#d4a84366',fontSize:'10px',cursor:'pointer',letterSpacing:'2px',zIndex:5,fontFamily:"'Jost',sans-serif",transition:'all 0.2s'}}
-          onMouseEnter={e=>e.currentTarget.style.color='#d4a843'}
-          onMouseLeave={e=>e.currentTarget.style.color='#d4a84366'}>
+          style={{position:'absolute',top:'clamp(24px,4vw,52px)',right:'20px',zIndex:30,
+            background:'rgba(201,168,76,.18)',border:'1px solid rgba(201,168,76,.65)',
+            color:'rgba(255,250,210,.95)',fontFamily:"'Jost',sans-serif",
+            fontSize:'10px',fontWeight:600,letterSpacing:'2px',padding:'7px 18px',
+            cursor:'pointer',backdropFilter:'blur(4px)',
+            textShadow:'0 0 12px rgba(201,168,76,.6)',transition:'all .2s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,.35)';e.currentTarget.style.color='#fff';}}
+          onMouseLeave={e=>{e.currentTarget.style.background='rgba(201,168,76,.18)';e.currentTarget.style.color='rgba(255,250,210,.95)';}}>
           SKIP ›
         </button>
       )}
@@ -1491,15 +1113,36 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
   const saveSettings=()=>{setSettings(sEdit);LS.set("shopSettings",sEdit);alert("✅ Saved!");};
   const changePw=()=>{const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(pwForm.old!==sv)return alert("Wrong current password!");if(!pwForm.nw||pwForm.nw.length<6)return alert("Min 6 chars!");if(pwForm.nw!==pwForm.cf)return alert("Passwords don't match!");LS.set("adminPass",pwForm.nw);setPwForm({old:"",nw:"",cf:""});alert("✅ Password changed!");};
 
+  // ── BACKUP / RESTORE ──
+  const doBackup=()=>{
+    const data={v:2,ts:new Date().toISOString(),settings:sEdit,adminPass:LS.get("adminPass",ADMIN_PASS_DEFAULT)};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+    a.download="jameel-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();
+    alert("✅ Backup downloaded!");
+  };
+  const doRestore=(file)=>{
+    if(!file)return;const reader=new FileReader();
+    reader.onload=(e)=>{
+      try{
+        const d=JSON.parse(e.target.result);
+        if(!d.v)throw new Error("Invalid");
+        if(d.settings){setSettings(d.settings);setSEdit(d.settings);LS.set("shopSettings",d.settings);}
+        if(d.adminPass)LS.set("adminPass",d.adminPass);
+        alert("✅ Restored! Refresh the page.");
+      }catch{alert("❌ Invalid backup file!");}
+    };reader.readAsText(file);
+  };
+
+  const TABS=[{k:"pending",l:`Pending (${pending.length})`},{k:"alerts",l:`Alerts`,badge:unread.length},{k:"listed",l:`Listed (${listed.length})`},{k:"all",l:"All"},{k:"content",l:"Content"},{k:"settings",l:"Settings"},{k:"coupons",l:"Coupons"},{k:"orders",l:"Orders"},{k:"reviews",l:"Reviews"},{k:"backup",l:"💾 Backup"}];
+  const WCATS=["Men's Unstitched","Women Unstitched","Women Stitched","Kids","Other"];
+
   const inp=(label,field,type="text",isS=false)=>{const obj=isS?sEdit:editProd;const setter=isS?v=>setSEdit(s=>({...s,[field]:v})):v=>setEditProd(p=>({...p,[field]:v}));return(
     <div key={field} style={{marginBottom:"12px"}}>
       <label style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",display:"block",marginBottom:"5px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>{label}</label>
       {type==="textarea"?<textarea value={obj?.[field]||""} onChange={e=>setter(e.target.value)} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"80px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>:<input type={type} value={obj?.[field]||""} onChange={e=>setter(type==="number"?+e.target.value:e.target.value)} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>}
     </div>
   );};
-
-  const TABS=[{k:"pending",l:`Pending (${pending.length})`},{k:"alerts",l:`Alerts`,badge:unread.length},{k:"listed",l:`Listed (${listed.length})`},{k:"all",l:"All"},{k:"content",l:"Content"},{k:"settings",l:"Settings"},{k:"coupons",l:"Coupons"},{k:"orders",l:"Orders"},{k:"reviews",l:"Reviews"}];
-  const WCATS=["Men's Unstitched","Women Unstitched","Women Stitched","Kids","Other"];
 
   const PCard=({p})=>(
     <div style={{background:"#fff",border:`1px solid ${STATUS_C[p.website_status||"pending"]}33`,overflow:"hidden"}}>
@@ -1843,6 +1486,41 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
             </div>
           ))}{!reviews.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No reviews yet</div>}</div>
         </div>}
+
+        {tab==="backup"&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"4px"}}>💾 Backup & Restore</div>
+          <div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:"20px"}}>Settings aur admin password ka backup lo ya restore karo.</div>
+
+          {/* Download Backup */}
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📥 Download Backup</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
+              Sari settings, passwords JSON file mein save ho jaengi.<br/>
+              Safe jagah rakh lo — kabhi bhi restore kar saktay ho.
+            </div>
+            <button onClick={doBackup} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"12px 28px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .3s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>⬇️ DOWNLOAD BACKUP</button>
+          </div>
+
+          {/* Restore */}
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📤 Restore from Backup</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
+              Pehle se downloaded backup JSON file select karo.<br/>
+              <strong style={{color:"#c0392b"}}>Warning:</strong> Existing settings replace ho jaengi.
+            </div>
+            <label style={{display:"inline-block",background:"transparent",color:"#1a1208",border:"1px solid #d4a84344",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#b8922a";e.currentTarget.style.color="#b8922a";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#d4a84344";e.currentTarget.style.color="#1a1208";}}>
+              📂 SELECT BACKUP FILE
+              <input type="file" accept=".json" style={{display:"none"}} onChange={e=>doRestore(e.target.files[0])}/>
+            </label>
+          </div>
+
+          {/* Reset to defaults */}
+          <div style={{background:"#fff",border:"1px solid #dc262622",padding:"20px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#dc2626",marginBottom:"8px"}}>🔄 Reset to Defaults</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px"}}>Sari settings default pe wapas set ho jaengi. Products safe rahenge.</div>
+            <button onClick={()=>{if(!window.confirm("Are you sure? All settings will be reset!"))return;LS.set("shopSettings",{});setSettings({});setSEdit({});alert("✅ Reset! Refresh the page.");}} style={{background:"transparent",color:"#dc2626",border:"1px solid #dc262644",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.target.style.background="#dc2626";e.target.style.color="#fff";}} onMouseLeave={e=>{e.target.style.background="transparent";e.target.style.color="#dc2626";}}>⚠️ RESET ALL SETTINGS</button>
+          </div>
+        </div>}
       </div>
     </div>
   );
@@ -1883,9 +1561,9 @@ function OrdersAdmin(){
 export default function App(){
   const [show3D,setShow3D]=useState(true);
   const [fading,setFading]=useState(false);
-  const handleEnter = useCallback(()=>{
+  const handleEnter=useCallback(()=>{
     setFading(true);
-    setTimeout(()=>setShow3D(false), 600);
+    setTimeout(()=>setShow3D(false),500);
   },[]);
   const [page,setPage]=useState("home");
   const [cat,setCat]=useState("All");
@@ -1961,9 +1639,14 @@ export default function App(){
       <style>{G}</style>
       <style>{`@media(min-width:769px){.show-mob{display:none!important}}`}</style>
 
-      {/* 3D Showroom */}
-      {show3D&&<div style={{position:"fixed",inset:0,zIndex:99999,opacity:fading?0:1,transition:"opacity 0.6s ease",pointerEvents:fading?"none":"auto"}}><Showroom3D onEnter={handleEnter} settings={settings}/></div>}
-      {!show3D&&<>
+      {/* 3D Showroom overlay */}
+      {show3D&&(
+        <div style={{position:"fixed",inset:0,zIndex:99999,opacity:fading?0:1,transition:"opacity 0.5s ease",pointerEvents:fading?"none":"auto"}}>
+          <Showroom3D onEnter={handleEnter} settings={settings}/>
+        </div>
+      )}
+      {/* Website — ALWAYS renders in background */}
+      <div style={{visibility:show3D?"hidden":"visible",opacity:show3D?0:1,transition:"opacity 0.5s ease"}}>
         <AnnouncementBar texts={settings.announcements}/>
 
         {/* Discount Banner */}
@@ -2123,7 +1806,7 @@ export default function App(){
 
         {/* Hidden admin trigger */}
         <div onClick={handleSecretClick} style={{position:"fixed",bottom:0,left:0,width:"30px",height:"30px",zIndex:999,cursor:"default",opacity:0}}/>
-      </>}
+      </div>
     </>
   );
 }
