@@ -1123,4 +1123,645 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
       <div style={{background:"#1a1208",padding:"12px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0,gap:"8px",flexWrap:"wrap"}}>
         <div style={{fontFamily:"'Playfair Display',serif",fontSize:"16px",fontWeight:"700",color:"#d4a843"}}>⚙️ Admin — {BRAND}{unread.length>0&&<span style={{marginLeft:"8px",background:"#dc2626",color:"#fff",borderRadius:"50%",padding:"2px 7px",fontSize:"11px",fontFamily:"'Jost',sans-serif"}}>{unread.length}</span>}</div>
         <div style={{display:"flex",gap:"4px",flexWrap:"wrap"}}>
-          {TABS.map(t=><button key={t.k} onC
+          {TABS.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={{background:tab===t.k?"#d4a843":"transparent",color:tab===t.k?"#1a1208":"#d4a84388",border:`1px solid ${t.badge>0?"#dc2626":"#d4a84333"}`,borderRadius:"0",padding:"5px 10px",cursor:"pointer",fontWeight:"600",fontSize:"9px",letterSpacing:"1px",textTransform:"uppercase",position:"relative",transition:"all 0.2s"}}>
+            {t.l}{t.badge>0&&<span style={{position:"absolute",top:"-4px",right:"-4px",background:"#dc2626",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
+          </button>)}
+          <button onClick={onClose} style={{background:"#dc2626",color:"#fff",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px"}}>✕ CLOSE</button>
+          <button onClick={()=>window.open(window.location.href,"_blank")} style={{background:"#d4a843",color:"#1a1208",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px",marginLeft:"4px"}}>👁 PREVIEW</button>
+        </div>
+      </div>
+
+      <div style={{flex:1,overflow:"auto",padding:"20px"}}>
+        {/* Pending */}
+        {tab==="pending"&&<div>
+          <div style={{marginBottom:"16px"}}><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"4px"}}>⏳ Pending ({pending.length})</div><div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>ERP se aaye products — decide karo website pe list karni hai ya nahi</div></div>
+          {loading&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>Loading...</div>}
+          {!loading&&!pending.length&&<div style={{textAlign:"center",padding:"60px",color:"#8a7a5a"}}><div style={{fontSize:"36px",marginBottom:"12px"}}>✅</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",color:"#1a1208"}}>No pending products</div></div>}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{pending.map(p=><PCard key={p.id} p={p}/>)}</div>
+        </div>}
+
+        {/* Alerts */}
+        {tab==="alerts"&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>🔔 Alerts ({alerts.length})</div>
+          {!alerts.length&&<div style={{textAlign:"center",padding:"60px",color:"#8a7a5a"}}><div style={{fontSize:"36px",marginBottom:"12px"}}>🔕</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",color:"#1a1208"}}>No alerts yet</div></div>}
+          <div style={{display:"grid",gap:"10px"}}>{alerts.map(a=>(
+            <div key={a.id} style={{background:"#fff",border:`1px solid ${a.type==="sold_out"?"#dc262633":a.type==="low_stock"?"#f59e0b33":"#d4a84333"}`,padding:"16px",opacity:a.is_read?0.6:1}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"10px"}}>
+                <div><div style={{fontWeight:"700",fontSize:"13px",color:"#1a1208",fontFamily:"'Playfair Display',serif"}}>{a.product_name}</div><div style={{fontSize:"12px",color:"#8a7a5a",marginTop:"3px",fontFamily:"'Jost',sans-serif"}}>{a.message}</div><div style={{fontSize:"10px",color:"#aaa",marginTop:"3px",fontFamily:"'Jost',sans-serif"}}>{new Date(a.created_at).toLocaleString()}</div></div>
+                {a.is_read&&<span style={{fontSize:"10px",color:"#22c55e",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>DONE ✓</span>}
+              </div>
+              {!a.is_read&&<div style={{display:"flex",gap:"8px",flexWrap:"wrap"}}>
+                <button onClick={()=>handleAlert(a,"sold_out")} style={{background:"#dc262622",color:"#dc2626",border:"1px solid #dc262644",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>❌ SOLD OUT</button>
+                <button onClick={()=>handleAlert(a,"remove")} style={{background:"#6b728022",color:"#6b7280",border:"1px solid #6b728044",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>🗑️ REMOVE</button>
+                <button onClick={()=>handleAlert(a,"waiting")} style={{background:"#f59e0b22",color:"#f59e0b",border:"1px solid #f59e0b44",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>⏳ COMING</button>
+                <button onClick={()=>markRead(a.id,"ignored")} style={{background:"none",color:"#aaa",border:"1px solid #eee",padding:"6px 14px",fontSize:"10px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>IGNORE</button>
+              </div>}
+            </div>
+          ))}</div>
+        </div>}
+
+        {/* Listed */}
+        {tab==="listed"&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>✅ Listed ({listed.length})</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{listed.map(p=><PCard key={p.id} p={p}/>)}{!listed.length&&<div style={{color:"#8a7a5a",textAlign:"center",padding:"40px",gridColumn:"1/-1",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No listed products</div>}</div>
+        </div>}
+
+        {/* All */}
+        {tab==="all"&&!editProd&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>📦 All ({allProds.length})</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{allProds.map(p=><PCard key={p.id} p={p}/>)}{!allProds.length&&<div style={{color:"#8a7a5a",textAlign:"center",padding:"40px",gridColumn:"1/-1",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>ERP se products add karo</div>}</div>
+        </div>}
+
+        {/* Edit Product */}
+        {(tab==="all"||tab==="pending"||tab==="listed")&&editProd&&(
+          <div style={{maxWidth:"750px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"16px"}}>
+              <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#b8922a"}}>✏️ Edit: {editProd.name}</div>
+              <button onClick={()=>setEditProd(null)} style={{background:"none",border:"1px solid #d4a84344",padding:"6px 14px",color:"#8a7a5a",cursor:"pointer",fontSize:"11px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>← BACK</button>
+            </div>
+            <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+              {/* Status */}
+              <div style={{marginBottom:"16px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Website Status</div>
+                <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
+                  {Object.entries(STATUS_L).map(([k,l])=><button key={k} onClick={()=>setEditProd(p=>({...p,website_status:k}))} style={{background:editProd.website_status===k?STATUS_C[k]+"22":"transparent",color:editProd.website_status===k?STATUS_C[k]:"#8a7a5a",border:`1px solid ${editProd.website_status===k?STATUS_C[k]:"#d4a84333"}`,padding:"5px 12px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",transition:"all 0.2s"}}>{l}</button>)}
+                </div>
+              </div>
+              {/* Category */}
+              <div style={{marginBottom:"14px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Website Category</div>
+                <select value={editProd.website_category||""} onChange={e=>setEditProd(p=>({...p,website_category:e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
+                  <option value="">Same as ERP ({editProd.category})</option>
+                  {WCATS.map(c=><option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              {/* Size info */}
+              <div style={{marginBottom:"14px",background:"var(--cream2)",padding:"10px 12px",border:"1px solid #d4a84322"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",marginBottom:"3px",letterSpacing:"1px",fontFamily:"'Jost',sans-serif"}}>SIZE TYPE (FROM ERP)</div>
+                <div style={{fontSize:"13px",color:"#1a1208",fontFamily:"'Jost',sans-serif",fontWeight:"600"}}>{editProd.size_type==="stitched"?`Stitched — ${(editProd.available_sizes||[]).join(", ")||"Not set"}`:editProd.size_type==="gaz"?"Gaz":editProd.size_type==="free"?"Free Size":"Meter"}</div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 20px"}}>
+                {inp("Website Title","website_title")}
+                {inp("Brand","brand")}
+                {inp("Color","color")}
+                {inp("Fabric Type","fabric_type")}
+                {inp("Sale Price","salePrice","number")}
+                {inp("Offer Price","offerPrice","number")}
+                {inp("Washing Instructions","washing_instructions")}
+                {inp("Size Guide","size_guide")}
+              </div>
+              <div>{inp("Website Description (English)","website_description","textarea")}</div>
+              <div style={{display:"flex",gap:"16px",margin:"10px 0",flexWrap:"wrap"}}>
+                {[["New Arrival","is_new_arrival"],["Active","is_active"]].map(([l,k])=>(
+                  <label key={k} style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif"}}>
+                    <input type="checkbox" checked={!!editProd[k]} onChange={e=>setEditProd(p=>({...p,[k]:e.target.checked}))} style={{accentColor:"#b8922a",width:"14px",height:"14px"}}/>{l}
+                  </label>
+                ))}
+              </div>
+              {/* Images */}
+              <div style={{marginTop:"12px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"10px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Product Images (up to 5)</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"8px"}}>
+                  {["photo_url","photo_url2","photo_url3","photo_url4","photo_url5"].map((f,i)=>(
+                    <div key={f}>
+                      <div style={{fontSize:"9px",color:"#aaa",marginBottom:"4px",fontFamily:"'Jost',sans-serif"}}>Photo {i+1}</div>
+                      {editProd[f]&&<img src={editProd[f]} alt="" style={{width:"100%",height:"70px",objectFit:"cover",marginBottom:"4px",border:"1px solid #d4a84322"}}/>}
+                      <input type="file" accept="image/*" onChange={e=>e.target.files[0]&&uploadImg(e.target.files[0],f)} style={{width:"100%",fontSize:"8px",color:"#aaa",marginBottom:"3px"}}/>
+                      <input value={editProd[f]||""} onChange={e=>setEditProd(p=>({...p,[f]:e.target.value}))} placeholder="Or URL" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84322",padding:"3px 0",color:"#1a1208",fontSize:"9px",outline:"none"}}/>
+                    </div>
+                  ))}
+                </div>
+                {uploading&&<div style={{color:"#b8922a",fontSize:"11px",marginTop:"6px",fontFamily:"'Jost',sans-serif"}}>⏳ Uploading...</div>}
+              </div>
+              <div style={{display:"flex",gap:"10px",marginTop:"20px"}}>
+                <button onClick={saveProd} style={{flex:1,background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>SAVE & UPDATE</button>
+                <button onClick={()=>setEditProd(null)} style={{background:"none",border:"1px solid #d4a84344",padding:"13px 20px",color:"#8a7a5a",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:"10px"}}>CANCEL</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        {tab==="content"&&<div style={{maxWidth:"680px"}}>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>✍️ Content</div>
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+            <div style={{background:"#fff0f0",border:"1px solid #dc262622",padding:"12px",marginBottom:"14px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
+                <div style={{fontSize:"11px",fontWeight:"700",color:"#dc2626",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>🔥 DISCOUNT BANNER</div>
+                <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"11px",color:"#1a1208",fontFamily:"'Jost',sans-serif"}}>
+                  <input type="checkbox" checked={!!sEdit.discountBannerActive} onChange={e=>setSEdit(s=>({...s,discountBannerActive:e.target.checked}))} style={{accentColor:"#dc2626"}}/>Show
+                </label>
+              </div>
+              <input value={sEdit.discountBanner||""} onChange={e=>setSEdit(s=>({...s,discountBanner:e.target.value}))} placeholder="EID SALE — 20% OFF!" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #dc262633",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+            </div>
+            <div style={{marginBottom:"14px"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Hero Rotating Texts (one per line)</div>
+              <textarea value={(sEdit.heroTexts||[]).join("\n")} onChange={e=>setSEdit(s=>({...s,heroTexts:e.target.value.split("\n").filter(Boolean)}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"90px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+            </div>
+            {inp("Hero Subtitle","heroSubtitle",undefined,true)}
+            {inp("About Us Text","aboutText","textarea",true)}
+            {inp("Policies Text","policiesText","textarea",true)}
+            <div style={{marginBottom:"14px"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Announcement Bar (one per line)</div>
+              <textarea value={sEdit.announcements?.join("\n")||""} onChange={e=>setSEdit(s=>({...s,announcements:e.target.value.split("\n").filter(Boolean)}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"70px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+            </div>
+            <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif",marginBottom:"8px"}}>
+              <input type="checkbox" checked={!!sEdit.showUploadedVideo} onChange={e=>setSEdit(s=>({...s,showUploadedVideo:e.target.checked}))} style={{accentColor:"#b8922a"}}/>Show Video Section
+            </label>
+            {sEdit.showUploadedVideo&&<>
+              <div style={{marginBottom:"8px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"1px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Video Upload (Max 30MB)</div>
+                <input type="file" accept="video/*" onChange={async e=>{const f=e.target.files[0];if(!f)return;if(f.size>30*1024*1024){alert("Max 30MB!");return;}if(!supabase)return;alert("⏳ Uploading...");const ext=f.name.split(".").pop();const path=`videos/v-${Date.now()}.${ext}`;const{error}=await supabase.storage.from("product-images").upload(path,f,{upsert:true,contentType:f.type});if(error){alert("❌ "+error.message);return;}const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);setSEdit(s=>({...s,uploadedVideoUrl:u.publicUrl}));alert("✅ Uploaded!");}} style={{fontSize:"11px",color:"#8a7a5a",marginBottom:"6px",display:"block"}}/>
+                <input value={sEdit.uploadedVideoUrl||""} onChange={e=>setSEdit(s=>({...s,uploadedVideoUrl:e.target.value}))} placeholder="Or paste video URL" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+                {sEdit.uploadedVideoUrl&&<video src={sEdit.uploadedVideoUrl} controls style={{width:"100%",maxHeight:"140px",marginTop:"8px"}}/>}
+              </div>
+              {inp("Video Title","uploadedVideoTitle",undefined,true)}
+              {inp("Video Caption (one line per row in table)","uploadedVideoCaption","textarea",true)}
+            </>}
+
+            {/* Google Maps */}
+            <div style={{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #d4a84322"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Google Maps Embed URL</div>
+              <div style={{fontSize:"10px",color:"#8a7a5a",marginBottom:"8px",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}>
+                Google Maps kholo → apni shop search karo → Share → Embed a map → HTML copy karo → sirf src="..." ke andar wala URL yahan paste karo
+              </div>
+              <input value={sEdit.googleMapsUrl||""} onChange={e=>setSEdit(s=>({...s,googleMapsUrl:e.target.value}))} placeholder="https://www.google.com/maps/embed?pb=..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"12px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              {sEdit.googleMapsUrl&&<div style={{marginTop:"8px",border:"1px solid #d4a84322",overflow:"hidden"}}>
+                <iframe src={sEdit.googleMapsUrl} width="100%" height="160" style={{border:"none",display:"block",filter:"sepia(0.2)"}} title="preview"/>
+              </div>}
+            </div>
+
+            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"16px",width:"100%",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>SAVE CONTENT</button>
+          </div>
+
+          {/* 3D Animation Settings */}
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"15px",color:"#1a1208",margin:"20px 0 12px"}}>3D Intro Animation Settings</div>
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+            <div style={{fontSize:"10px",color:"#8a7a5a",marginBottom:"14px",fontFamily:"'Jost',sans-serif",lineHeight:1.7,background:"var(--cream2)",padding:"10px 12px",border:"1px solid #d4a84322"}}>
+              Yeh settings 3D showroom intro pe apply hongi. Save karne ke baad page refresh karo — naya intro dikhega.
+            </div>
+            {[
+              ["Intro Line 1 (small top text)","intro_line1"],
+              ["Brand Name Line 1","intro_brand1"],
+              ["Brand Name Line 2","intro_brand2"],
+              ["Sub Location Text","intro_sub"],
+              ["Tagline","intro_tagline"],
+              ["Enter Button Text","intro_enter_btn"],
+            ].map(([l,k])=>(
+              <div key={k} style={{marginBottom:"12px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{l}</div>
+                <input value={sEdit[k]||""} onChange={e=>setSEdit(s=>({...s,[k]:e.target.value}))} placeholder={`Default: ${k==="intro_brand1"?"JAMEEL":k==="intro_brand2"?"FABRICS":k==="intro_sub"?"KUNJAH":k==="intro_tagline"?TAGLINE:k==="intro_enter_btn"?"Enter the Store":"✦ EST. KUNJAH, DISTT GUJRAT ✦"}`} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              </div>
+            ))}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
+              <div>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Intro Duration (sec)</div>
+                <input type="number" min="3" max="10" value={sEdit.intro_duration||5} onChange={e=>setSEdit(s=>({...s,intro_duration:+e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              </div>
+              <div>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Skip Button</div>
+                <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif",marginTop:"8px"}}>
+                  <input type="checkbox" checked={sEdit.intro_skip!==false} onChange={e=>setSEdit(s=>({...s,intro_skip:e.target.checked}))} style={{accentColor:"#b8922a"}}/>Show Skip button
+                </label>
+              </div>
+            </div>
+            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"14px",width:"100%"}}>SAVE 3D SETTINGS</button>
+          </div>
+        </div>}
+
+        {/* Settings */}
+        {tab==="settings"&&<div style={{maxWidth:"580px"}}>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>⚙️ Settings</div>
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px",marginBottom:"16px"}}>
+            <div style={{marginBottom:"16px"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Brand Logo</div>
+              {/* Logo preview */}
+              <div style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"16px",marginBottom:"10px",display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80px"}}>
+                {sEdit.logoUrl
+                  ?<img src={sEdit.logoUrl} alt="logo" style={{maxHeight:"60px",maxWidth:"200px",objectFit:"contain"}}/>
+                  :<div style={{textAlign:"center"}}>
+                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"16px",fontWeight:"700",color:"#1a1208",letterSpacing:"2px"}}>{BRAND}</div>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"10px",color:"#b8922a",letterSpacing:"4px"}}>{SUB}</div>
+                    <div style={{fontSize:"9px",color:"#aaa",marginTop:"4px",fontFamily:"'Jost',sans-serif"}}>No logo — text showing</div>
+                  </div>
+                }
+              </div>
+              <div style={{display:"flex",gap:"8px",flexWrap:"wrap",alignItems:"center",marginBottom:"6px"}}>
+                <label style={{background:"#1a1208",color:"#d4a843",padding:"8px 14px",fontSize:"9px",fontWeight:"700",letterSpacing:"1px",cursor:"pointer",fontFamily:"'Jost',sans-serif",flexShrink:0}}>
+                  UPLOAD LOGO
+                  <input type="file" accept="image/png,image/jpg,image/jpeg,image/svg+xml,image/webp" style={{display:"none"}} onChange={async e=>{
+                    const f=e.target.files[0];if(!f)return;
+                    if(!supabase){alert("Supabase not connected!");return;}
+                    const ext=f.name.split(".").pop();
+                    const path=`logo/brand-logo-${Date.now()}.${ext}`;
+                    const{error}=await supabase.storage.from("product-images").upload(path,f,{upsert:true,contentType:f.type});
+                    if(error){alert("Upload failed: "+error.message);return;}
+                    const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);
+                    setSEdit(s=>({...s,logoUrl:u.publicUrl}));
+                    alert("✅ Logo uploaded!");
+                  }}/>
+                </label>
+                {sEdit.logoUrl&&<button onClick={()=>setSEdit(s=>({...s,logoUrl:""}))} style={{background:"none",border:"1px solid #dc262644",color:"#dc2626",padding:"8px 12px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>REMOVE</button>}
+              </div>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"1px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Or paste image URL</div>
+              <input value={sEdit.logoUrl||""} onChange={e=>setSEdit(s=>({...s,logoUrl:e.target.value}))} placeholder="https://..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              <div style={{fontSize:"10px",color:"#8a7a5a",marginTop:"6px",fontFamily:"'Jost',sans-serif"}}>Recommended: PNG with transparent background, min 200x80px</div>
+            </div>
+            {inp("WhatsApp Number","whatsapp",undefined,true)}
+            {inp("TikTok ID","tiktok",undefined,true)}
+            {inp("Instagram ID","instagram",undefined,true)}
+            {inp("TikTok URL","tiktokUrl",undefined,true)}
+            {inp("Instagram URL","instagramUrl",undefined,true)}
+            {inp("Footer Text (optional)","footerText",undefined,true)}
+
+            {/* Category Icons Editor */}
+            <div style={{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #d4a84322"}}>
+              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"10px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Category Bar Icons</div>
+              {CATS.map(cat=>(
+                <div key={cat} style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px",padding:"8px",background:"var(--cream2)",border:"1px solid #d4a84322"}}>
+                  <span style={{fontSize:"11px",color:"#1a1208",fontFamily:"'Jost',sans-serif",flex:1,fontWeight:"600"}}>{cat}</span>
+                  <div style={{color:"#b8922a"}}>{ICONS[(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]]||ICONS.catAll}</div>
+                  <select value={(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]} onChange={e=>setSEdit(s=>({...s,catIcons:{...(s.catIcons||{}), [cat]:e.target.value}}))} style={{background:"transparent",border:"1px solid #d4a84344",padding:"4px 8px",color:"#1a1208",fontSize:"11px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
+                    {ICON_OPTIONS.map(opt=><option key={opt.key} value={opt.key}>{opt.label}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",width:"100%"}}>SAVE SETTINGS</button>
+          </div>
+          {/* Password */}
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"15px",color:"#1a1208",marginBottom:"16px"}}>🔑 Change Password</div>
+            {[["Current Password","old","password"],["New Password","nw","password"],["Confirm","cf","password"]].map(([l,k,t])=>(
+              <div key={k} style={{marginBottom:"12px"}}>
+                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{l}</div>
+                <input type={t} value={pwForm[k]} onChange={e=>setPwForm(p=>({...p,[k]:e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"7px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+              </div>
+            ))}
+            <button onClick={changePw} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",width:"100%"}}>CHANGE PASSWORD</button>
+          </div>
+        </div>}
+
+        {/* Coupons */}
+        {tab==="coupons"&&<div style={{maxWidth:"580px"}}>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>🎫 Coupons</div>
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+            {(sEdit.coupons||[]).map((c,i)=>(
+              <div key={i} style={{display:"flex",gap:"8px",alignItems:"center",marginBottom:"10px",flexWrap:"wrap",paddingBottom:"10px",borderBottom:"1px solid #d4a84311"}}>
+                <input value={c.code} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],code:e.target.value.toUpperCase()};setSEdit(s=>({...s,coupons:cp}));}} placeholder="CODE" style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#b8922a",fontSize:"13px",fontWeight:"700",letterSpacing:"2px",width:"100px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+                <input type="number" value={c.discount} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],discount:+e.target.value};setSEdit(s=>({...s,coupons:cp}));}} style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",width:"60px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
+                <select value={c.type} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],type:e.target.value};setSEdit(s=>({...s,coupons:cp}));}} style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"12px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
+                  <option value="percent">% Off</option><option value="flat">Rs. Off</option>
+                </select>
+                <label style={{display:"flex",alignItems:"center",gap:"4px",fontSize:"11px",color:"#1a1208",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>
+                  <input type="checkbox" checked={!!c.active} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],active:e.target.checked};setSEdit(s=>({...s,coupons:cp}));}} style={{accentColor:"#22c55e"}}/>Active
+                </label>
+                <button onClick={()=>{const cp=(sEdit.coupons||[]).filter((_,j)=>j!==i);setSEdit(s=>({...s,coupons:cp}));}} style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:"16px",padding:"0 4px"}}>✕</button>
+              </div>
+            ))}
+            <button onClick={()=>setSEdit(s=>({...s,coupons:[...(s.coupons||[]),{code:"",discount:10,type:"percent",active:true}]}))} style={{background:"none",border:"1px dashed #d4a84366",padding:"8px 16px",color:"#b8922a",cursor:"pointer",fontSize:"11px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px",marginBottom:"12px"}}>+ ADD COUPON</button>
+            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",width:"100%"}}>SAVE COUPONS</button>
+          </div>
+        </div>}
+
+        {/* Orders */}
+        {tab==="orders"&&<OrdersAdmin/>}
+
+        {/* Reviews */}
+        {tab==="reviews"&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>⭐ Reviews ({reviews.length})</div>
+          <div style={{display:"grid",gap:"8px"}}>{reviews.map(r=>(
+            <div key={r.id} style={{background:"#fff",border:"1px solid #d4a84322",padding:"14px",display:"flex",justifyContent:"space-between"}}>
+              <div><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"4px"}}>{r.customer_name} <span style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",fontWeight:"400"}}>on {r.product_name}</span></div><div style={{display:"flex",gap:"1px",marginBottom:"5px"}}>{[1,2,3,4,5].map(i=><span key={i} style={{color:i<=r.rating?"#b8922a":"#e5e5e5",fontSize:"12px"}}>★</span>)}</div><p style={{fontSize:"13px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>{r.comment}</p></div>
+              <span style={{fontSize:"10px",color:"#aaa",fontFamily:"'Jost',sans-serif",flexShrink:0,marginLeft:"12px"}}>{r.date}</span>
+            </div>
+          ))}{!reviews.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No reviews yet</div>}</div>
+        </div>}
+
+        {tab==="backup"&&<div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"4px"}}>💾 Backup & Restore</div>
+          <div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:"20px"}}>Settings aur admin password ka backup lo ya restore karo.</div>
+
+          {/* Download Backup */}
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📥 Download Backup</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
+              Sari settings, passwords JSON file mein save ho jaengi.<br/>
+              Safe jagah rakh lo — kabhi bhi restore kar saktay ho.
+            </div>
+            <button onClick={doBackup} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"12px 28px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .3s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>⬇️ DOWNLOAD BACKUP</button>
+          </div>
+
+          {/* Restore */}
+          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📤 Restore from Backup</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
+              Pehle se downloaded backup JSON file select karo.<br/>
+              <strong style={{color:"#c0392b"}}>Warning:</strong> Existing settings replace ho jaengi.
+            </div>
+            <label style={{display:"inline-block",background:"transparent",color:"#1a1208",border:"1px solid #d4a84344",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#b8922a";e.currentTarget.style.color="#b8922a";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#d4a84344";e.currentTarget.style.color="#1a1208";}}>
+              📂 SELECT BACKUP FILE
+              <input type="file" accept=".json" style={{display:"none"}} onChange={e=>doRestore(e.target.files[0])}/>
+            </label>
+          </div>
+
+          {/* Reset to defaults */}
+          <div style={{background:"#fff",border:"1px solid #dc262622",padding:"20px"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#dc2626",marginBottom:"8px"}}>🔄 Reset to Defaults</div>
+            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px"}}>Sari settings default pe wapas set ho jaengi. Products safe rahenge.</div>
+            <button onClick={()=>{if(!window.confirm("Are you sure? All settings will be reset!"))return;LS.set("shopSettings",{});setSettings({});setSEdit({});alert("✅ Reset! Refresh the page.");}} style={{background:"transparent",color:"#dc2626",border:"1px solid #dc262644",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.target.style.background="#dc2626";e.target.style.color="#fff";}} onMouseLeave={e=>{e.target.style.background="transparent";e.target.style.color="#dc2626";}}>⚠️ RESET ALL SETTINGS</button>
+          </div>
+        </div>}
+      </div>
+    </div>
+  );
+}
+
+// ── ORDERS ADMIN ──────────────────────────────────────────────
+function OrdersAdmin(){
+  const [orders,setOrders]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const STATUS=["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+  const STATUS_C={Pending:"#b8922a",Confirmed:"#3b82f6",Processing:"#f59e0b",Shipped:"#8b5cf6",Delivered:"#22c55e",Cancelled:"#dc2626"};
+  useEffect(()=>{if(!supabase){setLoading(false);return;}supabase.from("online_orders").select("*").order("created_at",{ascending:false}).then(({data})=>{setOrders(data||[]);setLoading(false);});const ch=supabase.channel("orders-a").on("postgres_changes",{event:"*",schema:"public",table:"online_orders"},()=>{supabase.from("online_orders").select("*").order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));}).subscribe();return()=>supabase.removeChannel(ch);},[]);
+  const upd=async(id,status)=>{setOrders(o=>o.map(x=>x.id===id?{...x,status}:x));if(supabase)await supabase.from("online_orders").update({status}).eq("id",id);};
+  if(loading)return <div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>Loading orders...</div>;
+  return(
+    <div>
+      <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>📋 Orders ({orders.length})</div>
+      <div style={{display:"grid",gap:"10px"}}>{orders.map(o=>(
+        <div key={o.id} style={{background:"#fff",border:`1px solid ${STATUS_C[o.status]||"#d4a84322"}33`,padding:"16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:"8px",marginBottom:"10px"}}>
+            <div><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",color:"#1a1208",fontSize:"14px"}}>{o.product_name}</div><div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginTop:"2px"}}>#{String(o.id).slice(-6)} · {o.date}</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208"}}>{pkr(o.product_price)}</div></div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px",fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"10px"}}>
+            <div>👤 {o.customer_name}</div><div>📞 {o.phone}</div><div>🏙️ {o.city}</div><div>📍 {o.address}</div>
+          </div>
+          <div style={{display:"flex",gap:"4px",flexWrap:"wrap",alignItems:"center"}}>
+            {STATUS.map(s=><button key={s} onClick={()=>upd(o.id,s)} style={{background:o.status===s?STATUS_C[s]||"#b8922a":"transparent",color:o.status===s?"#fff":STATUS_C[s]||"#b8922a",border:`1px solid ${STATUS_C[s]||"#b8922a"}44`,padding:"3px 8px",cursor:"pointer",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",transition:"all 0.2s"}}>{s}</button>)}
+            <a href={`https://wa.me/92${(o.phone||"").replace(/^0/,"")}?text=${encodeURIComponent(`Assalam ${o.customer_name}! Your order "${o.product_name}" is now ${o.status}. — Jameel Fabrics Kunjah`)}`} target="_blank" rel="noreferrer" style={{marginLeft:"auto",background:"#25D366",color:"#fff",padding:"3px 10px",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",textDecoration:"none"}}>📱 WA</a>
+          </div>
+        </div>
+      ))}{!orders.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No orders yet</div>}</div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────
+export default function App(){
+  const [show3D,setShow3D]=useState(true);
+  const [fading,setFading]=useState(false);
+  const handleEnter=useCallback(()=>{
+    setFading(true);
+    setTimeout(()=>setShow3D(false),700);
+  },[]);
+  const [page,setPage]=useState("home");
+  const [cat,setCat]=useState("All");
+  const [search,setSearch]=useState("");
+  const [products,setProducts]=useState([]);
+  const [reviews,setReviews]=useState([]);
+  const [cart,setCart]=useState(()=>LS.get("cart",[]));
+  const [wishlist,setWishlist]=useState(()=>LS.get("wishlist",[]));
+  const [customer,setCustomer]=useState(()=>LS.get("customer",null));
+  const [settings,setSettings]=useState(()=>({
+    announcements:["✦ New Arrivals — Limited Pieces ✦","✦ Exclusive Pakistani Fabrics ✦","✦ Each Design is Unique ✦"],
+    heroTexts:["Where Elegance Meets Heritage","Exclusive Pakistani Fabrics","Crafted with Love, Worn with Pride"],
+    heroSubtitle:"Each piece in our collection is unique — once sold, never repeated.",
+    tiktok:"@jameelfabrics",instagram:"@jameelfabrics",whatsapp:WA,
+    tiktokUrl:"",instagramUrl:"",
+    logoUrl:"",
+    faviconUrl:"",
+    uploadedVideoUrl:"",uploadedVideoTitle:"",uploadedVideoCaption:"",showUploadedVideo:false,
+    coupons:[{code:"WELCOME10",discount:10,type:"percent",active:true}],
+    catIcons:{...DEFAULT_CAT_ICONS},
+    discountBanner:"",discountBannerActive:false,
+    aboutText:"Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing.\n\nLocated in the heart of Kunjah, we serve customers from across the region with pride and dedication.",
+    policiesText:"RETURN POLICY\nWe accept exchanges within 3 days of purchase with original receipt. Sale items are non-returnable.\n\nDELIVERY POLICY\nWe deliver across Pakistan. Delivery time: 3-5 working days.\n\nPAYMENT POLICY\nWe accept Cash on Delivery (COD), JazzCash, and Easypaisa.\n\nPRIVACY POLICY\nYour personal information is safe with us.",
+    heroBg:"",
+    footerText:"",
+    showReviews:true,
+    showLocation:true,
+    showAbout:true,
+    primaryColor:"#b8922a",
+    ...LS.get("shopSettings",{})
+  }));
+  const [selProd,setSelProd]=useState(null);
+  const [showCart,setShowCart]=useState(false);
+  const [showCheckout,setShowCheckout]=useState(false);
+  const [showLogin,setShowLogin]=useState(false);
+  const [showAdmin,setShowAdmin]=useState(false);
+  const [adminInput,setAdminInput]=useState("");
+  const [showAdminLogin,setShowAdminLogin]=useState(false);
+  const [showSearch,setShowSearch]=useState(false);
+  const [showTrack,setShowTrack]=useState(false);
+  const [coupon,setCoupon]=useState(null);
+  const [adminClicks,setAdminClicks]=useState(0);
+
+  useEffect(()=>LS.set("cart",cart),[cart]);
+  useEffect(()=>LS.set("wishlist",wishlist),[wishlist]);
+
+  // Load products
+  useEffect(()=>{
+    if(!supabase)return;
+    supabase.from("products").select("*").eq("website_status","listed").then(({data})=>{
+      if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));
+    });
+    supabase.from("reviews").select("*").then(({data})=>{if(data?.length)setReviews(data);});
+    const ch=supabase.channel("shop").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{supabase.from("products").select("*").eq("website_status","listed").then(({data})=>{if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));});}).subscribe();
+    return()=>supabase.removeChannel(ch);
+  },[]);
+
+  const addCart=useCallback(p=>{
+    setCart(c=>{const ex=c.find(x=>x.id===p.id);const price=p.offerPrice&&p.offerPrice<p.salePrice?p.offerPrice:p.salePrice;if(ex)return c.map(x=>x.id===p.id?{...x,qty:x.qty+1}:x);return[...c,{id:p.id,name:p.website_title||p.name,color:p.color,price,qty:1,photo:p.photo_url}];});
+  },[]);
+  const toggleWish=useCallback(id=>setWishlist(w=>w.includes(id)?w.filter(x=>x!==id):[...w,id]),[]);
+  const openProd=useCallback(p=>{setSelProd(p);if(supabase)supabase.from("products").update({views:(p.views||0)+1}).eq("id",p.id);},[]);
+  const addReview=async r=>{setReviews(prev=>[...prev,r]);if(supabase)await supabase.from("reviews").insert({id:r.id,product_id:r.product_id,product_name:r.product_name,customer_name:r.name,rating:r.rating,comment:r.comment,date:r.date,verified:false});};
+
+  const filtered=products.filter(p=>(cat==="All"||(p.website_category||p.category)===cat)&&(!search||(p.name?.toLowerCase().includes(search.toLowerCase())||p.color?.toLowerCase().includes(search.toLowerCase())||p.brand?.toLowerCase().includes(search.toLowerCase()))));
+  const wishProds=products.filter(p=>wishlist.includes(p.id));
+
+  // Secret admin: 5 clicks bottom-left
+  const handleSecretClick=()=>{setAdminClicks(n=>{if(n+1>=5){setShowAdminLogin(true);return 0;}return n+1;});};
+
+  return(
+    <>
+      <style>{G}</style>
+      <style>{`@media(min-width:769px){.show-mob{display:none!important}}`}</style>
+
+      {/* 3D overlay — covers website like a curtain, fades out on enter */}
+      {show3D&&(
+        <div style={{position:"fixed",inset:0,zIndex:99999,
+          opacity:fading?0:1,
+          transition:"opacity 0.7s ease",
+          pointerEvents:fading?"none":"auto"}}>
+          <Showroom3D onEnter={handleEnter} settings={settings}/>
+        </div>
+      )}
+
+      {/* Website — ALWAYS fully visible underneath */}
+      <div>
+        <AnnouncementBar texts={settings.announcements}/>
+
+        {/* Discount Banner */}
+        {settings.discountBannerActive&&settings.discountBanner&&(
+          <div style={{background:"linear-gradient(135deg,#b91c1c,#dc2626)",padding:"10px",textAlign:"center",fontSize:"12px",fontWeight:"700",color:"#fff",letterSpacing:"2px",fontFamily:"'Jost',sans-serif",position:"relative",zIndex:99}}>🔥 {settings.discountBanner} 🔥</div>
+        )}
+
+        <Navbar cart={cart} wishlist={wishlist} page={page} setPage={setPage} cat={cat} setCat={setCat} search={search} setSearch={setSearch} customer={customer} setShowLogin={setShowLogin} setShowCart={setShowCart} settings={settings} setShowSearch={setShowSearch} showSearch={showSearch} setShowTrack={setShowTrack}/>
+
+        {page==="home"&&<>
+          <Hero settings={settings} setCat={setCat} setPage={setPage}/>
+
+          {/* Category pills */}
+          <div style={{background:"#fff",borderBottom:"1px solid #d4a84322",padding:"14px clamp(16px,4vw,48px)",overflowX:"auto"}}>
+            <div style={{display:"flex",gap:"6px",justifyContent:"center",minWidth:"max-content",margin:"0 auto"}}>
+              {CATS.map(c=>{
+                const active = cat===c;
+                return(
+                  <button key={c} onClick={()=>{setCat(c);setPage("shop");}} style={{display:"flex",alignItems:"center",gap:"8px",padding:"10px 18px",border:`1px solid ${active?"#b8922a":"#d4a84322"}`,background:active?"#1a1208":"transparent",cursor:"pointer",transition:"all 0.25s",whiteSpace:"nowrap",transform:active?"translateY(-1px)":"none",boxShadow:active?"0 4px 16px rgba(26,18,8,0.15)":"none"}}>
+                    <span style={{color:active?"#d4a843":"#b8922a",flexShrink:0}}>
+                      <CatIcon type={c} size={18} color={active?"#d4a843":"#b8922a"}/>
+                    </span>
+                    <span style={{fontSize:"10px",fontWeight:"600",color:active?"#d4a843":"#8a7a5a",letterSpacing:"1px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>
+                      {c==="All"?"All Collections":c}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Collections by category */}
+          {CATS.filter(c=>c!=="All").map(c=>{
+            const cp=products.filter(p=>p.website_status==="listed"&&(p.website_category||p.category)===c).slice(0,4);
+            if(!cp.length)return null;
+            return(
+              <section key={c} style={{padding:"clamp(48px,7vw,90px) clamp(16px,4vw,48px)",borderTop:"1px solid #d4a84322"}}>
+                <div style={{maxWidth:"1400px",margin:"0 auto"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"clamp(24px,4vw,48px)"}}>
+                    <div>
+                      <div className="reveal" style={{fontSize:"9px",color:"#b8922a",letterSpacing:"4px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Collection</div>
+                      <h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,38px)",fontWeight:"700",color:"#1a1208",animationDelay:"0.1s"}}>{c}</h2>
+                    </div>
+                    <button onClick={()=>{setCat(c);setPage("shop");}} style={{background:"none",border:"none",color:"#b8922a",fontSize:"11px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"6px",padding:"8px 0",borderBottom:"1px solid #b8922a",transition:"gap 0.2s"}} onMouseEnter={e=>e.currentTarget.style.gap="10px"} onMouseLeave={e=>e.currentTarget.style.gap="6px"}>VIEW ALL →</button>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
+                    {cp.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
+                  </div>
+                </div>
+              </section>
+            );
+          })}
+
+          <VideoSection settings={settings}/>
+          <About settings={settings}/>
+          <Policies settings={settings}/>
+          <Location/>
+
+          {/* Features */}
+          <section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,48px)",background:"#fff",borderTop:"1px solid #d4a84322"}}>
+            <div style={{maxWidth:"1000px",margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
+              {[["✨","Exclusive","Every piece is unique"],["🧵","Premium Quality","Finest Pakistani fabrics"],["📱","Easy Booking","Book via WhatsApp"],["🔄","Exchange","3-day exchange policy"],["🚀","Fast Delivery","Pakistan-wide delivery"],["💯","Trusted","Kunjah's premium store"]].map(([ic,t,d])=>(
+                <TiltCard key={t} className="reveal" style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"clamp(16px,2vw,22px)",textAlign:"center"}}>
+                  <div style={{fontSize:"28px",marginBottom:"10px"}}>{ic}</div>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",color:"#1a1208",marginBottom:"6px",fontSize:"14px"}}>{t}</div>
+                  <div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}>{d}</div>
+                </TiltCard>
+              ))}
+            </div>
+          </section>
+
+          <Footer settings={settings} setShowTrack={setShowTrack}/>
+        </>}
+
+        {page==="shop"&&<>
+          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
+            <div style={{maxWidth:"1400px",margin:"0 auto"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"28px",flexWrap:"wrap",gap:"12px"}}>
+                <div>
+                  <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"4px",marginBottom:"6px",fontFamily:"'Jost',sans-serif"}}>COLLECTION</div>
+                  <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,42px)",fontWeight:"700",color:"#1a1208"}}>{cat==="All"?"All Collections":cat}</h1>
+                  <p style={{color:"#8a7a5a",fontSize:"12px",marginTop:"4px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>{filtered.length} pieces</p>
+                </div>
+                <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
+                  {CATS.map(c=><button key={c} onClick={()=>setCat(c)} style={{background:cat===c?"#1a1208":"transparent",color:cat===c?"#d4a843":"#8a7a5a",border:`1px solid ${cat===c?"#1a1208":"#d4a84333"}`,padding:"7px 16px",fontSize:"9px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",transition:"all 0.2s",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{c==="All"?"ALL":c.toUpperCase()}</button>)}
+                </div>
+              </div>
+              {filtered.length===0
+                ?<div style={{textAlign:"center",padding:"80px",color:"#8a7a5a"}}><div style={{fontSize:"48px",marginBottom:"16px"}}>🔍</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",color:"#1a1208",marginBottom:"8px"}}>No products found</div><button onClick={()=>{setSearch("");setCat("All");}} style={{background:"none",border:"1px solid #b8922a",color:"#b8922a",padding:"8px 20px",fontSize:"10px",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"2px"}}>CLEAR FILTERS</button></div>
+                :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
+                  {filtered.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
+                </div>
+              }
+            </div>
+          </section>
+          <Footer settings={settings} setShowTrack={setShowTrack}/>
+        </>}
+
+        {page==="wishlist"&&<>
+          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
+            <div style={{maxWidth:"1400px",margin:"0 auto"}}>
+              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,42px)",fontWeight:"700",color:"#1a1208",marginBottom:"28px"}}>My Wishlist</h1>
+              {wishProds.length===0
+                ?<div style={{textAlign:"center",padding:"80px",color:"#8a7a5a"}}><div style={{fontSize:"48px",marginBottom:"16px"}}>🤍</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",color:"#1a1208"}}>Your wishlist is empty</div></div>
+                :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
+                  {wishProds.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
+                </div>
+              }
+            </div>
+          </section>
+          <Footer settings={settings} setShowTrack={setShowTrack}/>
+        </>}
+
+        {page==="account"&&customer&&<>
+          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
+            <div style={{maxWidth:"500px",margin:"0 auto"}}>
+              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,36px)",fontWeight:"700",color:"#1a1208",marginBottom:"28px"}}>My Account</h1>
+              <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
+                {[["👤","Name",customer.name],["📞","Phone",customer.phone],["🏙️","City",customer.city],["📍","Address",customer.address]].map(([ic,l,v])=>(
+                  <div key={l} style={{display:"flex",gap:"12px",padding:"12px 0",borderBottom:"1px solid #d4a84311"}}>
+                    <span style={{fontSize:"18px"}}>{ic}</span>
+                    <div><div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"2px",fontFamily:"'Jost',sans-serif"}}>{l}</div><div style={{color:"#1a1208",fontSize:"14px",fontFamily:"'Cormorant Garamond',serif"}}>{v||"—"}</div></div>
+                  </div>
+                ))}
+                <button onClick={()=>{LS.set("customer",null);setCustomer(null);setPage("home");}} style={{marginTop:"16px",background:"none",border:"1px solid #dc2626",padding:"10px 20px",color:"#dc2626",cursor:"pointer",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",fontFamily:"'Jost',sans-serif"}}>SIGN OUT</button>
+              </div>
+            </div>
+          </section>
+          <Footer settings={settings} setShowTrack={setShowTrack}/>
+        </>}
+
+        {/* Modals */}
+        {selProd&&<ProdModal p={selProd} onClose={()=>setSelProd(null)} wishlist={wishlist} toggleWish={toggleWish} onAdd={addCart} reviews={reviews} onReview={addReview} settings={settings}/>}
+        {showCart&&<Cart cart={cart} setCart={setCart} onClose={()=>setShowCart(false)} customer={customer} setShowLogin={setShowLogin} setShowCheckout={setShowCheckout} settings={settings} coupon={coupon} setCoupon={setCoupon}/>}
+        {showCheckout&&customer&&<Checkout cart={cart} customer={customer} onClose={()=>setShowCheckout(false)} settings={settings} coupon={coupon}/>}
+        {showLogin&&<Login onClose={()=>setShowLogin(false)} onLogin={setCustomer}/>}
+        {showTrack&&<Tracking onClose={()=>setShowTrack(false)}/>}
+        {showAdmin&&<AdminPanel products={products} setProducts={setProducts} reviews={reviews} settings={settings} setSettings={setSettings} onClose={()=>setShowAdmin(false)}/>}
+
+        {/* Admin Login — hidden */}
+        {showAdminLogin&&!showAdmin&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.9)",zIndex:9000,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(12px)"}}>
+            <div style={{background:"#faf8f3",width:"100%",maxWidth:"360px",padding:"36px",textAlign:"center",animation:"scaleIn 0.3s ease"}}>
+              <div style={{fontSize:"32px",marginBottom:"12px"}}>🔐</div>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:"700",color:"#1a1208",marginBottom:"4px"}}>Admin Access</div>
+              <p style={{fontSize:"12px",color:"#8a7a5a",marginBottom:"20px",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px"}}>Enter admin password</p>
+              <input type="password" value={adminInput} onChange={e=>setAdminInput(e.target.value)} placeholder="Password..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"10px 0",fontSize:"14px",color:"#1a1208",outline:"none",marginBottom:"16px",textAlign:"center",fontFamily:"'Cormorant Garamond',serif",letterSpacing:"4px"}} onKeyDown={e=>{if(e.key==="Enter"){const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(adminInput===sv){setShowAdmin(true);setShowAdminLogin(false);setAdminInput("");}else alert("Wrong password!");}}}/>
+              <div style={{display:"flex",gap:"8px"}}>
+                <button onClick={()=>{const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(adminInput===sv){setShowAdmin(true);setShowAdminLogin(false);setAdminInput("");}else alert("Wrong password!");}} style={{flex:1,background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>UNLOCK</button>
+                <button onClick={()=>{setShowAdminLogin(false);setAdminInput("");}} style={{background:"none",border:"1px solid #d4a84344",padding:"13px 18px",color:"#8a7a5a",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:"10px"}}>✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <WAFloat settings={settings}/>
+
+        {/* Hidden admin trigger */}
+        <div onClick={handleSecretClick} style={{position:"fixed",bottom:0,left:0,width:"30px",height:"30px",zIndex:999,cursor:"default",opacity:0}}/>
+      </div>
+    </>
+  );
+}
