@@ -1,1544 +1,241 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { createClient } from "@supabase/supabase-js";
+import{useState,useEffect,useRef,useCallback}from"react";
+import{createClient}from"@supabase/supabase-js";
 
-// ── Config ────────────────────────────────────────────────────
-const SUPA_URL = process.env.REACT_APP_SUPABASE_URL || "";
-const SUPA_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || "";
-const supabase = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
-const WA = "923228722232";
-const BRAND = "JAMEEL FABRICS";
-const SUB = "KUNJAH";
-const TAGLINE = "Exclusive. Elegant. Pakistani.";
-const PHONE = "03228722232";
-const ADDRESS = "Circular Road Kunjah, Distt Gujrat, Punjab";
-const ADMIN_PASS_DEFAULT = "jameel@admin2026";
-const CATS = ["All","Men's Unstitched","Women Unstitched","Women Stitched","Kids"];
-const pkr = n=>`Rs. ${Number(n||0).toLocaleString()}`;
-const gid = ()=>Date.now()+Math.floor(Math.random()*9999);
-const LS = {
-  get:(k,d)=>{try{const v=localStorage.getItem("jf3d_"+k);return v!==null?JSON.parse(v):d;}catch{return d;}},
-  set:(k,v)=>{try{localStorage.setItem("jf3d_"+k,JSON.stringify(v));}catch{}}
-};
-const tryParse=(v,d)=>{try{return v?JSON.parse(v):d;}catch{return d;}};
+const SURL=process.env.REACT_APP_SUPABASE_URL||"";
+const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
+const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
+const WA="923228722232";
+const BRAND="JAMEEL FABRICS";
+const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids"};
+const CATS=[["All","All Collections"],["M","Men's Unstitched"],["WU","Women Unstitched"],["WS","Women Stitched"],["K","Kids"]];
 
-// ── Category Icon Components ──────────────────────────────────
-const CatIcon = ({type, size=24, color="#b8922a"}) => {
-  const icons = {
-    all: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
-    men: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5"><path d="M8 3h8l2 5H6L8 3z"/><path d="M6 8v13h12V8"/><path d="M10 8v13M14 8v13"/><path d="M8 3L6 8M16 3l2 5"/></svg>,
-    womenU: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5"><path d="M8 2h8l2 4-3 2v11H9V8L6 6l2-4z"/><path d="M9 8v11M15 8v11"/><path d="M9 13h6"/></svg>,
-    womenS: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5"><path d="M12 2c-2 0-3 1-3 3v1L5 9v11h14V9l-4-3V5c0-2-1-3-3-3z"/><path d="M9 9h6M9 13h6"/></svg>,
-    kids: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5"><circle cx="12" cy="5" r="2.5"/><path d="M9 9h6l1 5-2 1v5h-2v-4h-2v4H8v-5l-2-1z"/><path d="M7 11l-2 3M17 11l2 3"/></svg>,
-  };
-  const map = {all:"all", "Men's Unstitched":"men", "Women Unstitched":"womenU", "Women Stitched":"womenS", "Kids":"kids"};
-  return icons[map[type]||type]||icons.all;
-};
-
-// ── SVG Icons ─────────────────────────────────────────────────
-const ICONS = {
-  search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
-  heart: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-  heartFill: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-  bag: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
-  user: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-  menu: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-  close: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-  arrow: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
-  wa: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>,
-  location: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
-  phone: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.4 19.79 19.79 0 0 1 1.61 4.87 2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17l.19-.08z"/></svg>,
-  clock: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-  star: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-  starEmpty: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-  truck: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
-  eye: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
-  tiktok: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.19a8.19 8.19 0 0 0 4.79 1.53V6.27a4.85 4.85 0 0 1-1.02-.57z"/></svg>,
-  instagram: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>,
-  // Category icons — fabric/clothing themed SVGs
-  catAll: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M3 6h18M3 12h18M3 18h18"/></svg>,
-  catMen: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M8 2h8l1 4-3 1v11H8V7L5 6z"/><path d="M10 7v11M14 7v11"/></svg>,
-  catWomenU: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M7 2h10l2 5-4 1v10H9V8L5 7z"/><path d="M9 8v10M15 8v10"/></svg>,
-  catWomenS: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M12 2c-2 0-4 2-4 4v1l-4 3v10h16V10l-4-3V6c0-2-2-4-4-4z"/></svg>,
-  catKids: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="5" r="2"/><path d="M9 8h6l1 4-2 1v7h-2v-4h-2v4H8v-7l-2-1z"/></svg>,
-};
-
-// Default cat icons map (can be overridden by settings)
-const DEFAULT_CAT_ICONS = {
-  "All": "catAll",
-  "Men's Unstitched": "catMen",
-  "Women Unstitched": "catWomenU",
-  "Women Stitched": "catWomenS",
-  "Kids": "catKids",
-};
-
-// Available icon options for admin
-const ICON_OPTIONS = [
-  {key:"catAll", label:"Grid (All)"},
-  {key:"catMen", label:"Kameez (Men)"},
-  {key:"catWomenU", label:"Kurti (Women)"},
-  {key:"catWomenS", label:"Dress (Stitched)"},
-  {key:"catKids", label:"Kids"},
-  {key:"star", label:"Star"},
-  {key:"heart", label:"Heart"},
-  {key:"location", label:"Location"},
-];
-
-// ── Global Styles ─────────────────────────────────────────────
-const G = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap');
-
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --gold:#b8922a;
-  --gold2:#d4a843;
-  --gold3:#f0c866;
-  --cream:#faf8f3;
-  --cream2:#f2ede3;
-  --cream3:#e8dfc8;
-  --dark:#1a1208;
-  --dark2:#2a1f0a;
-  --text:#1a1208;
-  --text2:#4a3a18;
-  --muted:#8a7a5a;
-  --border:#d4a84333;
-  --white:#ffffff;
-  --shadow:0 24px 80px rgba(180,140,40,0.12);
-  --shadow2:0 8px 32px rgba(180,140,40,0.15);
-}
-html{scroll-behavior:smooth;}
-body{background:var(--cream);color:var(--text);font-family:'Jost',sans-serif;overflow-x:hidden;}
-::selection{background:var(--gold)22;color:var(--gold);}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:var(--cream);}
-::-webkit-scrollbar-thumb{background:var(--gold)44;border-radius:4px;}
-a{text-decoration:none;color:inherit;}
-button{font-family:'Jost',sans-serif;cursor:pointer;}
-input,textarea,select{font-family:'Jost',sans-serif;}
-
-/* Animations */
-@keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideRight{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
-@keyframes slideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
-@keyframes float{0%,100%{transform:translateY(0) rotateX(0deg)}50%{transform:translateY(-14px) rotateX(2deg)}}
-@keyframes shimmer{0%,100%{opacity:0.7}50%{opacity:1}}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes pulse3d{0%,100%{transform:scale3d(1,1,1)}50%{transform:scale3d(1.03,1.03,1.03)}}
-@keyframes goldGlow{0%,100%{box-shadow:0 0 20px rgba(180,140,40,0.15)}50%{box-shadow:0 0 50px rgba(180,140,40,0.35)}}
-@keyframes lineExpand{from{width:0}to{width:100%}}
-@keyframes particleFloat{0%{transform:translateY(0px) translateX(0px) rotate(0deg);opacity:0}10%{opacity:0.8}90%{opacity:0.3}100%{transform:translateY(-100vh) translateX(30px) rotate(360deg);opacity:0}}
-@keyframes cameraZoom{0%{transform:perspective(1000px) translateZ(0px) translateY(0px)}100%{transform:perspective(1000px) translateZ(400px) translateY(-80px)}}
-@keyframes tilt3d{0%,100%{transform:perspective(800px) rotateX(0deg) rotateY(0deg)}25%{transform:perspective(800px) rotateX(2deg) rotateY(-3deg)}75%{transform:perspective(800px) rotateX(-2deg) rotateY(3deg)}}
-@keyframes curtainReveal{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0% 0 0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
-@keyframes spotlightSweep{0%,100%{transform:translateX(-30%) rotate(-15deg);opacity:0.3}50%{transform:translateX(30%) rotate(15deg);opacity:0.6}}
-@keyframes flicker{0%,90%,100%{opacity:1}92%,96%{opacity:0.8}94%,98%{opacity:0.95}}
-
-.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);}
-.reveal.visible{opacity:1;transform:translateY(0);}
-.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);}
-.reveal-left.visible{opacity:1;transform:translateX(0);}
-.reveal-right{opacity:0;transform:translateX(40px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);}
-.reveal-right.visible{opacity:1;transform:translateX(0);}
-
-/* 3D Card hover */
-.card-3d{transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),box-shadow 0.4s ease;transform-style:preserve-3d;will-change:transform;}
-.card-3d:hover{box-shadow:0 40px 100px rgba(180,140,40,0.18)!important;}
-
-/* Mobile */
-@media(max-width:768px){
-  .hide-mob{display:none!important}
-  .full-mob{width:100%!important}
-  .col-mob{flex-direction:column!important}
-  .grid-2-mob{grid-template-columns:1fr 1fr!important}
-  .grid-1-mob{grid-template-columns:1fr!important}
-  .p-mob{padding:14px!important}
-}
+const CSS=`
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Jost:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;overflow-x:hidden;background:#fff}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:10px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideR{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes slideL{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes annS{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 `;
 
-// ── Intersection Observer ─────────────────────────────────────
-function useReveal(){
-  useEffect(()=>{
-    const obs=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");}});
-    },{threshold:0.12});
-    document.querySelectorAll(".reveal,.reveal-left,.reveal-right").forEach(el=>obs.observe(el));
-    return()=>obs.disconnect();
-  });
-}
-
-// ── 3D Tilt Card ──────────────────────────────────────────────
-function TiltCard({children,style,className=""}){
-  const ref=useRef(null);
-  const onMove=e=>{
-    const el=ref.current;if(!el)return;
-    const r=el.getBoundingClientRect();
-    const x=e.clientX-r.left,y=e.clientY-r.top;
-    const cx=r.width/2,cy=r.height/2;
-    const rx=(y-cy)/cy*-8,ry=(x-cx)/cx*8;
-    el.style.transform=`perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
-  };
-  const onLeave=()=>{if(ref.current)ref.current.style.transform="perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)";};
-  return <div ref={ref} className={`card-3d ${className}`} style={{transition:"transform 0.5s cubic-bezier(0.16,1,0.3,1)",...style}} onMouseMove={onMove} onMouseLeave={onLeave}>{children}</div>;
-}
-
-// ── THREE.JS 3D SHOWROOM ──────────────────────────────────────
-// ── ANNOUNCEMENT BAR ──────────────────────────────────────────
-function AnnouncementBar({texts=[]}){
-  const all=[...texts,...texts];
-  return(
-    <div style={{background:"#1a1208",overflow:"hidden",height:"36px",display:"flex",alignItems:"center",position:"relative",zIndex:100}}>
-      <div style={{display:"flex",animation:"marquee 30s linear infinite",whiteSpace:"nowrap"}}>
-        {all.map((t,i)=><span key={i} style={{padding:"0 48px",fontSize:"11px",letterSpacing:"2px",color:"#d4a843",fontFamily:"'Jost',sans-serif",fontWeight:"300"}}>{t}</span>)}
-      </div>
-    </div>
-  );
-}
-
-// ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({cart,wishlist,page,setPage,cat,setCat,search,setSearch,customer,setShowLogin,setShowCart,settings,setShowSearch,showSearch,setShowTrack}){
-  const [scrolled,setScrolled]=useState(false);
-  const [mob,setMob]=useState(false);
-  useEffect(()=>{
-    const f=()=>setScrolled(window.scrollY>60);
-    window.addEventListener("scroll",f);return()=>window.removeEventListener("scroll",f);
+/* ═══ TOAST ═══ */
+let _toastFn=null;
+function useToast(){
+  const[list,setList]=useState([]);
+  _toastFn=useCallback((msg,type="")=>{
+    const id=Date.now();
+    setList(t=>[...t,{id,msg,type}]);
+    setTimeout(()=>setList(t=>t.filter(x=>x.id!==id)),3000);
   },[]);
-  const cartCount=cart.reduce((a,c)=>a+c.qty,0);
+  return list;
+}
+function toast(msg,type=""){if(_toastFn)_toastFn(msg,type);}
+function Toasts({list}){
   return(
-    <>
-      <nav style={{position:"fixed",top:"36px",left:0,right:0,zIndex:500,background:scrolled?"rgba(250,248,243,0.97)":"transparent",backdropFilter:scrolled?"blur(20px)":"none",borderBottom:scrolled?"1px solid #d4a84322":"none",transition:"all 0.4s ease",padding:"0 clamp(16px,4vw,48px)"}}>
-        <div style={{height:"64px",display:"flex",alignItems:"center",gap:"20px",maxWidth:"1400px",margin:"0 auto"}}>
-          {/* Logo */}
-          <div onClick={()=>{setPage("home");setCat("All");}} style={{cursor:"pointer",flexShrink:0}}>
-            {settings?.logoUrl
-              ?<img src={settings.logoUrl} alt={BRAND} style={{height:"38px",objectFit:"contain"}}/>
-              :<div style={{fontFamily:"'Playfair Display',serif"}}>
-                <div style={{fontSize:"clamp(14px,2vw,18px)",fontWeight:"900",color:"#1a1208",letterSpacing:"3px"}}>{BRAND}</div>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"5px",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{SUB}</div>
-              </div>
-            }
-          </div>
-
-          {/* Center nav */}
-          <div className="hide-mob" style={{flex:1,display:"flex",justifyContent:"center",gap:"2px"}}>
-            {CATS.map(c=>(
-              <button key={c} onClick={()=>{setCat(c);setPage("shop");}} style={{background:"none",border:"none",color:cat===c?"#1a1208":"#8a7a5a",padding:"8px 16px",fontSize:"11px",fontWeight:"500",letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer",position:"relative",transition:"color 0.2s",fontFamily:"'Jost',sans-serif"}}>
-                {c==="All"?"COLLECTION":c.toUpperCase()}
-                {cat===c&&<div style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:"24px",height:"1px",background:"#b8922a"}}/>}
-              </button>
-            ))}
-          </div>
-
-          {/* Right icons */}
-          <div style={{display:"flex",alignItems:"center",gap:"4px",flexShrink:0}}>
-            <button onClick={()=>setShowSearch(s=>!s)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>{ICONS.search}</button>
-            <button onClick={()=>customer?setPage("wishlist"):setShowLogin(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>
-              {ICONS.heart}{wishlist.length>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{wishlist.length}</span>}
-            </button>
-            <button onClick={()=>setShowCart(true)} style={{background:"none",border:"none",color:"#8a7a5a",width:"38px",height:"38px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",transition:"color 0.2s"}} onMouseEnter={e=>e.currentTarget.style.color="#1a1208"} onMouseLeave={e=>e.currentTarget.style.color="#8a7a5a"}>
-              {ICONS.bag}{cartCount>0&&<span style={{position:"absolute",top:"4px",right:"4px",background:"#b8922a",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800"}}>{cartCount}</span>}
-            </button>
-            <button onClick={()=>customer?setPage("account"):setShowLogin(true)} style={{background:"none",border:"1px solid #d4a84366",color:"#1a1208",padding:"7px 16px",fontSize:"10px",fontWeight:"600",letterSpacing:"2px",textTransform:"uppercase",marginLeft:"4px",transition:"all 0.2s",fontFamily:"'Jost',sans-serif"}} onMouseEnter={e=>{e.currentTarget.style.background="#1a1208";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.background="none";e.currentTarget.style.color="#1a1208";}}>
-              {customer?customer.name.split(" ")[0]:"Login"}
-            </button>
-            <button onClick={()=>setMob(m=>!m)} style={{display:"none",background:"none",border:"none",color:"#1a1208",fontSize:"22px",marginLeft:"4px"}} className="show-mob">☰</button>
-          </div>
+    <div style={{position:"fixed",bottom:24,right:24,zIndex:99999,display:"flex",flexDirection:"column",gap:8,maxWidth:300,pointerEvents:"none"}}>
+      {list.map(t=>(
+        <div key={t.id} style={{background:t.type==="error"?"#1a0000":t.type==="success"?"#001a06":"#111",color:"#fff",padding:"11px 16px",borderRadius:8,fontSize:13,boxShadow:"0 8px 24px rgba(0,0,0,.3)",borderLeft:`3px solid ${t.type==="error"?"#ef4444":t.type==="success"?"#22c55e":"#c9a84c"}`,animation:"toastIn .25s ease"}}>
+          {t.msg}
         </div>
-
-        {/* Search */}
-        {showSearch&&<div style={{background:"rgba(250,248,243,0.98)",borderTop:"1px solid #d4a84322",padding:"14px clamp(16px,4vw,48px)"}}>
-          <div style={{maxWidth:"560px",margin:"0 auto",position:"relative"}}>
-            <input autoFocus value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search fabrics, colors, brands..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #b8922a",padding:"10px 0",color:"#1a1208",fontSize:"14px",outline:"none",fontFamily:"'Cormorant Garamond',serif",letterSpacing:"1px"}}/>
-            <span style={{position:"absolute",right:0,top:"50%",transform:"translateY(-50%)",color:"#b8922a",fontSize:"14px"}}>🔍</span>
-          </div>
-        </div>}
-
-        {/* Mobile menu */}
-        {mob&&<div style={{background:"rgba(250,248,243,0.98)",borderTop:"1px solid #d4a84322",padding:"8px 0"}}>
-          {CATS.map(c=><button key={c} onClick={()=>{setCat(c);setPage("shop");setMob(false);}} style={{display:"block",width:"100%",background:"none",border:"none",color:cat===c?"#1a1208":"#8a7a5a",padding:"12px 24px",fontSize:"11px",fontWeight:"600",textAlign:"left",letterSpacing:"2px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif",cursor:"pointer"}}>{c==="All"?"ALL COLLECTIONS":c.toUpperCase()}</button>)}
-          <button onClick={()=>setShowTrack(true)} style={{display:"block",width:"100%",background:"none",border:"none",color:"#b8922a",padding:"12px 24px",fontSize:"11px",fontWeight:"600",textAlign:"left",letterSpacing:"2px",fontFamily:"'Jost',sans-serif",cursor:"pointer"}}>🚚 TRACK ORDER</button>
-        </div>}
-      </nav>
-      <div style={{height:"100px"}}/>
-    </>
+      ))}
+    </div>
   );
 }
 
-// ── HERO SECTION ──────────────────────────────────────────────
-function Hero({settings,setCat,setPage}){
-  const [idx,setIdx]=useState(0);
-  const [vis,setVis]=useState(true);
-  const texts=settings?.heroTexts||["Where Elegance Meets Heritage","Exclusive Pakistani Fabrics","Crafted with Love, Worn with Pride","Limited Pieces. Infinite Beauty."];
+/* ═══ HOOKS ═══ */
+function useDB(fn,deps=[]){
+  const[data,setData]=useState(null);
+  const[loading,setLoading]=useState(true);
   useEffect(()=>{
-    const t=setInterval(()=>{setVis(false);setTimeout(()=>{setIdx(i=>(i+1)%texts.length);setVis(true);},500);},3500);
-    return()=>clearInterval(t);
-  },[texts.length]);
-  useReveal();
-  const viewerCount=useRef(Math.floor(Math.random()*8)+4);
-  useEffect(()=>{const t=setInterval(()=>{viewerCount.current=Math.max(2,Math.min(16,viewerCount.current+(Math.random()>0.5?1:-1)));},9000);return()=>clearInterval(t);},[]);
-
-  return(
-    <section style={{position:"relative",minHeight:"100vh",display:"flex",alignItems:"center",background:"var(--cream)",overflow:"hidden"}}>
-      {/* Decorative background */}
-      <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
-        <div style={{position:"absolute",top:0,right:0,width:"60%",height:"100%",background:"linear-gradient(135deg,transparent 40%,rgba(212,168,67,0.06) 100%)"}}/>
-        <div style={{position:"absolute",bottom:"10%",left:"5%",width:"300px",height:"300px",border:"1px solid rgba(212,168,67,0.12)",borderRadius:"50%",animation:"rotate 40s linear infinite"}}/>
-        <div style={{position:"absolute",top:"15%",right:"8%",width:"200px",height:"200px",border:"1px solid rgba(212,168,67,0.08)",borderRadius:"50%",animation:"rotate 30s linear infinite reverse"}}/>
-        {/* Gold diagonal lines */}
-        {[20,40,60,80].map(p=><div key={p} style={{position:"absolute",top:0,left:`${p}%`,width:"1px",height:"100%",background:`linear-gradient(to bottom,transparent,rgba(212,168,67,0.06),transparent)`,transform:"rotate(15deg) translateX(-50%)"}}/>)}
-      </div>
-
-      {/* Content */}
-      <div style={{maxWidth:"1400px",margin:"0 auto",padding:"0 clamp(16px,5vw,80px)",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(24px,5vw,80px)",alignItems:"center",width:"100%"}} className="grid-1-mob">
-        <div>
-          <div className="reveal" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(11px,1.2vw,13px)",letterSpacing:"6px",color:"#b8922a",marginBottom:"20px",fontStyle:"italic"}}>✦ PREMIUM PAKISTANI COLLECTION</div>
-          <h1 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(36px,5.5vw,72px)",fontWeight:"900",lineHeight:1.1,color:"#1a1208",marginBottom:"24px",minHeight:"3em",animationDelay:"0.1s"}}>
-            <span style={{opacity:vis?1:0,transition:"opacity 0.5s ease",display:"block"}}>{texts[idx]}</span>
-          </h1>
-          <p className="reveal" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(17px,2vw,22px)",color:"#8a7a5a",lineHeight:1.8,marginBottom:"40px",fontStyle:"italic",animationDelay:"0.2s"}}>
-            {settings?.heroSubtitle||"Each piece in our collection is handpicked for its quality and elegance — once sold, never repeated."}
-          </p>
-          <div className="reveal" style={{display:"flex",gap:"12px",flexWrap:"wrap",animationDelay:"0.3s"}}>
-            <button onClick={()=>{setCat("All");setPage("shop");}} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"15px 40px",fontSize:"11px",fontWeight:"600",letterSpacing:"3px",textTransform:"uppercase",cursor:"pointer",transition:"all 0.3s",fontFamily:"'Jost',sans-serif"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>
-              View Collection
-            </button>
-            <a href={`https://wa.me/${WA}?text=${encodeURIComponent("Assalam! I'd like to see your latest collection.")}`} target="_blank" rel="noreferrer" style={{background:"transparent",color:"#1a1208",border:"1px solid #1a120844",padding:"15px 36px",fontSize:"11px",fontWeight:"600",letterSpacing:"3px",textTransform:"uppercase",cursor:"pointer",transition:"all 0.3s",fontFamily:"'Jost',sans-serif",display:"inline-block"}} onMouseEnter={e=>{e.target.style.borderColor="#b8922a";e.target.style.color="#b8922a";}} onMouseLeave={e=>{e.target.style.borderColor="#1a120844";e.target.style.color="#1a1208";}}>
-              WhatsApp Us
-            </a>
-          </div>
-          {/* Live stat */}
-          <div className="reveal" style={{marginTop:"32px",display:"flex",alignItems:"center",gap:"8px",animationDelay:"0.4s"}}>
-            <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#22c55e",animation:"pulse3d 2s ease infinite"}}/>
-            <span style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>{viewerCount.current} people browsing now</span>
-          </div>
-        </div>
-
-        {/* Right — 3D floating image */}
-        <div className="reveal-right" style={{position:"relative",height:"clamp(400px,60vh,700px)"}}>
-          {/* Main product display */}
-          <TiltCard style={{position:"absolute",inset:"5%",background:"var(--cream2)",border:"1px solid var(--border)",overflow:"hidden",boxShadow:"var(--shadow)"}}>
-            <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,rgba(212,168,67,0.08) 0%,transparent 60%)"}}/>
-            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"12px"}}>
-              <div style={{fontSize:"64px",animation:"float 4s ease-in-out infinite"}}>🧵</div>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"20px",color:"#8a7a5a",fontStyle:"italic"}}>New Arrivals</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"28px",fontWeight:"700",color:"#1a1208"}}>2026 Collection</div>
-              <div style={{width:"40px",height:"1px",background:"#b8922a",margin:"4px 0"}}/>
-              <div style={{fontSize:"12px",color:"#b8922a",letterSpacing:"3px",fontFamily:"'Jost',sans-serif"}}>EXCLUSIVE PIECES</div>
-            </div>
-          </TiltCard>
-          {/* Floating badges */}
-          <div style={{position:"absolute",top:"8%",right:"-2%",background:"#1a1208",color:"#d4a843",padding:"8px 16px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",fontFamily:"'Jost',sans-serif",animation:"float 3s ease-in-out 0.5s infinite",boxShadow:"0 8px 24px rgba(26,18,8,0.2)"}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",bottom:"12%",left:"-2%",background:"#b8922a",color:"#fff",padding:"8px 16px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",fontFamily:"'Jost',sans-serif",animation:"float 3.5s ease-in-out 1s infinite",boxShadow:"0 8px 24px rgba(184,146,42,0.3)"}}>LIMITED EDITION</div>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div style={{position:"absolute",bottom:"32px",left:"50%",transform:"translateX(-50%)",display:"flex",flexDirection:"column",alignItems:"center",gap:"6px"}}>
-        <div style={{width:"1px",height:"40px",background:"linear-gradient(to bottom,#b8922a,transparent)",animation:"shimmer 2s ease infinite"}}/>
-        <span style={{fontSize:"9px",color:"#b8922a",letterSpacing:"3px",fontFamily:"'Jost',sans-serif"}}>SCROLL</span>
-      </div>
-    </section>
-  );
+    if(!sb){setLoading(false);return;}
+    setLoading(true);
+    fn().then(({data,error})=>{if(!error)setData(data);setLoading(false);});
+  },deps);
+  return{data,loading};
 }
 
-// ── PRODUCT CARD ──────────────────────────────────────────────
-function ProdCard({p,onView,onAdd,wishlist,toggleWish,i=0}){
-  const [hov,setHov]=useState(false);
-  const [ref,setRef]=useState(null);
-  const photos=[p.photo_url,p.photo_url2].filter(Boolean);
-  const fb=`https://placehold.co/400x520/f2ede3/b8922a?text=${encodeURIComponent((p.name||"").slice(0,10))}`;
-  const img=photos[0]||fb,img2=photos[1]||img;
-  const wished=wishlist.includes(p.id);
-  const hasDis=p.offerPrice&&p.offerPrice<p.salePrice;
-  const sizes=tryParse(p.available_sizes,[]);
+function useSettings(){
+  const{data}=useDB(()=>sb.from("website_settings").select("*"),[]);
+  const s={};
+  if(data)data.forEach(r=>s[r.key]=r.value);
+  return s;
+}
 
-  // Reveal
+/* ═══ INTRO ═══ */
+function Intro({onEnter}){
+  const[step,setStep]=useState(0);
   useEffect(()=>{
-    if(!ref)return;
-    const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting)ref.classList.add("visible");},{threshold:0.1});
-    obs.observe(ref);return()=>obs.disconnect();
-  },[ref]);
-
-  return(
-    <div ref={setRef} className="reveal" style={{animationDelay:`${i*0.07}s`}}>
-      <TiltCard style={{background:"#fff",overflow:"hidden",cursor:"pointer"}} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
-        {/* Image */}
-        <div style={{position:"relative",aspectRatio:"3/4",overflow:"hidden",background:"var(--cream2)"}} onClick={()=>onView(p)}>
-          <img src={hov&&img2!==img?img2:img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover",transition:"all 0.6s cubic-bezier(0.16,1,0.3,1)",transform:hov?"scale(1.06)":"scale(1)"}} onError={e=>e.target.src=fb}/>
-
-          {/* Overlay */}
-          <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(26,18,8,0.5) 0%,transparent 50%)",opacity:hov?1:0,transition:"opacity 0.3s"}}/>
-
-          {/* Badges */}
-          <div style={{position:"absolute",top:"12px",left:"12px",display:"flex",flexDirection:"column",gap:"4px"}}>
-            {p.is_new_arrival&&<span style={{background:"#1a1208",color:"#d4a843",padding:"3px 10px",fontSize:"9px",fontWeight:"700",letterSpacing:"1.5px",fontFamily:"'Jost',sans-serif"}}>NEW</span>}
-            {hasDis&&<span style={{background:"#b91c1c",color:"#fff",padding:"3px 10px",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif"}}>SALE</span>}
-            {p.stock===1&&p.stock>0&&<span style={{background:"#b8922a",color:"#fff",padding:"3px 10px",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif"}}>LAST 1</span>}
-          </div>
-
-          {p.stock<=0&&<div style={{position:"absolute",inset:0,background:"rgba(250,248,243,0.75)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{border:"2px solid #1a1208",color:"#1a1208",padding:"8px 24px",fontSize:"11px",fontWeight:"700",letterSpacing:"3px",fontFamily:"'Jost',sans-serif"}}>SOLD OUT</span></div>}
-
-          {/* Wish */}
-          <button onClick={e=>{e.stopPropagation();toggleWish(p.id);}} style={{position:"absolute",top:"12px",right:"12px",background:"rgba(255,255,255,0.9)",border:"none",width:"34px",height:"34px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px",cursor:"pointer",transition:"all 0.2s",opacity:hov?1:0.7}}>
-            {wished?"❤️":"🤍"}
-          </button>
-
-          {/* Quick add */}
-          {hov&&p.stock>0&&<button onClick={e=>{e.stopPropagation();onAdd(p);}} style={{position:"absolute",bottom:"12px",left:"12px",right:"12px",background:"#1a1208",color:"#d4a843",border:"none",padding:"10px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"background 0.2s",animation:"fadeUp 0.2s ease both"}} onMouseEnter={e=>e.target.style.background="#d4a843"&&(e.target.style.color="#1a1208")} onMouseLeave={e=>e.target.style.background="#1a1208"}>
-            ADD TO CART
-          </button>}
-        </div>
-
-        {/* Info */}
-        <div style={{padding:"16px 18px 18px"}}>
-          <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",fontFamily:"'Jost',sans-serif"}}>{p.website_category||p.category}</div>
-          <div onClick={()=>onView(p)} style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"clamp(14px,1.5vw,16px)",color:"#1a1208",marginBottom:"4px",lineHeight:1.3}}>{p.website_title||p.name}</div>
-          <div style={{fontSize:"11px",color:"#8a7a5a",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>{p.color} · {p.fabric_type||p.fabric}</div>
-
-          {/* Sizes */}
-          {p.size_type==="stitched"&&sizes.length>0&&<div style={{display:"flex",gap:"4px",marginBottom:"8px",flexWrap:"wrap"}}>
-            {sizes.map(s=><span key={s} style={{border:"1px solid #d4a84355",padding:"2px 7px",fontSize:"9px",color:"#8a7a5a",fontWeight:"600",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px"}}>{s}</span>)}
-          </div>}
-          {(p.size_type==="meter"||p.size_type==="gaz")&&p.stock>0&&<div style={{fontSize:"10px",color:"#b8922a",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>{p.stock} {p.size_type} available</div>}
-
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
-            <div>
-              {hasDis&&<div style={{fontSize:"11px",color:"#aaa",textDecoration:"line-through",fontFamily:"'Jost',sans-serif"}}>{pkr(p.salePrice)}</div>}
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",fontWeight:"700",color:"#1a1208"}}>{pkr(hasDis?p.offerPrice:p.salePrice)}</div>
-            </div>
-            <span style={{fontSize:"10px",color:"#b8922a",letterSpacing:"1px",fontFamily:"'Jost',sans-serif"}}>/{p.qtyType}</span>
-          </div>
-        </div>
-      </TiltCard>
-    </div>
-  );
-}
-
-// ── PRODUCT MODAL ─────────────────────────────────────────────
-function ProdModal({p,onClose,wishlist,toggleWish,onAdd,reviews,onReview,settings}){
-  const [ai,setAi]=useState(0);
-  const [tab,setTab]=useState("details");
-  const [rv,setRv]=useState({name:"",rating:5,comment:""});
-  const photos=[p.photo_url,p.photo_url2,p.photo_url3,p.photo_url4,p.photo_url5].filter(Boolean);
-  const fb=`https://placehold.co/600x750/f2ede3/b8922a?text=${encodeURIComponent((p.name||"").slice(0,10))}`;
-  const imgs=photos.length?photos:[fb];
-  const wished=wishlist.includes(p.id);
-  const hasDis=p.offerPrice&&p.offerPrice<p.salePrice;
-  const PR=reviews.filter(r=>r.product_id===p.id);
-  const avg=PR.length?Math.round(PR.reduce((a,r)=>a+r.rating,0)/PR.length):5;
-  const sizes=tryParse(p.available_sizes,[]);
-  const waText=`Assalam o Alaikum! 👋\n\nI'm interested in:\n*${p.website_title||p.name}*\n💰 Price: ${pkr(hasDis?p.offerPrice:p.salePrice)}\n🎨 Color: ${p.color}\n🧵 Fabric: ${p.fabric_type||p.fabric}\n\nIs it still available?`;
-
-  return(
-    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.7)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(8px)",animation:"fadeIn 0.3s ease"}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"#faf8f3",width:"100%",maxWidth:"920px",maxHeight:"92vh",overflow:"auto",animation:"scaleIn 0.3s ease",display:"grid",gridTemplateColumns:"1fr 1fr"}} className="grid-1-mob">
-        {/* Images */}
-        <div style={{padding:"clamp(16px,3vw,28px)",borderRight:"1px solid #d4a84322"}}>
-          <div style={{aspectRatio:"3/4",overflow:"hidden",marginBottom:"10px",position:"relative"}}>
-            <img src={imgs[ai]} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.src=fb}/>
-            {p.is_new_arrival&&<div style={{position:"absolute",top:"12px",left:"12px",background:"#1a1208",color:"#d4a843",padding:"4px 12px",fontSize:"9px",fontWeight:"700",letterSpacing:"1.5px",fontFamily:"'Jost',sans-serif"}}>NEW ARRIVAL</div>}
-            {p.stock<=0&&<div style={{position:"absolute",inset:0,background:"rgba(250,248,243,0.75)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{border:"2px solid #1a1208",color:"#1a1208",padding:"8px 24px",fontSize:"11px",fontWeight:"700",letterSpacing:"3px",fontFamily:"'Jost',sans-serif"}}>SOLD OUT</span></div>}
-          </div>
-          {imgs.length>1&&<div style={{display:"flex",gap:"6px"}}>
-            {imgs.map((im,i)=><div key={i} onClick={()=>setAi(i)} style={{width:"56px",height:"68px",overflow:"hidden",cursor:"pointer",border:`2px solid ${ai===i?"#b8922a":"transparent"}`,transition:"border 0.2s"}}>
-              <img src={im} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.src=fb}/>
-            </div>)}
-          </div>}
-        </div>
-
-        {/* Details */}
-        <div style={{padding:"clamp(16px,3vw,28px)",display:"flex",flexDirection:"column",gap:"14px",overflow:"auto"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-            <div>
-              <div style={{fontSize:"10px",color:"#b8922a",letterSpacing:"3px",textTransform:"uppercase",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>{p.website_category||p.category}</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(18px,2.5vw,24px)",fontWeight:"700",color:"#1a1208",lineHeight:1.2}}>{p.website_title||p.name}</h2>
-            </div>
-            <div style={{display:"flex",gap:"6px"}}>
-              <button onClick={()=>toggleWish(p.id)} style={{background:"none",border:"1px solid #d4a84344",width:"36px",height:"36px",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:"15px"}}>{wished?"❤️":"🤍"}</button>
-              <button onClick={onClose} style={{background:"none",border:"1px solid #d4a84344",width:"36px",height:"36px",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#8a7a5a",fontSize:"16px"}}>✕</button>
-            </div>
-          </div>
-
-          {/* Rating */}
-          <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-            <div style={{display:"flex",gap:"1px"}}>{[1,2,3,4,5].map(i=><span key={i} style={{color:i<=avg?"#b8922a":"#d4a84333",fontSize:"14px"}}>★</span>)}</div>
-            <span style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>({PR.length} reviews)</span>
-          </div>
-
-          {/* Price */}
-          <div style={{background:"var(--cream2)",padding:"14px",borderLeft:"3px solid #b8922a"}}>
-            {hasDis&&<div style={{fontSize:"12px",color:"#aaa",textDecoration:"line-through",fontFamily:"'Jost',sans-serif"}}>{pkr(p.salePrice)}</div>}
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(22px,3vw,28px)",fontWeight:"700",color:"#1a1208"}}>{pkr(hasDis?p.offerPrice:p.salePrice)}<span style={{fontSize:"13px",color:"#8a7a5a",marginLeft:"6px"}}>/ {p.qtyType}</span></div>
-            <div style={{fontSize:"12px",color:p.stock>0?"#22c55e":"#dc2626",marginTop:"4px",fontFamily:"'Jost',sans-serif",fontWeight:"600"}}>{p.stock>0?`✓ Available${p.stock===1?" — Last piece!":""}` :"✕ Sold Out"}</div>
-          </div>
-
-          {/* Sizes */}
-          {p.size_type==="stitched"&&sizes.length>0&&<div>
-            <div style={{fontSize:"10px",color:"#8a7a5a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>AVAILABLE SIZES</div>
-            <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
-              {sizes.map(s=><span key={s} style={{border:"1px solid #d4a84355",padding:"6px 14px",fontSize:"11px",color:"#1a1208",fontWeight:"600",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px"}}>{s}</span>)}
-            </div>
-          </div>}
-
-          {/* Tabs */}
-          <div style={{display:"flex",borderBottom:"1px solid #d4a84322"}}>
-            {["details","specs","reviews"].map(t=><button key={t} onClick={()=>setTab(t)} style={{background:"none",border:"none",borderBottom:`2px solid ${tab===t?"#b8922a":"transparent"}`,padding:"8px 16px",fontSize:"10px",fontWeight:"600",letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer",color:tab===t?"#1a1208":"#8a7a5a",transition:"all 0.2s",fontFamily:"'Jost',sans-serif",marginBottom:"-1px"}}>
-              {t==="reviews"?`Reviews (${PR.length})`:t.charAt(0).toUpperCase()+t.slice(1)}
-            </button>)}
-          </div>
-
-          {/* Tab content */}
-          <div style={{fontSize:"13px",color:"#8a7a5a",lineHeight:1.8,fontFamily:"'Cormorant Garamond',serif",fontSize:"15px",flex:1,overflowY:"auto",maxHeight:"160px"}}>
-            {tab==="details"&&<p>{p.website_description||p.description||"Premium exclusive fabric from Jameel Fabrics Kunjah. Each piece is unique — once sold, it's gone forever."}</p>}
-            {tab==="specs"&&[["Brand",p.brand],["Color",p.color],["Fabric",p.fabric_type||p.fabric],["Category",p.category],["Washing",p.washing_instructions||"Dry clean recommended"],["Size Guide",p.size_guide||"Standard"]].map(([k,v])=>(
-              <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #d4a84311",fontSize:"13px",fontFamily:"'Jost',sans-serif"}}>
-                <span style={{color:"#8a7a5a",fontSize:"11px",letterSpacing:"1px",textTransform:"uppercase"}}>{k}</span>
-                <span style={{color:"#1a1208",fontWeight:"500"}}>{v||"—"}</span>
-              </div>
-            ))}
-            {tab==="reviews"&&<div>
-              {PR.map(r=><div key={r.id} style={{borderBottom:"1px solid #d4a84311",paddingBottom:"10px",marginBottom:"10px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
-                  <span style={{fontFamily:"'Jost',sans-serif",fontSize:"13px",fontWeight:"600",color:"#1a1208"}}>{r.customer_name}</span>
-                  <div style={{display:"flex",gap:"1px"}}>{[1,2,3,4,5].map(i=><span key={i} style={{color:i<=r.rating?"#b8922a":"#eee",fontSize:"11px"}}>★</span>)}</div>
-                </div>
-                <p style={{fontSize:"13px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>{r.comment}</p>
-              </div>)}
-              {!PR.length&&<p style={{color:"#aaa",textAlign:"center",padding:"16px",fontFamily:"'Jost',sans-serif"}}>No reviews yet — be the first!</p>}
-              <div style={{marginTop:"12px",borderTop:"1px solid #d4a84322",paddingTop:"12px"}}>
-                <div style={{fontSize:"10px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>WRITE A REVIEW</div>
-                <input value={rv.name} onChange={e=>setRv(v=>({...v,name:e.target.value}))} placeholder="Your name" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",fontSize:"13px",color:"#1a1208",outline:"none",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}/>
-                <div style={{display:"flex",gap:"3px",marginBottom:"8px"}}>{[1,2,3,4,5].map(i=><span key={i} onClick={()=>setRv(v=>({...v,rating:i}))} style={{fontSize:"20px",cursor:"pointer",color:i<=rv.rating?"#b8922a":"#eee"}}>★</span>)}</div>
-                <textarea value={rv.comment} onChange={e=>setRv(v=>({...v,comment:e.target.value}))} placeholder="Your experience..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",fontSize:"13px",color:"#1a1208",outline:"none",height:"50px",resize:"none",fontFamily:"'Jost',sans-serif"}}/>
-                <button onClick={()=>{if(rv.name&&rv.comment){onReview({...rv,product_id:p.id,product_name:p.name,id:gid(),date:new Date().toLocaleDateString(),verified:false});setRv({name:"",rating:5,comment:""});}}} style={{marginTop:"8px",background:"#1a1208",color:"#d4a843",border:"none",padding:"8px 20px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>SUBMIT</button>
-              </div>
-            </div>}
-          </div>
-
-          {/* CTAs */}
-          {p.stock>0?(
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginTop:"auto"}}>
-              <button onClick={()=>{onAdd(p);onClose();}} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"14px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>ADD TO CART</button>
-              <a href={`https://wa.me/${WA}?text=${encodeURIComponent(waText)}`} target="_blank" rel="noreferrer" style={{background:"#25D366",color:"#fff",border:"none",padding:"14px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",textDecoration:"none"}}>📱 ENQUIRE</a>
-            </div>
-          ):(
-            <a href={`https://wa.me/${WA}?text=${encodeURIComponent(`Assalam! "${p.name}" is sold out. Do you have something similar?`)}`} target="_blank" rel="noreferrer" style={{background:"#25D366",color:"#fff",border:"none",padding:"14px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",textAlign:"center",display:"block",textDecoration:"none",marginTop:"auto"}}>📱 ASK FOR SIMILAR</a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── CART ──────────────────────────────────────────────────────
-function Cart({cart,setCart,onClose,customer,setShowLogin,setShowCheckout,settings,coupon,setCoupon}){
-  const sub=cart.reduce((a,c)=>a+c.price*c.qty,0);
-  const total=coupon?Math.max(0,sub-coupon.discount):sub;
-  const upd=(id,q)=>{if(q<1)setCart(c=>c.filter(x=>x.id!==id));else setCart(c=>c.map(x=>x.id===id?{...x,qty:q}:x));};
-  const [code,setCode]=useState("");const[msg,setMsg]=useState("");
-  const applyCode=()=>{
-    const cps=settings?.coupons||[];
-    const c=cps.find(x=>x.code.toUpperCase()===code.toUpperCase()&&x.active);
-    if(!c){setMsg("❌ Invalid code");return;}
-    const d=c.type==="percent"?Math.round(sub*c.discount/100):c.discount;
-    setCoupon({code:c.code,discount:d,label:`${c.code} (${c.discount}${c.type==="percent"?"%":"Rs."} off)`});
-    setMsg(`✅ ${c.discount}${c.type==="percent"?"%":"Rs."} off applied!`);
-  };
-  return(
-    <div style={{position:"fixed",inset:0,zIndex:900}}>
-      <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(26,18,8,0.5)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"absolute",right:0,top:0,bottom:0,width:"min(420px,100vw)",background:"#faf8f3",borderLeft:"1px solid #d4a84322",display:"flex",flexDirection:"column",animation:"slideLeft 0.3s ease"}}>
-        <div style={{padding:"20px 24px",borderBottom:"1px solid #d4a84322",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"18px",fontWeight:"700",color:"#1a1208"}}>Your Cart <span style={{color:"#b8922a",fontSize:"14px"}}>({cart.length})</span></div>
-          <button onClick={onClose} style={{background:"none",border:"1px solid #d4a84344",width:"32px",height:"32px",color:"#8a7a5a",cursor:"pointer",fontSize:"16px",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
-        </div>
-        <div style={{flex:1,overflowY:"auto",padding:"16px 24px"}}>
-          {cart.length===0&&<div style={{textAlign:"center",padding:"60px 0",color:"#8a7a5a"}}>
-            <div style={{fontSize:"40px",marginBottom:"12px"}}>🛍</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",marginBottom:"6px",color:"#1a1208"}}>Your cart is empty</div>
-            <div style={{fontSize:"13px",fontFamily:"'Jost',sans-serif"}}>Add some beautiful pieces</div>
-          </div>}
-          {cart.map(item=>{
-            const fb=`https://placehold.co/80x100/f2ede3/b8922a?text=JF`;
-            return(
-              <div key={item.id} style={{display:"flex",gap:"12px",padding:"14px 0",borderBottom:"1px solid #d4a84311"}}>
-                <img src={item.photo||fb} alt={item.name} style={{width:"68px",height:"84px",objectFit:"cover",flexShrink:0}} onError={e=>e.target.src=fb}/>
-                <div style={{flex:1}}>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:"13px",fontWeight:"700",color:"#1a1208",marginBottom:"3px"}}>{item.name}</div>
-                  <div style={{fontSize:"11px",color:"#8a7a5a",marginBottom:"8px",fontFamily:"'Jost',sans-serif"}}>{item.color}</div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"10px",border:"1px solid #d4a84333",padding:"4px 10px"}}>
-                      <button onClick={()=>upd(item.id,item.qty-1)} style={{background:"none",border:"none",color:"#b8922a",fontSize:"16px",cursor:"pointer",lineHeight:1}}>−</button>
-                      <span style={{color:"#1a1208",fontSize:"13px",fontWeight:"700",fontFamily:"'Jost',sans-serif",minWidth:"16px",textAlign:"center"}}>{item.qty}</span>
-                      <button onClick={()=>upd(item.id,item.qty+1)} style={{background:"none",border:"none",color:"#b8922a",fontSize:"16px",cursor:"pointer",lineHeight:1}}>+</button>
-                    </div>
-                    <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"16px",fontWeight:"700",color:"#1a1208"}}>{pkr(item.price*item.qty)}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {cart.length>0&&<div style={{padding:"16px 24px",borderTop:"1px solid #d4a84322"}}>
-          {/* Coupon */}
-          {!coupon?<div style={{marginBottom:"12px"}}>
-            <div style={{display:"flex",gap:"6px"}}>
-              <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="COUPON CODE" style={{flex:1,background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"7px 0",fontSize:"11px",color:"#1a1208",outline:"none",letterSpacing:"2px",fontFamily:"'Jost',sans-serif"}}/>
-              <button onClick={applyCode} style={{background:"none",border:"none",color:"#b8922a",fontSize:"11px",fontWeight:"700",cursor:"pointer",letterSpacing:"1px",fontFamily:"'Jost',sans-serif"}}>APPLY</button>
-            </div>
-            {msg&&<div style={{fontSize:"11px",marginTop:"4px",color:msg.startsWith("✅")?"#22c55e":"#dc2626",fontFamily:"'Jost',sans-serif"}}>{msg}</div>}
-          </div>:<div style={{marginBottom:"10px",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",background:"var(--cream2)"}}>
-            <span style={{fontSize:"11px",color:"#22c55e",fontWeight:"700",fontFamily:"'Jost',sans-serif"}}>🎫 {coupon.label}</span>
-            <button onClick={()=>setCoupon(null)} style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:"16px"}}>✕</button>
-          </div>}
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px",fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}><span>Subtotal</span><span>{pkr(sub)}</span></div>
-          {coupon&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px",fontSize:"12px",color:"#22c55e",fontFamily:"'Jost',sans-serif"}}><span>Discount</span><span>- Rs.{coupon.discount.toLocaleString()}</span></div>}
-          <div style={{display:"flex",justifyContent:"space-between",padding:"12px 0",borderTop:"1px solid #d4a84322",marginTop:"4px"}}>
-            <span style={{color:"#8a7a5a",fontFamily:"'Jost',sans-serif",fontSize:"12px",letterSpacing:"2px",textTransform:"uppercase"}}>Total</span>
-            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"22px",fontWeight:"700",color:"#1a1208"}}>{pkr(total)}</span>
-          </div>
-          <button onClick={()=>customer?setShowCheckout(true):setShowLogin(true)} style={{width:"100%",background:"#1a1208",color:"#d4a843",border:"none",padding:"14px",fontSize:"11px",fontWeight:"700",letterSpacing:"3px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginBottom:"8px",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>CHECKOUT VIA WHATSAPP</button>
-          <button onClick={()=>setCart([])} style={{width:"100%",background:"none",border:"1px solid #d4a84333",padding:"10px",color:"#8a7a5a",fontSize:"11px",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>CLEAR CART</button>
-        </div>}
-      </div>
-    </div>
-  );
-}
-
-// ── CHECKOUT ──────────────────────────────────────────────────
-function Checkout({cart,customer,onClose,settings,coupon}){
-  const sub=cart.reduce((a,c)=>a+c.price*c.qty,0);
-  const total=coupon?Math.max(0,sub-coupon.discount):sub;
-  const msg=[`Assalamualaikum! 🌙`,'',`I would like to place an order from *${BRAND}*`,'',`🛍️ *NEW ORDER — ${BRAND} ${SUB}*`,`━━━━━━━━━━━━━━━━━━━━`,`👤 *Customer*`,`Name: ${customer?.name}`,`Phone: ${customer?.phone}`,`City: ${customer?.city}`,`Address: ${customer?.address}`,`━━━━━━━━━━━━━━━━━━━━`,`📦 *Items*`,...cart.map((it,i)=>`${i+1}. ${it.name}\n   Qty: ${it.qty} | ${pkr(it.price*it.qty)}`),`━━━━━━━━━━━━━━━━━━━━`,coupon?`🎫 Coupon: ${coupon.code} (-Rs.${coupon.discount.toLocaleString()})`:"",`💰 *TOTAL: ${pkr(total)}*`,`💳 Cash on Delivery`,`━━━━━━━━━━━━━━━━━━━━`,`Date: ${new Date().toLocaleString()}`,`Please confirm. Thank you! 🙏`,'','JazakAllah Khair! 🤲'].filter(Boolean).join("\n");
-
-  return(
-    <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.8)",zIndex:1100,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(10px)"}}>
-      <div style={{background:"#faf8f3",width:"100%",maxWidth:"460px",animation:"scaleIn 0.3s ease",overflow:"hidden"}}>
-        <div style={{padding:"20px 24px",borderBottom:"1px solid #d4a84322",display:"flex",justifyContent:"space-between",alignItems:"center",background:"linear-gradient(135deg,#1a1208,#2a1f0a)"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"18px",fontWeight:"700",color:"#d4a843"}}>Order Summary</div>
-          <button onClick={onClose} style={{background:"none",border:"1px solid #d4a84344",width:"32px",height:"32px",color:"#d4a843",cursor:"pointer",fontSize:"16px",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
-        </div>
-        <div style={{padding:"20px 24px",maxHeight:"50vh",overflowY:"auto"}}>
-          {cart.map(it=><div key={it.id} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #d4a84311",fontSize:"13px"}}>
-            <div><div style={{color:"#1a1208",fontWeight:"600",fontFamily:"'Playfair Display',serif"}}>{it.name}</div><div style={{color:"#8a7a5a",fontSize:"11px",fontFamily:"'Jost',sans-serif"}}>{it.color} × {it.qty}</div></div>
-            <span style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:"700",color:"#1a1208",fontSize:"15px"}}>{pkr(it.price*it.qty)}</span>
-          </div>)}
-          {coupon&&<div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",fontSize:"13px",color:"#22c55e",fontFamily:"'Jost',sans-serif",fontWeight:"600"}}><span>Coupon: {coupon.code}</span><span>- Rs.{coupon.discount.toLocaleString()}</span></div>}
-          <div style={{display:"flex",justifyContent:"space-between",padding:"14px 0",borderTop:"1px solid #d4a84322",marginTop:"8px"}}><span style={{color:"#8a7a5a",fontFamily:"'Jost',sans-serif",fontSize:"12px",letterSpacing:"2px",textTransform:"uppercase"}}>Total</span><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"22px",fontWeight:"700",color:"#1a1208"}}>{pkr(total)}</span></div>
-        </div>
-        <div style={{padding:"16px 24px",borderTop:"1px solid #d4a84322"}}>
-          <a href={`https://wa.me/${settings?.whatsapp||WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noreferrer" onClick={async()=>{if(supabase)for(const it of cart)await supabase.from("online_orders").insert({id:gid(),product_id:it.id,product_name:it.name,product_price:it.price,customer_name:customer.name,phone:customer.phone,city:customer.city,address:customer.address,status:"Pending",date:new Date().toLocaleDateString()});}} style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"10px",background:"#25D366",color:"#fff",padding:"14px",fontWeight:"700",fontSize:"12px",letterSpacing:"2px",textDecoration:"none",fontFamily:"'Jost',sans-serif",marginBottom:"8px"}}>
-            📱 CONFIRM ON WHATSAPP
-          </a>
-          <p style={{fontSize:"11px",color:"#8a7a5a",textAlign:"center",fontFamily:"'Jost',sans-serif"}}>Order confirmed via WhatsApp · Payment on delivery</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── LOGIN ─────────────────────────────────────────────────────
-function Login({onClose,onLogin}){
-  const [fm,setFm]=useState({name:"",phone:"",city:"",address:""});
-  const save=()=>{if(!fm.name||!fm.phone)return alert("Name and phone required!");LS.set("customer",fm);onLogin(fm);onClose();};
-  return(
-    <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.8)",zIndex:1200,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(10px)"}}>
-      <div style={{background:"#faf8f3",width:"100%",maxWidth:"380px",animation:"scaleIn 0.3s ease",overflow:"hidden"}}>
-        <div style={{padding:"24px",borderBottom:"1px solid #d4a84322",textAlign:"center",background:"linear-gradient(135deg,#1a1208,#2a1f0a)"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"22px",fontWeight:"700",color:"#d4a843",marginBottom:"4px"}}>Welcome</div>
-          <p style={{fontSize:"12px",color:"#d4a84399",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>Enter your details to continue</p>
-        </div>
-        <div style={{padding:"24px",display:"flex",flexDirection:"column",gap:"16px"}}>
-          {[["Full Name *","name","text"],["Phone Number *","phone","tel"],["City","city","text"],["Address","address","text"]].map(([l,k,t])=>(
-            <div key={k}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{l}</div>
-              <input type={t} value={fm[k]} onChange={e=>setFm(f=>({...f,[k]:e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"8px 0",fontSize:"14px",color:"#1a1208",outline:"none",fontFamily:"'Cormorant Garamond',serif",transition:"border 0.2s"}} onFocus={e=>e.target.style.borderBottomColor="#b8922a"} onBlur={e=>e.target.style.borderBottomColor="#d4a84344"}/>
-            </div>
-          ))}
-          <button onClick={save} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"14px",fontSize:"11px",fontWeight:"700",letterSpacing:"3px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>CONTINUE →</button>
-          <button onClick={onClose} style={{background:"none",border:"none",color:"#8a7a5a",fontSize:"11px",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>Skip for now</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── TRACKING ─────────────────────────────────────────────────
-function Tracking({onClose}){
-  const [phone,setPhone]=useState("");
-  const [orders,setOrders]=useState([]);
-  const [searched,setSearched]=useState(false);
-  const [loading,setLoading]=useState(false);
-  const STEPS=["Pending","Confirmed","Processing","Shipped","Delivered"];
-  const search=async()=>{if(!phone)return;setLoading(true);if(supabase){const{data}=await supabase.from("online_orders").select("*").eq("phone",phone);setOrders(data||[]);}setSearched(true);setLoading(false);};
-  return(
-    <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.8)",zIndex:1300,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(10px)"}}>
-      <div style={{background:"#faf8f3",width:"100%",maxWidth:"520px",maxHeight:"90vh",overflowY:"auto",animation:"scaleIn 0.3s ease"}}>
-        <div style={{padding:"20px 24px",borderBottom:"1px solid #d4a84322",display:"flex",justifyContent:"space-between",alignItems:"center",background:"linear-gradient(135deg,#1a1208,#2a1f0a)"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"18px",fontWeight:"700",color:"#d4a843"}}>🚚 Track Order</div>
-          <button onClick={onClose} style={{background:"none",border:"1px solid #d4a84344",width:"32px",height:"32px",color:"#d4a843",cursor:"pointer",fontSize:"16px",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
-        </div>
-        <div style={{padding:"24px"}}>
-          <div style={{display:"flex",gap:"8px",marginBottom:"20px"}}>
-            <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Phone number..." style={{flex:1,background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"10px 0",fontSize:"14px",color:"#1a1208",outline:"none",fontFamily:"'Cormorant Garamond',serif"}} onKeyDown={e=>e.key==="Enter"&&search()}/>
-            <button onClick={search} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"10px 24px",fontSize:"11px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>{loading?"...":"SEARCH"}</button>
-          </div>
-          {searched&&!orders.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No orders found for this number</div>}
-          {orders.map(o=>(
-            <div key={o.id} style={{border:"1px solid #d4a84322",marginBottom:"12px",padding:"16px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"12px"}}>
-                <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:"15px",fontWeight:"700",color:"#1a1208"}}>{o.product_name}</div><div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginTop:"3px"}}>#{String(o.id).slice(-6)} · {o.date}</div></div>
-                <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"16px",fontWeight:"700",color:"#1a1208"}}>{pkr(o.product_price)}</span>
-              </div>
-              {/* Progress */}
-              <div style={{display:"flex",justifyContent:"space-between",position:"relative"}}>
-                <div style={{position:"absolute",top:"10px",left:"10%",right:"10%",height:"2px",background:"#d4a84322"}}/>
-                <div style={{position:"absolute",top:"10px",left:"10%",height:"2px",background:"#b8922a",width:`${(STEPS.indexOf(o.status)/4)*80}%`,transition:"width 0.8s ease"}}/>
-                {STEPS.map((s,i)=>(
-                  <div key={s} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px",zIndex:1}}>
-                    <div style={{width:"20px",height:"20px",borderRadius:"50%",background:i<=STEPS.indexOf(o.status)?"#b8922a":"#d4a84322",border:`2px solid ${i<=STEPS.indexOf(o.status)?"#b8922a":"#d4a84322"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"9px",color:i<=STEPS.indexOf(o.status)?"#fff":"#aaa",fontWeight:"700"}}>{i<=STEPS.indexOf(o.status)?"✓":i+1}</div>
-                    <div style={{fontSize:"8px",color:i<=STEPS.indexOf(o.status)?"#b8922a":"#aaa",letterSpacing:"0.5px",fontFamily:"'Jost',sans-serif",textAlign:"center"}}>{s}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── ABOUT SECTION ─────────────────────────────────────────────
-function About({settings}){
-  return(
-    <section id="about" style={{padding:"clamp(60px,10vw,120px) clamp(16px,5vw,80px)",background:"#fff",borderTop:"1px solid #d4a84322"}}>
-      <div style={{maxWidth:"1200px",margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,6vw,80px)",alignItems:"center"}} className="grid-1-mob">
-        <div>
-          <div className="reveal" style={{fontSize:"10px",color:"#b8922a",letterSpacing:"5px",marginBottom:"14px",fontFamily:"'Jost',sans-serif"}}>OUR STORY</div>
-          <h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,48px)",fontWeight:"700",color:"#1a1208",lineHeight:1.2,marginBottom:"24px",animationDelay:"0.1s"}}>
-            About <span style={{fontStyle:"italic",color:"#b8922a"}}>{BRAND}</span>
-          </h2>
-          <div style={{width:"40px",height:"2px",background:"#b8922a",marginBottom:"24px"}} className="reveal"/>
-          <div className="reveal" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(16px,1.8vw,19px)",color:"#8a7a5a",lineHeight:2,whiteSpace:"pre-line",animationDelay:"0.2s"}}>
-            {settings?.aboutText||`Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing.\n\nLocated in the heart of Kunjah, we serve customers from across the region with pride and dedication.`}
-          </div>
-          <div className="reveal" style={{marginTop:"28px",display:"flex",gap:"16px",flexWrap:"wrap",animationDelay:"0.3s"}}>
-            {[["📍",ADDRESS],["📞",PHONE]].map(([ic,t])=>(
-              <div key={t} style={{display:"flex",gap:"8px",alignItems:"flex-start"}}>
-                <span style={{fontSize:"16px"}}>{ic}</span>
-                <span style={{fontFamily:"'Jost',sans-serif",fontSize:"13px",color:"#8a7a5a",lineHeight:1.6}}>{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="reveal-right" style={{position:"relative",height:"clamp(300px,50vw,500px)"}}>
-          <TiltCard style={{position:"absolute",inset:0,background:"var(--cream2)",border:"1px solid var(--border)",overflow:"hidden"}}>
-            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"16px"}}>
-              <div style={{fontSize:"clamp(40px,6vw,72px)",animation:"float 4s ease-in-out infinite"}}>🧵</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(20px,3vw,28px)",fontWeight:"700",color:"#1a1208",textAlign:"center"}}>Premium Quality<br/><span style={{fontStyle:"italic",color:"#b8922a",fontSize:"0.85em"}}>Since Always</span></div>
-              <div style={{display:"flex",gap:"24px",marginTop:"8px"}}>
-                {[["100%","Exclusive"],["✓","Trusted"],["⚡","Fast"]].map(([v,l])=>(
-                  <div key={l} style={{textAlign:"center"}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:"700",color:"#b8922a"}}>{v}</div>
-                    <div style={{fontSize:"10px",color:"#8a7a5a",letterSpacing:"1px",fontFamily:"'Jost',sans-serif"}}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TiltCard>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── POLICIES ──────────────────────────────────────────────────
-function Policies({settings}){
-  const sections=(settings?.policiesText||"").split("\n\n").filter(Boolean);
-  return(
-    <section id="policies" style={{padding:"clamp(60px,8vw,100px) clamp(16px,5vw,80px)",background:"var(--cream)"}}>
-      <div style={{maxWidth:"1000px",margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:"clamp(32px,5vw,60px)"}}>
-          <div className="reveal" style={{fontSize:"10px",color:"#b8922a",letterSpacing:"5px",marginBottom:"14px",fontFamily:"'Jost',sans-serif"}}>TRANSPARENCY</div>
-          <h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(26px,4vw,44px)",fontWeight:"700",color:"#1a1208",animationDelay:"0.1s"}}>Our Policies</h2>
-          <div className="reveal" style={{width:"40px",height:"1px",background:"#b8922a",margin:"16px auto",animationDelay:"0.2s"}}/>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"clamp(12px,2vw,24px)"}}>
-          {sections.map((s,i)=>{const[title,...rest]=s.split("\n");return(
-            <TiltCard key={i} className="reveal" style={{background:"#fff",border:"1px solid #d4a84322",padding:"clamp(16px,2vw,24px)",animationDelay:`${i*0.1}s`}}>
-              <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:"15px",fontWeight:"700",color:"#b8922a",marginBottom:"10px",letterSpacing:"0.5px"}}>{title}</h3>
-              <p style={{fontSize:"13px",color:"#8a7a5a",lineHeight:1.9,fontFamily:"'Jost',sans-serif"}}>{rest.join("\n")}</p>
-            </TiltCard>
-          );})}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── LOCATION ──────────────────────────────────────────────────
-function Location({settings={}}){
-  return(
-    <section id="location" style={{padding:"clamp(60px,8vw,100px) clamp(16px,5vw,80px)",background:"#fff",borderTop:"1px solid #d4a84322"}}>
-      <div style={{maxWidth:"1000px",margin:"0 auto",textAlign:"center"}}>
-        <div className="reveal" style={{fontSize:"10px",color:"#b8922a",letterSpacing:"5px",marginBottom:"14px",fontFamily:"'Jost',sans-serif"}}>FIND US</div>
-        <h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(26px,4vw,44px)",fontWeight:"700",color:"#1a1208",marginBottom:"8px",animationDelay:"0.1s"}}>Visit Our Store</h2>
-        <div className="reveal" style={{width:"40px",height:"1px",background:"#b8922a",margin:"16px auto 40px",animationDelay:"0.2s"}}/>
-        <div className="reveal" style={{border:"1px solid #d4a84322",overflow:"hidden",marginBottom:"28px",animationDelay:"0.3s"}}>
-          <iframe title="Location" src={settings?.googleMapsUrl||"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3392.5!2d73.97!3d32.52!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391f23!2sKunjah%2C+Gujrat&output=embed"} width="100%" height="260" style={{border:"none",display:"block",filter:"sepia(0.2) saturate(0.8)"}} loading="lazy"/>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:"16px"}}>
-          {[["📍","Address",ADDRESS],["📞","Phone",PHONE],["⏰","Hours","Mon–Sat: 10am–8pm"],["📱","WhatsApp",PHONE]].map(([ic,l,v])=>(
-            <TiltCard key={l} className="reveal" style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"20px",textAlign:"center"}}>
-              <div style={{fontSize:"24px",marginBottom:"8px"}}>{ic}</div>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",fontFamily:"'Jost',sans-serif"}}>{l}</div>
-              <div style={{fontSize:"13px",color:"#4a3a18",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}>{v}</div>
-            </TiltCard>
-          ))}
-        </div>
-        <a href={`https://maps.google.com/?q=${encodeURIComponent(ADDRESS)}`} target="_blank" rel="noreferrer" style={{display:"inline-block",marginTop:"24px",background:"none",border:"1px solid #1a1208",color:"#1a1208",padding:"12px 32px",fontSize:"10px",fontWeight:"700",letterSpacing:"3px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}} onMouseLeave={e=>{e.target.style.background="none";e.target.style.color="#1a1208";}}>
-          OPEN IN MAPS
-        </a>
-      </div>
-    </section>
-  );
-}
-
-// ── VIDEO SECTION ─────────────────────────────────────────────
-function VideoSection({settings}){
-  if(!settings?.showUploadedVideo||!settings?.uploadedVideoUrl) return null;
-  const lines=(settings.uploadedVideoCaption||"").split("\n").filter(Boolean);
-  return(
-    <section style={{padding:"clamp(60px,8vw,100px) clamp(16px,5vw,80px)",background:"#1a1208"}}>
-      <div style={{maxWidth:"900px",margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:"clamp(24px,4vw,48px)"}}>
-          <div className="reveal" style={{fontSize:"10px",color:"#d4a843",letterSpacing:"5px",marginBottom:"14px",fontFamily:"'Jost',sans-serif"}}>FEATURED</div>
-          {settings.uploadedVideoTitle&&<h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,42px)",fontWeight:"700",color:"#faf8f3",animationDelay:"0.1s"}}>{settings.uploadedVideoTitle}</h2>}
-          <div className="reveal" style={{width:"40px",height:"1px",background:"#d4a843",margin:"16px auto 0",animationDelay:"0.2s"}}/>
-        </div>
-        <div className="reveal" style={{position:"relative",border:"1px solid #d4a84333",overflow:"hidden",boxShadow:"0 32px 100px rgba(0,0,0,0.5)",animationDelay:"0.3s"}}>
-          <video src={settings.uploadedVideoUrl} controls controlsList="nodownload" style={{width:"100%",display:"block",maxHeight:"560px",objectFit:"cover"}}/>
-          {/* Gold corners */}
-          {["tl","tr","bl","br"].map(c=><div key={c} style={{position:"absolute",...(c[0]==="t"?{top:0}:{bottom:0}),...(c[1]==="l"?{left:0}:{right:0}),width:"28px",height:"28px",borderTop:c[0]==="t"?"2px solid #d4a843":undefined,borderBottom:c[0]==="b"?"2px solid #d4a843":undefined,borderLeft:c[1]==="l"?"2px solid #d4a843":undefined,borderRight:c[1]==="r"?"2px solid #d4a843":undefined}}/>)}
-        </div>
-        {lines.length>0&&(
-          <div className="reveal" style={{marginTop:"24px",border:"1px solid #d4a84333",overflow:"hidden",animationDelay:"0.4s"}}>
-            <table style={{width:"100%",borderCollapse:"collapse"}}>
-              <thead><tr style={{background:"rgba(212,168,67,0.1)"}}>
-                <th style={{padding:"12px 20px",textAlign:"left",fontFamily:"'Playfair Display',serif",fontSize:"14px",fontWeight:"700",color:"#d4a843",letterSpacing:"1px",borderBottom:"1px solid #d4a84322"}}>About This Collection</th>
-              </tr></thead>
-              <tbody>{lines.map((l,i)=><tr key={i} style={{background:i%2===0?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.04)"}}><td style={{padding:"11px 20px",fontSize:"13px",color:"#d4a84399",lineHeight:1.8,fontFamily:"'Jost',sans-serif",borderBottom:"1px solid #d4a84311"}}>{l}</td></tr>)}</tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ── FOOTER ────────────────────────────────────────────────────
-function Footer({settings,setShowTrack}){
-  return(
-    <footer style={{background:"#1a1208",padding:"clamp(48px,6vw,80px) clamp(16px,5vw,80px) 24px",borderTop:"2px solid #d4a84322"}}>
-      <div style={{maxWidth:"1200px",margin:"0 auto"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"clamp(24px,4vw,48px)",marginBottom:"clamp(32px,5vw,60px)"}} className="footer-grid">
-          <div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:"900",color:"#d4a843",letterSpacing:"3px",marginBottom:"6px"}}>{BRAND}</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"12px",letterSpacing:"4px",color:"#d4a84388",marginBottom:"16px",fontStyle:"italic"}}>{SUB}</div>
-            <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"15px",color:"#d4a84366",lineHeight:1.8,fontStyle:"italic",marginBottom:"20px"}}>{TAGLINE}</p>
-            <div style={{display:"flex",gap:"10px"}}>
-              {settings?.tiktokUrl&&<a href={settings.tiktokUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s",color:"#d4a84388"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid #d4a843";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid #d4a84333";e.currentTarget.style.color="#d4a84388";}}>{ICONS.tiktok}</a>}
-              {settings?.instagramUrl&&<a href={settings.instagramUrl} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",border:"1px solid #d4a84333",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s",color:"#d4a84388"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid #d4a843";e.currentTarget.style.color="#d4a843";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid #d4a84333";e.currentTarget.style.color="#d4a84388";}}>{ICONS.instagram}</a>}
-              <a href={`https://wa.me/${settings?.whatsapp||WA}`} target="_blank" rel="noreferrer" style={{width:"36px",height:"36px",background:"#25D366",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>{ICONS.wa}</a>
-            </div>
-          </div>
-          <div>
-            <div style={{fontSize:"10px",color:"#d4a843",letterSpacing:"3px",marginBottom:"16px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Quick Links</div>
-            {[["Home","#"],["Collection","#collection"],["About Us","#about"],["Policies","#policies"],["Visit Store","#location"]].map(([l,h])=><a key={l} href={h} style={{display:"block",fontSize:"13px",color:"#d4a84366",padding:"5px 0",fontFamily:"'Jost',sans-serif",transition:"color 0.2s",letterSpacing:"0.5px"}} onMouseEnter={e=>e.target.style.color="#d4a843"} onMouseLeave={e=>e.target.style.color="#d4a84366"}>{l}</a>)}
-            <button onClick={()=>setShowTrack(true)} style={{display:"block",background:"none",border:"none",color:"#d4a84366",padding:"5px 0",fontFamily:"'Jost',sans-serif",fontSize:"13px",cursor:"pointer",letterSpacing:"0.5px",textAlign:"left",transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color="#d4a843"} onMouseLeave={e=>e.target.style.color="#d4a84366"}>Track Order</button>
-          </div>
-          <div>
-            <div style={{fontSize:"10px",color:"#d4a843",letterSpacing:"3px",marginBottom:"16px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Contact</div>
-            <div style={{fontSize:"13px",color:"#d4a84366",lineHeight:2.2,fontFamily:"'Jost',sans-serif"}}>
-              <div>📍 {ADDRESS}</div>
-              <div>📞 {PHONE}</div>
-              {settings?.tiktok&&<div>🎵 TikTok: {settings.tiktok}</div>}
-              {settings?.instagram&&<div>📸 Instagram: {settings.instagram}</div>}
-            </div>
-          </div>
-        </div>
-        <div style={{borderTop:"1px solid #d4a84311",paddingTop:"20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"12px"}}>
-          <p style={{fontSize:"11px",color:"#d4a84333",fontFamily:"'Jost',sans-serif"}}>© 2026 {BRAND} {SUB}. All Rights Reserved.</p>
-          <p style={{fontSize:"11px",color:"#d4a84322",fontFamily:"'Jost',sans-serif"}}>Premium Pakistani Fabrics</p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-// ── WHATSAPP FLOAT ────────────────────────────────────────────
-function WAFloat({settings}){
-  const [show,setShow]=useState(false);
-  useEffect(()=>{setTimeout(()=>setShow(true),3000);},[]);
-  return(
-    <a href={`https://wa.me/${settings?.whatsapp||WA}?text=${encodeURIComponent("Assalam! I'd like to enquire about your collection.")}`} target="_blank" rel="noreferrer" style={{position:"fixed",bottom:"24px",right:"24px",width:"54px",height:"54px",background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 24px rgba(37,211,102,0.4)",zIndex:800,opacity:show?1:0,transform:show?"scale(1)":"scale(0)",transition:"all 0.4s cubic-bezier(0.34,1.56,0.64,1)",animation:show?"pulse3d 3s ease 4s infinite":"none",color:"#fff"}}>
-      {ICONS.wa}
-    </a>
-  );
-}
-
-// ── ADMIN PANEL ───────────────────────────────────────────────
-function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose}){
-  const [tab,setTab]=useState("pending");
-  const [editProd,setEditProd]=useState(null);
-  const [uploading,setUploading]=useState(false);
-  const [sEdit,setSEdit]=useState({...settings});
-  const [pwForm,setPwForm]=useState({old:"",nw:"",cf:""});
-  const [alerts,setAlerts]=useState([]);
-  const [allProds,setAllProds]=useState([]);
-  const [loading,setLoading]=useState(true);
-
-  useEffect(()=>{
-    if(!supabase){setLoading(false);return;}
-    supabase.from("website_alerts").select("*").order("created_at",{ascending:false}).then(({data})=>setAlerts(data||[]));
-    supabase.from("products").select("*").order("created_at",{ascending:false}).then(({data})=>{
-      if(data?.length)setAllProds(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,available_sizes:tryParse(r.available_sizes,[])})));
-      setLoading(false);
-    });
-    const ch=supabase.channel("ap-sync")
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"website_alerts"},({new:n})=>setAlerts(a=>[n,...a]))
-      .on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{supabase.from("products").select("*").order("created_at",{ascending:false}).then(({data})=>{if(data?.length)setAllProds(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,available_sizes:tryParse(r.available_sizes,[])})));});})
-      .subscribe();
-    return()=>supabase.removeChannel(ch);
+    const ts=[300,900,1500,2200].map((d,i)=>setTimeout(()=>setStep(i+1),d));
+    return()=>ts.forEach(clearTimeout);
   },[]);
-
-  const unread=alerts.filter(a=>!a.is_read);
-  const pending=allProds.filter(p=>!p.website_status||p.website_status==="pending");
-  const listed=allProds.filter(p=>p.website_status==="listed");
-  const STATUS_C={pending:"#b8922a",listed:"#22c55e",sold_out:"#dc2626",hidden:"#6b7280",waiting_stock:"#f59e0b"};
-  const STATUS_L={pending:"⏳ Pending",listed:"✅ Listed",sold_out:"❌ Sold Out",hidden:"🙈 Hidden",waiting_stock:"⏳ Waiting"};
-
-  const updateStatus=async(id,status)=>{setAllProds(p=>p.map(x=>x.id===id?{...x,website_status:status}:x));setProducts(p=>p.map(x=>x.id===id?{...x,website_status:status}:x));if(supabase)await supabase.from("products").update({website_status:status}).eq("id",id);};
-  const markRead=async(id,action)=>{setAlerts(a=>a.map(x=>x.id===id?{...x,is_read:true,action_taken:action}:x));if(supabase)await supabase.from("website_alerts").update({is_read:true,action_taken:action}).eq("id",id);};
-  const handleAlert=async(al,action)=>{if(action==="sold_out")await updateStatus(al.product_id,"sold_out");if(action==="remove")await updateStatus(al.product_id,"hidden");if(action==="waiting")await updateStatus(al.product_id,"waiting_stock");await markRead(al.id,action);};
-  const uploadImg=async(file,field)=>{if(!supabase||!file||!editProd)return;setUploading(true);const ext=file.name.split(".").pop();const path=`${editProd.id}/${field}-${Date.now()}.${ext}`;const{error}=await supabase.storage.from("product-images").upload(path,file,{upsert:true});if(!error){const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);setEditProd(p=>({...p,[field]:u.publicUrl}));}setUploading(false);};
-  const saveProd=async()=>{if(!editProd)return;setAllProds(p=>p.map(x=>x.id===editProd.id?editProd:x));setProducts(p=>p.map(x=>x.id===editProd.id?{...x,...editProd}:x));if(supabase)await supabase.from("products").upsert({id:editProd.id,name:editProd.name,brand:editProd.brand,color:editProd.color,fabric:editProd.fabric,category:editProd.category,rack:editProd.rack,stock:editProd.stock,sale_price:editProd.salePrice,cost_price:editProd.costPrice,offer_price:editProd.offerPrice,qty_type:editProd.qtyType,barcode:editProd.barcode,description:editProd.website_description,fabric_type:editProd.fabric_type,washing_instructions:editProd.washing_instructions,size_guide:editProd.size_guide,is_new_arrival:editProd.is_new_arrival,is_active:editProd.is_active,website_status:editProd.website_status||"pending",website_title:editProd.website_title,website_description:editProd.website_description,website_category:editProd.website_category,size_type:editProd.size_type,available_sizes:JSON.stringify(editProd.available_sizes||[]),photo_url:editProd.photo_url,photo_url2:editProd.photo_url2,photo_url3:editProd.photo_url3,photo_url4:editProd.photo_url4,photo_url5:editProd.photo_url5,img1:editProd.photo_url||editProd.img1||'',img2:editProd.photo_url2||editProd.img2||'',img3:editProd.photo_url3||editProd.img3||'',img4:editProd.photo_url4||editProd.img4||'',img5:editProd.photo_url5||editProd.img5||'',display_stock_text:editProd.display_stock_text||'',active:editProd.active!==false,website_status:editProd.website_status||'approved',badge:editProd.badge||'',old_price:editProd.old_price||null,sizes:editProd.sizes||[],note:editProd.note||''});setEditProd(null);alert("✅ Saved!");};
-  const saveSettings=()=>{setSettings(sEdit);LS.set("shopSettings",sEdit);alert("✅ Saved!");};
-  const changePw=()=>{const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(pwForm.old!==sv)return alert("Wrong current password!");if(!pwForm.nw||pwForm.nw.length<6)return alert("Min 6 chars!");if(pwForm.nw!==pwForm.cf)return alert("Passwords don't match!");LS.set("adminPass",pwForm.nw);setPwForm({old:"",nw:"",cf:""});alert("✅ Password changed!");};
-
-  // ── BACKUP / RESTORE ──
-  const doBackup=()=>{
-    const data={v:2,ts:new Date().toISOString(),settings:sEdit,adminPass:LS.get("adminPass",ADMIN_PASS_DEFAULT)};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a=document.createElement("a");a.href=URL.createObjectURL(blob);
-    a.download="jameel-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();
-    alert("✅ Backup downloaded!");
-  };
-  const doRestore=(file)=>{
-    if(!file)return;const reader=new FileReader();
-    reader.onload=(e)=>{
-      try{
-        const d=JSON.parse(e.target.result);
-        if(!d.v)throw new Error("Invalid");
-        if(d.settings){setSettings(d.settings);setSEdit(d.settings);LS.set("shopSettings",d.settings);}
-        if(d.adminPass)LS.set("adminPass",d.adminPass);
-        alert("✅ Restored! Refresh the page.");
-      }catch{alert("❌ Invalid backup file!");}
-    };reader.readAsText(file);
-  };
-
-  const TABS=[{k:"pending",l:`Pending (${pending.length})`},{k:"alerts",l:`Alerts`,badge:unread.length},{k:"listed",l:`Listed (${listed.length})`},{k:"all",l:"All"},{k:"content",l:"Content"},{k:"settings",l:"Settings"},{k:"coupons",l:"Coupons"},{k:"orders",l:"Orders"},{k:"reviews",l:"Reviews"},{k:"backup",l:"💾 Backup"}];
-  const WCATS=["Men's Unstitched","Women Unstitched","Women Stitched","Kids","Other"];
-
-  const inp=(label,field,type="text",isS=false)=>{const obj=isS?sEdit:editProd;const setter=isS?v=>setSEdit(s=>({...s,[field]:v})):v=>setEditProd(p=>({...p,[field]:v}));return(
-    <div key={field} style={{marginBottom:"12px"}}>
-      <label style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",display:"block",marginBottom:"5px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>{label}</label>
-      {type==="textarea"?<textarea value={obj?.[field]||""} onChange={e=>setter(e.target.value)} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"80px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>:<input type={type} value={obj?.[field]||""} onChange={e=>setter(type==="number"?+e.target.value:e.target.value)} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>}
-    </div>
-  );};
-
-  const PCard=({p})=>(
-    <div style={{background:"#fff",border:`1px solid ${STATUS_C[p.website_status||"pending"]}33`,overflow:"hidden"}}>
-      {p.photo_url&&<img src={p.photo_url} alt={p.name} style={{width:"100%",height:"110px",objectFit:"cover"}}/>}
-      {!p.photo_url&&<div style={{height:"50px",background:"var(--cream2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#d4a84366",fontSize:"24px"}}>📦</div>}
-      <div style={{padding:"12px"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"3px"}}>{p.name}</div>
-        <div style={{fontSize:"10px",color:"#8a7a5a",marginBottom:"6px",fontFamily:"'Jost',sans-serif"}}>{p.category} · {p.color}</div>
-        <div style={{display:"flex",justifyContent:"space-between",marginBottom:"8px"}}>
-          <span style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:"700",fontSize:"15px",color:"#1a1208"}}>{pkr(p.salePrice)}</span>
-          <span style={{fontSize:"9px",padding:"2px 8px",background:STATUS_C[p.website_status||"pending"]+"22",color:STATUS_C[p.website_status||"pending"],fontWeight:"700",fontFamily:"'Jost',sans-serif"}}>{STATUS_L[p.website_status||"pending"]}</span>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px"}}>
-          <button onClick={()=>setEditProd({...p})} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"6px",fontSize:"9px",fontWeight:"700",letterSpacing:"1px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>✏️ EDIT</button>
-          {p.website_status!=="listed"&&<button onClick={()=>updateStatus(p.id,"listed")} style={{background:"#22c55e22",color:"#22c55e",border:"1px solid #22c55e44",padding:"6px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>✅ LIST</button>}
-          {p.website_status==="listed"&&<button onClick={()=>updateStatus(p.id,"hidden")} style={{background:"#6b728022",color:"#6b7280",border:"1px solid #6b728044",padding:"6px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>🙈 HIDE</button>}
-          {p.website_status!=="sold_out"&&<button onClick={()=>updateStatus(p.id,"sold_out")} style={{background:"#dc262622",color:"#dc2626",border:"1px solid #dc262644",padding:"6px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>❌ SOLD</button>}
-          <button onClick={()=>updateStatus(p.id,"hidden")} style={{background:"var(--cream2)",color:"#8a7a5a",border:"1px solid #d4a84322",padding:"6px",fontSize:"9px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>🗑️ REMOVE</button>
-        </div>
-      </div>
-    </div>
-  );
-
+  const fu=s=>({opacity:step>=s?1:0,transform:step>=s?"translateY(0)":"translateY(20px)",transition:"all .7s cubic-bezier(.16,1,.3,1)"});
   return(
-    <div style={{position:"fixed",inset:0,zIndex:5000,background:"var(--cream)",display:"flex",flexDirection:"column",fontFamily:"'Jost',sans-serif"}}>
-      <style>{G}</style>
-      <div style={{background:"#1a1208",padding:"12px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0,gap:"8px",flexWrap:"wrap"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"16px",fontWeight:"700",color:"#d4a843"}}>⚙️ Admin — {BRAND}{unread.length>0&&<span style={{marginLeft:"8px",background:"#dc2626",color:"#fff",borderRadius:"50%",padding:"2px 7px",fontSize:"11px",fontFamily:"'Jost',sans-serif"}}>{unread.length}</span>}</div>
-        <div style={{display:"flex",gap:"4px",flexWrap:"wrap"}}>
-          {TABS.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={{background:tab===t.k?"#d4a843":"transparent",color:tab===t.k?"#1a1208":"#d4a84388",border:`1px solid ${t.badge>0?"#dc2626":"#d4a84333"}`,borderRadius:"0",padding:"5px 10px",cursor:"pointer",fontWeight:"600",fontSize:"9px",letterSpacing:"1px",textTransform:"uppercase",position:"relative",transition:"all 0.2s"}}>
-            {t.l}{t.badge>0&&<span style={{position:"absolute",top:"-4px",right:"-4px",background:"#dc2626",color:"#fff",borderRadius:"50%",width:"14px",height:"14px",fontSize:"8px",display:"flex",alignItems:"center",justifyContent:"center"}}>{t.badge}</span>}
-          </button>)}
-          <button onClick={onClose} style={{background:"#dc2626",color:"#fff",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px"}}>✕ CLOSE</button>
-          <button onClick={()=>window.open(window.location.href,"_blank")} style={{background:"#d4a843",color:"#1a1208",border:"none",padding:"5px 12px",cursor:"pointer",fontWeight:"700",fontSize:"9px",letterSpacing:"1px",marginLeft:"4px"}}>👁 PREVIEW</button>
-        </div>
+    <div style={{position:"fixed",inset:0,zIndex:9999,background:"#fff",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:0,left:0,right:0,background:"#111",height:step>=4?"0":"clamp(14px,2.5vw,36px)",transition:"height 1s cubic-bezier(.77,0,.18,1) .2s"}}/>
+      <div style={{position:"absolute",bottom:0,left:0,right:0,background:"#111",height:step>=4?"0":"clamp(14px,2.5vw,36px)",transition:"height 1s cubic-bezier(.77,0,.18,1) .2s"}}/>
+      <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(#ebebeb 1px,transparent 1px),linear-gradient(90deg,#ebebeb 1px,transparent 1px)",backgroundSize:"40px 40px",opacity:.5,WebkitMaskImage:"radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 100%)"}}/>
+      <div style={{...fu(1),marginBottom:"clamp(16px,2.5vw,24px)",zIndex:1}}>
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="37" stroke="#111" strokeWidth="1.5" opacity=".8"/>
+          <path d="M40 5L42 11L40 17L38 11Z" fill="#111" opacity=".7"/>
+          <path d="M40 75L42 69L40 63L38 69Z" fill="#111" opacity=".7"/>
+          <path d="M5 40L11 38L17 40L11 42Z" fill="#111" opacity=".7"/>
+          <path d="M75 40L69 38L63 40L69 42Z" fill="#111" opacity=".7"/>
+          <text x="19" y="54" fontFamily="Playfair Display,serif" fontSize="28" fontWeight="900" fill="#111">JF</text>
+        </svg>
       </div>
-
-      <div style={{flex:1,overflow:"auto",padding:"20px"}}>
-        {/* Pending */}
-        {tab==="pending"&&<div>
-          <div style={{marginBottom:"16px"}}><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"4px"}}>⏳ Pending ({pending.length})</div><div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>ERP se aaye products — decide karo website pe list karni hai ya nahi</div></div>
-          {loading&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>Loading...</div>}
-          {!loading&&!pending.length&&<div style={{textAlign:"center",padding:"60px",color:"#8a7a5a"}}><div style={{fontSize:"36px",marginBottom:"12px"}}>✅</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",color:"#1a1208"}}>No pending products</div></div>}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{pending.map(p=><PCard key={p.id} p={p}/>)}</div>
-        </div>}
-
-        {/* Alerts */}
-        {tab==="alerts"&&<div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>🔔 Alerts ({alerts.length})</div>
-          {!alerts.length&&<div style={{textAlign:"center",padding:"60px",color:"#8a7a5a"}}><div style={{fontSize:"36px",marginBottom:"12px"}}>🔕</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"18px",color:"#1a1208"}}>No alerts yet</div></div>}
-          <div style={{display:"grid",gap:"10px"}}>{alerts.map(a=>(
-            <div key={a.id} style={{background:"#fff",border:`1px solid ${a.type==="sold_out"?"#dc262633":a.type==="low_stock"?"#f59e0b33":"#d4a84333"}`,padding:"16px",opacity:a.is_read?0.6:1}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"10px"}}>
-                <div><div style={{fontWeight:"700",fontSize:"13px",color:"#1a1208",fontFamily:"'Playfair Display',serif"}}>{a.product_name}</div><div style={{fontSize:"12px",color:"#8a7a5a",marginTop:"3px",fontFamily:"'Jost',sans-serif"}}>{a.message}</div><div style={{fontSize:"10px",color:"#aaa",marginTop:"3px",fontFamily:"'Jost',sans-serif"}}>{new Date(a.created_at).toLocaleString()}</div></div>
-                {a.is_read&&<span style={{fontSize:"10px",color:"#22c55e",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>DONE ✓</span>}
-              </div>
-              {!a.is_read&&<div style={{display:"flex",gap:"8px",flexWrap:"wrap"}}>
-                <button onClick={()=>handleAlert(a,"sold_out")} style={{background:"#dc262622",color:"#dc2626",border:"1px solid #dc262644",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>❌ SOLD OUT</button>
-                <button onClick={()=>handleAlert(a,"remove")} style={{background:"#6b728022",color:"#6b7280",border:"1px solid #6b728044",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>🗑️ REMOVE</button>
-                <button onClick={()=>handleAlert(a,"waiting")} style={{background:"#f59e0b22",color:"#f59e0b",border:"1px solid #f59e0b44",padding:"6px 14px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>⏳ COMING</button>
-                <button onClick={()=>markRead(a.id,"ignored")} style={{background:"none",color:"#aaa",border:"1px solid #eee",padding:"6px 14px",fontSize:"10px",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>IGNORE</button>
-              </div>}
-            </div>
-          ))}</div>
-        </div>}
-
-        {/* Listed */}
-        {tab==="listed"&&<div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>✅ Listed ({listed.length})</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{listed.map(p=><PCard key={p.id} p={p}/>)}{!listed.length&&<div style={{color:"#8a7a5a",textAlign:"center",padding:"40px",gridColumn:"1/-1",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No listed products</div>}</div>
-        </div>}
-
-        {/* All */}
-        {tab==="all"&&!editProd&&<div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>📦 All ({allProds.length})</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"12px"}}>{allProds.map(p=><PCard key={p.id} p={p}/>)}{!allProds.length&&<div style={{color:"#8a7a5a",textAlign:"center",padding:"40px",gridColumn:"1/-1",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>ERP se products add karo</div>}</div>
-        </div>}
-
-        {/* Edit Product */}
-        {(tab==="all"||tab==="pending"||tab==="listed")&&editProd&&(
-          <div style={{maxWidth:"750px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"16px"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#b8922a"}}>✏️ Edit: {editProd.name}</div>
-              <button onClick={()=>setEditProd(null)} style={{background:"none",border:"1px solid #d4a84344",padding:"6px 14px",color:"#8a7a5a",cursor:"pointer",fontSize:"11px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>← BACK</button>
-            </div>
-            <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-              {/* Status */}
-              <div style={{marginBottom:"16px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Website Status</div>
-                <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
-                  {Object.entries(STATUS_L).map(([k,l])=><button key={k} onClick={()=>setEditProd(p=>({...p,website_status:k}))} style={{background:editProd.website_status===k?STATUS_C[k]+"22":"transparent",color:editProd.website_status===k?STATUS_C[k]:"#8a7a5a",border:`1px solid ${editProd.website_status===k?STATUS_C[k]:"#d4a84333"}`,padding:"5px 12px",fontSize:"10px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",transition:"all 0.2s"}}>{l}</button>)}
-                </div>
-              </div>
-              {/* Category */}
-              <div style={{marginBottom:"14px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Website Category</div>
-                <select value={editProd.website_category||""} onChange={e=>setEditProd(p=>({...p,website_category:e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
-                  <option value="">Same as ERP ({editProd.category})</option>
-                  {WCATS.map(c=><option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              {/* Size info */}
-              <div style={{marginBottom:"14px",background:"var(--cream2)",padding:"10px 12px",border:"1px solid #d4a84322"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",marginBottom:"3px",letterSpacing:"1px",fontFamily:"'Jost',sans-serif"}}>SIZE TYPE (FROM ERP)</div>
-                <div style={{fontSize:"13px",color:"#1a1208",fontFamily:"'Jost',sans-serif",fontWeight:"600"}}>{editProd.size_type==="stitched"?`Stitched — ${(editProd.available_sizes||[]).join(", ")||"Not set"}`:editProd.size_type==="gaz"?"Gaz":editProd.size_type==="free"?"Free Size":"Meter"}</div>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 20px"}}>
-                {inp("Website Title","website_title")}
-                {inp("Brand","brand")}
-                {inp("Color","color")}
-                {inp("Fabric Type","fabric_type")}
-                {inp("Sale Price","salePrice","number")}
-                {inp("Offer Price","offerPrice","number")}
-                {inp("Washing Instructions","washing_instructions")}
-                {inp("Size Guide","size_guide")}
-              </div>
-              <div>{inp("Website Description (English)","website_description","textarea")}</div>
-              <div style={{display:"flex",gap:"16px",margin:"10px 0",flexWrap:"wrap"}}>
-                {[["New Arrival","is_new_arrival"],["Active","is_active"]].map(([l,k])=>(
-                  <label key={k} style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif"}}>
-                    <input type="checkbox" checked={!!editProd[k]} onChange={e=>setEditProd(p=>({...p,[k]:e.target.checked}))} style={{accentColor:"#b8922a",width:"14px",height:"14px"}}/>{l}
-                  </label>
-                ))}
-              </div>
-              {/* Images */}
-              <div style={{marginTop:"12px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"10px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Product Images (up to 5)</div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"8px"}}>
-                  {["photo_url","photo_url2","photo_url3","photo_url4","photo_url5"].map((f,i)=>(
-                    <div key={f}>
-                      <div style={{fontSize:"9px",color:"#aaa",marginBottom:"4px",fontFamily:"'Jost',sans-serif"}}>Photo {i+1}</div>
-                      {editProd[f]&&<img src={editProd[f]} alt="" style={{width:"100%",height:"70px",objectFit:"cover",marginBottom:"4px",border:"1px solid #d4a84322"}}/>}
-                      <input type="file" accept="image/*" onChange={e=>e.target.files[0]&&uploadImg(e.target.files[0],f)} style={{width:"100%",fontSize:"8px",color:"#aaa",marginBottom:"3px"}}/>
-                      <input value={editProd[f]||""} onChange={e=>setEditProd(p=>({...p,[f]:e.target.value}))} placeholder="Or URL" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84322",padding:"3px 0",color:"#1a1208",fontSize:"9px",outline:"none"}}/>
-                    </div>
-                  ))}
-                </div>
-                {uploading&&<div style={{color:"#b8922a",fontSize:"11px",marginTop:"6px",fontFamily:"'Jost',sans-serif"}}>⏳ Uploading...</div>}
-              </div>
-              <div style={{display:"flex",gap:"10px",marginTop:"20px"}}>
-                <button onClick={saveProd} style={{flex:1,background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>SAVE & UPDATE</button>
-                <button onClick={()=>setEditProd(null)} style={{background:"none",border:"1px solid #d4a84344",padding:"13px 20px",color:"#8a7a5a",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:"10px"}}>CANCEL</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Content */}
-        {tab==="content"&&<div style={{maxWidth:"680px"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>✍️ Content</div>
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-            <div style={{background:"#fff0f0",border:"1px solid #dc262622",padding:"12px",marginBottom:"14px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
-                <div style={{fontSize:"11px",fontWeight:"700",color:"#dc2626",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>🔥 DISCOUNT BANNER</div>
-                <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"11px",color:"#1a1208",fontFamily:"'Jost',sans-serif"}}>
-                  <input type="checkbox" checked={!!sEdit.discountBannerActive} onChange={e=>setSEdit(s=>({...s,discountBannerActive:e.target.checked}))} style={{accentColor:"#dc2626"}}/>Show
-                </label>
-              </div>
-              <input value={sEdit.discountBanner||""} onChange={e=>setSEdit(s=>({...s,discountBanner:e.target.value}))} placeholder="EID SALE — 20% OFF!" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #dc262633",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-            </div>
-            <div style={{marginBottom:"14px"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Hero Rotating Texts (one per line)</div>
-              <textarea value={(sEdit.heroTexts||[]).join("\n")} onChange={e=>setSEdit(s=>({...s,heroTexts:e.target.value.split("\n").filter(Boolean)}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"90px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-            </div>
-            {inp("Hero Subtitle","heroSubtitle",undefined,true)}
-            {inp("About Us Text","aboutText","textarea",true)}
-            {inp("Policies Text","policiesText","textarea",true)}
-            <div style={{marginBottom:"14px"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Announcement Bar (one per line)</div>
-              <textarea value={sEdit.announcements?.join("\n")||""} onChange={e=>setSEdit(s=>({...s,announcements:e.target.value.split("\n").filter(Boolean)}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",resize:"vertical",height:"70px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-            </div>
-            <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif",marginBottom:"8px"}}>
-              <input type="checkbox" checked={!!sEdit.showUploadedVideo} onChange={e=>setSEdit(s=>({...s,showUploadedVideo:e.target.checked}))} style={{accentColor:"#b8922a"}}/>Show Video Section
-            </label>
-            {sEdit.showUploadedVideo&&<>
-              <div style={{marginBottom:"8px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"1px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Video Upload (Max 30MB)</div>
-                <input type="file" accept="video/*" onChange={async e=>{const f=e.target.files[0];if(!f)return;if(f.size>30*1024*1024){alert("Max 30MB!");return;}if(!supabase)return;alert("⏳ Uploading...");const ext=f.name.split(".").pop();const path=`videos/v-${Date.now()}.${ext}`;const{error}=await supabase.storage.from("product-images").upload(path,f,{upsert:true,contentType:f.type});if(error){alert("❌ "+error.message);return;}const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);setSEdit(s=>({...s,uploadedVideoUrl:u.publicUrl}));alert("✅ Uploaded!");}} style={{fontSize:"11px",color:"#8a7a5a",marginBottom:"6px",display:"block"}}/>
-                <input value={sEdit.uploadedVideoUrl||""} onChange={e=>setSEdit(s=>({...s,uploadedVideoUrl:e.target.value}))} placeholder="Or paste video URL" style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-                {sEdit.uploadedVideoUrl&&<video src={sEdit.uploadedVideoUrl} controls style={{width:"100%",maxHeight:"140px",marginTop:"8px"}}/>}
-              </div>
-              {inp("Video Title","uploadedVideoTitle",undefined,true)}
-              {inp("Video Caption (one line per row in table)","uploadedVideoCaption","textarea",true)}
-            </>}
-
-            {/* Google Maps */}
-            <div style={{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #d4a84322"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"6px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Google Maps Embed URL</div>
-              <div style={{fontSize:"10px",color:"#8a7a5a",marginBottom:"8px",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}>
-                Google Maps kholo → apni shop search karo → Share → Embed a map → HTML copy karo → sirf src="..." ke andar wala URL yahan paste karo
-              </div>
-              <input value={sEdit.googleMapsUrl||""} onChange={e=>setSEdit(s=>({...s,googleMapsUrl:e.target.value}))} placeholder="https://www.google.com/maps/embed?pb=..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"12px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-              {sEdit.googleMapsUrl&&<div style={{marginTop:"8px",border:"1px solid #d4a84322",overflow:"hidden"}}>
-                <iframe src={sEdit.googleMapsUrl} width="100%" height="160" style={{border:"none",display:"block",filter:"sepia(0.2)"}} title="preview"/>
-              </div>}
-            </div>
-
-            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"16px",width:"100%",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>SAVE CONTENT</button>
-          </div>
-
-          {/* 3D Animation Settings */}
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"15px",color:"#1a1208",margin:"20px 0 12px"}}>3D Intro Animation Settings</div>
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-            <div style={{fontSize:"10px",color:"#8a7a5a",marginBottom:"14px",fontFamily:"'Jost',sans-serif",lineHeight:1.7,background:"var(--cream2)",padding:"10px 12px",border:"1px solid #d4a84322"}}>
-              Yeh settings 3D showroom intro pe apply hongi. Save karne ke baad page refresh karo — naya intro dikhega.
-            </div>
-            {[
-              ["Intro Line 1 (small top text)","intro_line1"],
-              ["Brand Name Line 1","intro_brand1"],
-              ["Brand Name Line 2","intro_brand2"],
-              ["Sub Location Text","intro_sub"],
-              ["Tagline","intro_tagline"],
-              ["Enter Button Text","intro_enter_btn"],
-            ].map(([l,k])=>(
-              <div key={k} style={{marginBottom:"12px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{l}</div>
-                <input value={sEdit[k]||""} onChange={e=>setSEdit(s=>({...s,[k]:e.target.value}))} placeholder={`Default: ${k==="intro_brand1"?"JAMEEL":k==="intro_brand2"?"FABRICS":k==="intro_sub"?"KUNJAH":k==="intro_tagline"?TAGLINE:k==="intro_enter_btn"?"Enter the Store":"✦ EST. KUNJAH, DISTT GUJRAT ✦"}`} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-              </div>
-            ))}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
-              <div>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Intro Duration (sec)</div>
-                <input type="number" min="3" max="10" value={sEdit.intro_duration||5} onChange={e=>setSEdit(s=>({...s,intro_duration:+e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-              </div>
-              <div>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"4px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Skip Button</div>
-                <label style={{display:"flex",alignItems:"center",gap:"6px",cursor:"pointer",fontSize:"12px",color:"#1a1208",fontFamily:"'Jost',sans-serif",marginTop:"8px"}}>
-                  <input type="checkbox" checked={sEdit.intro_skip!==false} onChange={e=>setSEdit(s=>({...s,intro_skip:e.target.checked}))} style={{accentColor:"#b8922a"}}/>Show Skip button
-                </label>
-              </div>
-            </div>
-            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"14px",width:"100%"}}>SAVE 3D SETTINGS</button>
-          </div>
-        </div>}
-
-        {/* Settings */}
-        {tab==="settings"&&<div style={{maxWidth:"580px"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>⚙️ Settings</div>
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px",marginBottom:"16px"}}>
-            <div style={{marginBottom:"16px"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Brand Logo</div>
-              {/* Logo preview */}
-              <div style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"16px",marginBottom:"10px",display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80px"}}>
-                {sEdit.logoUrl
-                  ?<img src={sEdit.logoUrl} alt="logo" style={{maxHeight:"60px",maxWidth:"200px",objectFit:"contain"}}/>
-                  :<div style={{textAlign:"center"}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"16px",fontWeight:"700",color:"#1a1208",letterSpacing:"2px"}}>{BRAND}</div>
-                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"10px",color:"#b8922a",letterSpacing:"4px"}}>{SUB}</div>
-                    <div style={{fontSize:"9px",color:"#aaa",marginTop:"4px",fontFamily:"'Jost',sans-serif"}}>No logo — text showing</div>
-                  </div>
-                }
-              </div>
-              <div style={{display:"flex",gap:"8px",flexWrap:"wrap",alignItems:"center",marginBottom:"6px"}}>
-                <label style={{background:"#1a1208",color:"#d4a843",padding:"8px 14px",fontSize:"9px",fontWeight:"700",letterSpacing:"1px",cursor:"pointer",fontFamily:"'Jost',sans-serif",flexShrink:0}}>
-                  UPLOAD LOGO
-                  <input type="file" accept="image/png,image/jpg,image/jpeg,image/svg+xml,image/webp" style={{display:"none"}} onChange={async e=>{
-                    const f=e.target.files[0];if(!f)return;
-                    if(!supabase){alert("Supabase not connected!");return;}
-                    const ext=f.name.split(".").pop();
-                    const path=`logo/brand-logo-${Date.now()}.${ext}`;
-                    const{error}=await supabase.storage.from("product-images").upload(path,f,{upsert:true,contentType:f.type});
-                    if(error){alert("Upload failed: "+error.message);return;}
-                    const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);
-                    setSEdit(s=>({...s,logoUrl:u.publicUrl}));
-                    alert("✅ Logo uploaded!");
-                  }}/>
-                </label>
-                {sEdit.logoUrl&&<button onClick={()=>setSEdit(s=>({...s,logoUrl:""}))} style={{background:"none",border:"1px solid #dc262644",color:"#dc2626",padding:"8px 12px",fontSize:"9px",fontWeight:"700",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>REMOVE</button>}
-              </div>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"1px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Or paste image URL</div>
-              <input value={sEdit.logoUrl||""} onChange={e=>setSEdit(s=>({...s,logoUrl:e.target.value}))} placeholder="https://..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-              <div style={{fontSize:"10px",color:"#8a7a5a",marginTop:"6px",fontFamily:"'Jost',sans-serif"}}>Recommended: PNG with transparent background, min 200x80px</div>
-            </div>
-            {inp("WhatsApp Number","whatsapp",undefined,true)}
-            {inp("TikTok ID","tiktok",undefined,true)}
-            {inp("Instagram ID","instagram",undefined,true)}
-            {inp("TikTok URL","tiktokUrl",undefined,true)}
-            {inp("Instagram URL","instagramUrl",undefined,true)}
-            {inp("Footer Text (optional)","footerText",undefined,true)}
-
-            {/* Category Icons Editor */}
-            <div style={{marginTop:"16px",paddingTop:"16px",borderTop:"1px solid #d4a84322"}}>
-              <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"10px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Category Bar Icons</div>
-              {CATS.map(cat=>(
-                <div key={cat} style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px",padding:"8px",background:"var(--cream2)",border:"1px solid #d4a84322"}}>
-                  <span style={{fontSize:"11px",color:"#1a1208",fontFamily:"'Jost',sans-serif",flex:1,fontWeight:"600"}}>{cat}</span>
-                  <div style={{color:"#b8922a"}}>{ICONS[(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]]||ICONS.catAll}</div>
-                  <select value={(sEdit.catIcons||{})[cat]||DEFAULT_CAT_ICONS[cat]} onChange={e=>setSEdit(s=>({...s,catIcons:{...(s.catIcons||{}), [cat]:e.target.value}}))} style={{background:"transparent",border:"1px solid #d4a84344",padding:"4px 8px",color:"#1a1208",fontSize:"11px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
-                    {ICON_OPTIONS.map(opt=><option key={opt.key} value={opt.key}>{opt.label}</option>)}
-                  </select>
-                </div>
-              ))}
-            </div>
-            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",width:"100%"}}>SAVE SETTINGS</button>
-          </div>
-          {/* Password */}
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"15px",color:"#1a1208",marginBottom:"16px"}}>🔑 Change Password</div>
-            {[["Current Password","old","password"],["New Password","nw","password"],["Confirm","cf","password"]].map(([l,k,t])=>(
-              <div key={k} style={{marginBottom:"12px"}}>
-                <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",marginBottom:"5px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{l}</div>
-                <input type={t} value={pwForm[k]} onChange={e=>setPwForm(p=>({...p,[k]:e.target.value}))} style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"7px 0",color:"#1a1208",fontSize:"13px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-              </div>
-            ))}
-            <button onClick={changePw} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",marginTop:"8px",width:"100%"}}>CHANGE PASSWORD</button>
-          </div>
-        </div>}
-
-        {/* Coupons */}
-        {tab==="coupons"&&<div style={{maxWidth:"580px"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>🎫 Coupons</div>
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-            {(sEdit.coupons||[]).map((c,i)=>(
-              <div key={i} style={{display:"flex",gap:"8px",alignItems:"center",marginBottom:"10px",flexWrap:"wrap",paddingBottom:"10px",borderBottom:"1px solid #d4a84311"}}>
-                <input value={c.code} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],code:e.target.value.toUpperCase()};setSEdit(s=>({...s,coupons:cp}));}} placeholder="CODE" style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#b8922a",fontSize:"13px",fontWeight:"700",letterSpacing:"2px",width:"100px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-                <input type="number" value={c.discount} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],discount:+e.target.value};setSEdit(s=>({...s,coupons:cp}));}} style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"13px",width:"60px",outline:"none",fontFamily:"'Jost',sans-serif"}}/>
-                <select value={c.type} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],type:e.target.value};setSEdit(s=>({...s,coupons:cp}));}} style={{background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"6px 0",color:"#1a1208",fontSize:"12px",outline:"none",fontFamily:"'Jost',sans-serif"}}>
-                  <option value="percent">% Off</option><option value="flat">Rs. Off</option>
-                </select>
-                <label style={{display:"flex",alignItems:"center",gap:"4px",fontSize:"11px",color:"#1a1208",cursor:"pointer",fontFamily:"'Jost',sans-serif"}}>
-                  <input type="checkbox" checked={!!c.active} onChange={e=>{const cp=[...(sEdit.coupons||[])];cp[i]={...cp[i],active:e.target.checked};setSEdit(s=>({...s,coupons:cp}));}} style={{accentColor:"#22c55e"}}/>Active
-                </label>
-                <button onClick={()=>{const cp=(sEdit.coupons||[]).filter((_,j)=>j!==i);setSEdit(s=>({...s,coupons:cp}));}} style={{background:"none",border:"none",color:"#dc2626",cursor:"pointer",fontSize:"16px",padding:"0 4px"}}>✕</button>
-              </div>
-            ))}
-            <button onClick={()=>setSEdit(s=>({...s,coupons:[...(s.coupons||[]),{code:"",discount:10,type:"percent",active:true}]}))} style={{background:"none",border:"1px dashed #d4a84366",padding:"8px 16px",color:"#b8922a",cursor:"pointer",fontSize:"11px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px",marginBottom:"12px"}}>+ ADD COUPON</button>
-            <button onClick={saveSettings} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",width:"100%"}}>SAVE COUPONS</button>
-          </div>
-        </div>}
-
-        {/* Orders */}
-        {tab==="orders"&&<OrdersAdmin/>}
-
-        {/* Reviews */}
-        {tab==="reviews"&&<div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>⭐ Reviews ({reviews.length})</div>
-          <div style={{display:"grid",gap:"8px"}}>{reviews.map(r=>(
-            <div key={r.id} style={{background:"#fff",border:"1px solid #d4a84322",padding:"14px",display:"flex",justifyContent:"space-between"}}>
-              <div><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"4px"}}>{r.customer_name} <span style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",fontWeight:"400"}}>on {r.product_name}</span></div><div style={{display:"flex",gap:"1px",marginBottom:"5px"}}>{[1,2,3,4,5].map(i=><span key={i} style={{color:i<=r.rating?"#b8922a":"#e5e5e5",fontSize:"12px"}}>★</span>)}</div><p style={{fontSize:"13px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif"}}>{r.comment}</p></div>
-              <span style={{fontSize:"10px",color:"#aaa",fontFamily:"'Jost',sans-serif",flexShrink:0,marginLeft:"12px"}}>{r.date}</span>
-            </div>
-          ))}{!reviews.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No reviews yet</div>}</div>
-        </div>}
-
-        {tab==="backup"&&<div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"4px"}}>💾 Backup & Restore</div>
-          <div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:"20px"}}>Settings aur admin password ka backup lo ya restore karo.</div>
-
-          {/* Download Backup */}
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📥 Download Backup</div>
-            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
-              Sari settings, passwords JSON file mein save ho jaengi.<br/>
-              Safe jagah rakh lo — kabhi bhi restore kar saktay ho.
-            </div>
-            <button onClick={doBackup} style={{background:"#1a1208",color:"#d4a843",border:"none",padding:"12px 28px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .3s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>⬇️ DOWNLOAD BACKUP</button>
-          </div>
-
-          {/* Restore */}
-          <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"20px",marginBottom:"16px"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#1a1208",marginBottom:"8px"}}>📤 Restore from Backup</div>
-            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px",lineHeight:"1.7"}}>
-              Pehle se downloaded backup JSON file select karo.<br/>
-              <strong style={{color:"#c0392b"}}>Warning:</strong> Existing settings replace ho jaengi.
-            </div>
-            <label style={{display:"inline-block",background:"transparent",color:"#1a1208",border:"1px solid #d4a84344",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#b8922a";e.currentTarget.style.color="#b8922a";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#d4a84344";e.currentTarget.style.color="#1a1208";}}>
-              📂 SELECT BACKUP FILE
-              <input type="file" accept=".json" style={{display:"none"}} onChange={e=>doRestore(e.target.files[0])}/>
-            </label>
-          </div>
-
-          {/* Reset to defaults */}
-          <div style={{background:"#fff",border:"1px solid #dc262622",padding:"20px"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"13px",color:"#dc2626",marginBottom:"8px"}}>🔄 Reset to Defaults</div>
-            <div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"14px"}}>Sari settings default pe wapas set ho jaengi. Products safe rahenge.</div>
-            <button onClick={()=>{if(!window.confirm("Are you sure? All settings will be reset!"))return;LS.set("shopSettings",{});setSettings({});setSEdit({});alert("✅ Reset! Refresh the page.");}} style={{background:"transparent",color:"#dc2626",border:"1px solid #dc262644",padding:"11px 22px",fontSize:"10px",fontWeight:"700",letterSpacing:"1.5px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s"}} onMouseEnter={e=>{e.target.style.background="#dc2626";e.target.style.color="#fff";}} onMouseLeave={e=>{e.target.style.background="transparent";e.target.style.color="#dc2626";}}>⚠️ RESET ALL SETTINGS</button>
-          </div>
-        </div>}
+      <div style={{...fu(2),zIndex:1,textAlign:"center"}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(44px,9vw,100px)",fontWeight:900,letterSpacing:"clamp(6px,2vw,18px)",color:"#111",lineHeight:.9}}>JAMEEL</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(36px,7.5vw,84px)",fontWeight:700,fontStyle:"italic",color:"#888",letterSpacing:"clamp(4px,1.5vw,14px)",lineHeight:.9}}>FABRICS</div>
       </div>
+      <div style={{...fu(3),zIndex:1,fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(12px,1.6vw,18px)",letterSpacing:"clamp(8px,2vw,22px)",color:"#aaa",fontStyle:"italic",marginTop:"clamp(12px,1.5vw,18px)"}}>KUNJAH</div>
+      <div style={{...fu(3),width:44,height:1,background:"#111",margin:"clamp(14px,2vw,22px) auto",zIndex:1}}/>
+      <div style={{...fu(3),zIndex:1,fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(11px,1.3vw,14px)",letterSpacing:5,color:"#aaa",fontStyle:"italic"}}>Exclusive · Elegant · Pakistani</div>
+      {step>=4&&(
+        <button onClick={onEnter} style={{marginTop:"clamp(22px,3vw,34px)",padding:"13px clamp(40px,5vw,60px)",background:"#111",color:"#fff",border:"none",fontFamily:"'Jost',sans-serif",fontSize:10,fontWeight:600,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",transition:"all .3s",zIndex:1,animation:"fadeUp .6s ease both"}}
+          onMouseEnter={e=>{e.currentTarget.style.background="#333";e.currentTarget.style.letterSpacing="6px"}}
+          onMouseLeave={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.letterSpacing="4px"}}>
+          Enter the Store
+        </button>
+      )}
     </div>
   );
 }
 
-// ── ORDERS ADMIN ──────────────────────────────────────────────
-function OrdersAdmin(){
-  const [orders,setOrders]=useState([]);
-  const [loading,setLoading]=useState(true);
-  const STATUS=["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
-  const STATUS_C={Pending:"#b8922a",Confirmed:"#3b82f6",Processing:"#f59e0b",Shipped:"#8b5cf6",Delivered:"#22c55e",Cancelled:"#dc2626"};
-  useEffect(()=>{if(!supabase){setLoading(false);return;}supabase.from("online_orders").select("*").order("created_at",{ascending:false}).then(({data})=>{setOrders(data||[]);setLoading(false);});const ch=supabase.channel("orders-a").on("postgres_changes",{event:"*",schema:"public",table:"online_orders"},()=>{supabase.from("online_orders").select("*").order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));}).subscribe();return()=>supabase.removeChannel(ch);},[]);
-  const upd=async(id,status)=>{setOrders(o=>o.map(x=>x.id===id?{...x,status}:x));if(supabase)await supabase.from("online_orders").update({status}).eq("id",id);};
-  if(loading)return <div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>Loading orders...</div>;
+
+/* ═══ AUTH MODAL ═══ */
+function AuthModal({mode,onClose,onSuccess}){
+  const[tab,setTab]=useState(mode||"login");
+  const[email,setEmail]=useState("");
+  const[pass,setPass]=useState("");
+  const[name,setName]=useState("");
+  const[phone,setPhone]=useState("");
+  const[loading,setLoading]=useState(false);
+  const I={width:"100%",border:"none",borderBottom:"1px solid #ddd",padding:"10px 0",fontSize:14,outline:"none",fontFamily:"inherit",background:"transparent",transition:"border-color .2s"};
+  const L={fontSize:10,fontWeight:600,letterSpacing:2,color:"#888",textTransform:"uppercase",marginBottom:4,display:"block"};
+  async function login(){
+    if(!sb){toast("Database not connected","error");return;}
+    if(!email||!pass){toast("Email aur password daalo","error");return;}
+    setLoading(true);
+    const{error}=await sb.auth.signInWithPassword({email,password:pass});
+    setLoading(false);
+    if(error)toast("Login failed: "+error.message,"error");
+    else{toast("Welcome! ✓","success");onSuccess();}
+  }
+  async function register(){
+    if(!sb){toast("Database not connected","error");return;}
+    if(!email||!pass||!name){toast("Sab fields fill karo","error");return;}
+    if(pass.length<6){toast("Password min 6 chars","error");return;}
+    setLoading(true);
+    const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,phone}}});
+    setLoading(false);
+    if(error)toast("Register failed: "+error.message,"error");
+    else{toast("Account created! Email verify karo ✓","success");onSuccess();}
+  }
   return(
-    <div>
-      <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208",marginBottom:"16px"}}>📋 Orders ({orders.length})</div>
-      <div style={{display:"grid",gap:"10px"}}>{orders.map(o=>(
-        <div key={o.id} style={{background:"#fff",border:`1px solid ${STATUS_C[o.status]||"#d4a84322"}33`,padding:"16px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:"8px",marginBottom:"10px"}}>
-            <div><div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",color:"#1a1208",fontSize:"14px"}}>{o.product_name}</div><div style={{fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginTop:"2px"}}>#{String(o.id).slice(-6)} · {o.date}</div></div>
-            <div style={{textAlign:"right"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:"700",fontSize:"16px",color:"#1a1208"}}>{pkr(o.product_price)}</div></div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px",fontSize:"11px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",marginBottom:"10px"}}>
-            <div>👤 {o.customer_name}</div><div>📞 {o.phone}</div><div>🏙️ {o.city}</div><div>📍 {o.address}</div>
-          </div>
-          <div style={{display:"flex",gap:"4px",flexWrap:"wrap",alignItems:"center"}}>
-            {STATUS.map(s=><button key={s} onClick={()=>upd(o.id,s)} style={{background:o.status===s?STATUS_C[s]||"#b8922a":"transparent",color:o.status===s?"#fff":STATUS_C[s]||"#b8922a",border:`1px solid ${STATUS_C[s]||"#b8922a"}44`,padding:"3px 8px",cursor:"pointer",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",transition:"all 0.2s"}}>{s}</button>)}
-            <a href={`https://wa.me/92${(o.phone||"").replace(/^0/,"")}?text=${encodeURIComponent(`Assalam ${o.customer_name}! Your order "${o.product_name}" is now ${o.status}. — Jameel Fabrics Kunjah`)}`} target="_blank" rel="noreferrer" style={{marginLeft:"auto",background:"#25D366",color:"#fff",padding:"3px 10px",fontSize:"9px",fontWeight:"700",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px",textDecoration:"none"}}>📱 WA</a>
-          </div>
-        </div>
-      ))}{!orders.length&&<div style={{textAlign:"center",padding:"40px",color:"#8a7a5a",fontFamily:"'Cormorant Garamond',serif",fontSize:"18px"}}>No orders yet</div>}</div>
-    </div>
-  );
-}
-
-// ── MAIN APP ──────────────────────────────────────────────────
-
-/* ═══════ AUTH MODAL ═══════ */
-function AuthModal({ mode, onClose, onSuccess }) {
-  const [tab, setTab] = useState(mode || "login");
-  const [email, setEmail] = useState(""), [pass, setPass] = useState("");
-  const [name, setName] = useState(""), [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
-  const supabase = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
-
-  const I = { width:"100%", border:"none", borderBottom:"1px solid #ddd", padding:"10px 0",
-    fontSize:14, outline:"none", fontFamily:"inherit", background:"transparent", transition:"border-color .2s" };
-  const L = { fontSize:10, fontWeight:600, letterSpacing:2, color:"#888", textTransform:"uppercase", marginBottom:4, display:"block" };
-
-  async function login() {
-    if (!supabase) { alert("Database not connected"); return; }
-    if (!email||!pass) { alert("Email aur password daalo"); return; }
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-    setLoading(false);
-    if (error) alert("Login failed: "+error.message);
-    else { onSuccess(); }
-  }
-
-  async function register() {
-    if (!supabase) { alert("Database not connected"); return; }
-    if (!email||!pass||!name) { alert("Sab fields fill karo"); return; }
-    if (pass.length < 6) { alert("Password min 6 characters"); return; }
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password: pass, options:{data:{full_name:name,phone}} });
-    setLoading(false);
-    if (error) alert("Register failed: "+error.message);
-    else { alert("Account created! Check email to verify."); onSuccess(); }
-  }
-
-  return (
-    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(0,0,0,.5)",
-      backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}
-      onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff",width:"100%",maxWidth:400,padding:36,borderRadius:4,
-        boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(0,0,0,.55)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div style={{background:"#fff",width:"100%",maxWidth:400,padding:36,borderRadius:4,boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
         <div style={{display:"flex",marginBottom:28,borderBottom:"1px solid #ebebeb"}}>
           {["login","register"].map(t=>(
-            <button key={t} onClick={()=>setTab(t)}
-              style={{flex:1,padding:"10px 0",border:"none",background:"none",cursor:"pointer",
-                fontFamily:"inherit",fontSize:13,fontWeight:600,
-                color:tab===t?"#111":"#888",
-                borderBottom:tab===t?"2px solid #111":"2px solid transparent",transition:"all .2s"}}>
+            <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"10px 0",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,color:tab===t?"#111":"#888",borderBottom:tab===t?"2px solid #111":"2px solid transparent",transition:"all .2s"}}>
               {t==="login"?"Login":"Register"}
             </button>
           ))}
         </div>
         <div style={{display:"grid",gap:20}}>
-          {tab==="register"&&<div><label style={L}>Full Name *</label>
-            <input style={I} value={name} onChange={e=>setName(e.target.value)} placeholder="Ayesha Tariq"
-              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
-          <div><label style={L}>Email *</label>
-            <input style={I} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@email.com"
-              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>
-          <div><label style={L}>Password *</label>
-            <input style={I} type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"
-              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}
-              onKeyDown={e=>e.key==="Enter"&&(tab==="login"?login():register())}/></div>
-          {tab==="register"&&<div><label style={L}>Phone</label>
-            <input style={I} value={phone} onChange={e=>setPhone(e.target.value)} placeholder="0300-1234567"
-              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
+          {tab==="register"&&<div><label style={L}>Full Name *</label><input style={I} value={name} onChange={e=>setName(e.target.value)} placeholder="Ayesha Tariq" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
+          <div><label style={L}>Email *</label><input style={I} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@email.com" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>
+          <div><label style={L}>Password *</label><input style={I} type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"} onKeyDown={e=>e.key==="Enter"&&(tab==="login"?login():register())}/></div>
+          {tab==="register"&&<div><label style={L}>Phone</label><input style={I} value={phone} onChange={e=>setPhone(e.target.value)} placeholder="0300-1234567" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
         </div>
-        <button onClick={tab==="login"?login:register} disabled={loading}
-          style={{width:"100%",marginTop:24,padding:13,background:"#111",color:"#fff",border:"none",
-            fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",
-            cursor:loading?"not-allowed":"pointer",opacity:loading?.6:1}}>
+        <button onClick={tab==="login"?login:register} disabled={loading} style={{width:"100%",marginTop:24,padding:13,background:"#111",color:"#fff",border:"none",fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:loading?"not-allowed":"pointer",opacity:loading?.6:1}}>
           {loading?"Please wait...":(tab==="login"?"Login":"Create Account")}
         </button>
-        <button onClick={onClose} style={{width:"100%",marginTop:10,padding:10,background:"none",
-          border:"none",color:"#aaa",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+        <button onClick={onClose} style={{width:"100%",marginTop:10,padding:10,background:"none",border:"none",color:"#aaa",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
       </div>
     </div>
   );
 }
 
-/* ═══════ CART PANEL WITH COUPON + WHATSAPP ═══════ */
-function CartPanel({ cart, setCart, waNumber, onClose, user }) {
-  const [couponCode, setCouponCode] = useState("");
-  const [couponData, setCouponData] = useState(null);
-  const [cLoading, setCLoading] = useState(false);
-  const sb = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
-  const CAT_LABELS = { WU:"Women Unstitched", WS:"Women Stitched", M:"Men's Unstitched", K:"Kids" };
-
-  const sub = cart.reduce((s,x)=>s+x.price*x.qty, 0);
-  const disc = couponData ? (couponData.type==="percent" ? Math.round(sub*couponData.value/100) : couponData.value) : 0;
-  const total = Math.max(0, sub - disc);
-
-  async function applyCoupon() {
-    if (!couponCode.trim()||!sb) return;
-    setCLoading(true);
-    const { data } = await sb.from("coupons").select("*").eq("code",couponCode.toUpperCase()).eq("active",true).single();
-    setCLoading(false);
-    if (!data) { alert("Invalid coupon"); return; }
-    if (data.expires_at && new Date(data.expires_at)<new Date()) { alert("Coupon expired!"); return; }
-    if (sub < (data.min_order||0)) { alert("Min order Rs."+data.min_order+" needed"); return; }
-    setCouponData(data);
+/* ═══ CART PANEL ═══ */
+function CartPanel({cart,setCart,waNum,onClose,user}){
+  const[code,setCode]=useState("");
+  const[coupon,setCoupon]=useState(null);
+  const[cLoad,setCLoad]=useState(false);
+  const sub=cart.reduce((s,x)=>s+x.price*x.qty,0);
+  const disc=coupon?(coupon.type==="percent"?Math.round(sub*coupon.value/100):coupon.value):0;
+  const total=Math.max(0,sub-disc);
+  async function applyC(){
+    if(!code.trim()||!sb)return;
+    setCLoad(true);
+    const{data}=await sb.from("coupons").select("*").eq("code",code.toUpperCase()).eq("active",true).single();
+    setCLoad(false);
+    if(!data){toast("Invalid coupon","error");return;}
+    if(data.expires_at&&new Date(data.expires_at)<new Date()){toast("Coupon expired!","error");return;}
+    if(sub<(data.min_order||0)){toast("Min order Rs."+Number(data.min_order).toLocaleString()+" chahiye","error");return;}
+    setCoupon(data);toast("Coupon applied! ✓","success");
   }
-
-  async function checkout() {
-    if (!cart.length) return;
-    const wa = waNumber || "923228722232";
-    if (sb && user) {
-      await sb.from("online_orders").insert({
-        customer_id:user.id, customer_email:user.email,
-        customer_name:user.user_metadata?.full_name||"",
-        items:cart, total, coupon_code:couponData?.code||null,
-        discount_amount:disc, status:"pending"
-      });
-      if (couponData) await sb.from("coupons").update({used_count:(couponData.used_count||0)+1}).eq("id",couponData.id);
+  async function checkout(){
+    if(!cart.length)return;
+    if(sb&&user){
+      await sb.from("online_orders").insert({customer_id:user.id,customer_email:user.email,customer_name:user.user_metadata?.full_name||"",items:cart,total,coupon_code:coupon?.code||null,discount_amount:disc,status:"pending"});
+      if(coupon)await sb.from("coupons").update({used_count:(coupon.used_count||0)+1}).eq("id",coupon.id);
     }
-    let lines = cart.map(p => {
-      let l = "*"+p.name+"*";
-      l += "\n   Category: "+(CAT_LABELS[p.cat]||p.cat);
-      if(p.color) l += "\n   Color: "+p.color;
-      l += "\n   Price: Rs."+Number(p.price).toLocaleString()+" x "+p.qty+" = Rs."+(p.price*p.qty).toLocaleString();
-      if(p.img1) l += "\n   Image: "+p.img1;
+    let msg="Assalamualaikum! 🌙\n\nI would like to place an order from *JAMEEL FABRICS*.\n\n";
+    msg+="━━━━━━━━━━━━━━━━━━━━\n🛍️ *ORDER DETAILS*\n━━━━━━━━━━━━━━━━━━━━\n\n";
+    msg+=cart.map(p=>{
+      let l="▪ *"+p.name+"*";
+      l+="\n   Category: "+(CAT_L[p.cat]||p.cat||"");
+      if(p.color)l+="\n   Color: "+p.color;
+      l+="\n   Price: Rs."+Number(p.price).toLocaleString()+" x "+p.qty+" = Rs."+(p.price*p.qty).toLocaleString();
+      if(p.img1||p.photo_url)l+="\n   Image: "+(p.img1||p.photo_url);
       return l;
     }).join("\n\n");
-    let msg = "Assalamualaikum! 🌙\n\n";
-    msg += "I would like to place an order from *JAMEEL FABRICS*.\n\n";
-    msg += "━━━━━━━━━━━━━━━━━━━━\n🛍️ *ORDER DETAILS*\n━━━━━━━━━━━━━━━━━━━━\n\n";
-    msg += lines + "\n\n";
-    if (couponData) msg += "🏷️ Coupon: "+couponData.code+" (-Rs."+disc.toLocaleString()+")\n\n";
-    msg += "━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: Rs."+total.toLocaleString()+"*\n━━━━━━━━━━━━━━━━━━━━\n\n";
-    msg += "Please confirm availability and delivery details.\n\nJazakAllah Khair! 🤲";
-    window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(msg), "_blank");
-    setCart([]); onClose();
+    msg+="\n\n";
+    if(coupon)msg+="🏷️ Coupon: "+coupon.code+" (-Rs."+disc.toLocaleString()+")\n\n";
+    msg+="━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: Rs."+total.toLocaleString()+"*\n━━━━━━━━━━━━━━━━━━━━\n\n";
+    msg+="Please confirm availability and delivery details.\n\nJazakAllah Khair! 🤲";
+    window.open("https://wa.me/"+(waNum||WA)+"?text="+encodeURIComponent(msg),"_blank");
+    setCart([]);onClose();
   }
-
-  return (
+  return(
     <>
       <div style={{position:"fixed",inset:0,zIndex:9990,background:"rgba(0,0,0,.4)",backdropFilter:"blur(3px)"}} onClick={onClose}/>
-      <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(400px,95vw)",background:"#fff",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-12px 0 40px rgba(0,0,0,.15)"}}>
+      <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(400px,95vw)",background:"#fff",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-12px 0 40px rgba(0,0,0,.15)",animation:"slideR .3s ease"}}>
         <div style={{padding:"18px 20px",borderBottom:"1px solid #ebebeb",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
           <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700}}>Cart ({cart.reduce((s,x)=>s+x.qty,0)})</div>
-          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#888"}}>✕</button>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#888",lineHeight:1}}>✕</button>
         </div>
         <div style={{flex:1,overflowY:"auto",padding:"16px 20px"}}>
-          {!cart.length ? (
+          {!cart.length?(
             <div style={{textAlign:"center",padding:"48px 20px",color:"#aaa"}}>
               <div style={{fontSize:40,marginBottom:12}}>🛒</div>
               <div style={{fontSize:15,fontWeight:600,color:"#888"}}>Cart is empty</div>
+              <div style={{fontSize:13,marginTop:4}}>Products add karo!</div>
             </div>
-          ) : cart.map(item=>(
+          ):cart.map(item=>(
             <div key={item.id} style={{display:"flex",gap:12,marginBottom:16,padding:12,background:"#f9f9f9",borderRadius:8}}>
               <div style={{width:52,height:64,background:"#f0f0f0",borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,overflow:"hidden"}}>
-                {item.img1?<img src={item.img1} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(item.icon||"👗")}
+                {(item.img1||item.photo_url)?<img src={item.img1||item.photo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(item.icon||"👗")}
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontWeight:600,fontSize:14,marginBottom:2}}>{item.name}</div>
                 <div style={{fontSize:12,color:"#888",marginBottom:6}}>{item.color}</div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <button onClick={()=>setCart(c=>item.qty===1?c.filter(x=>x.id!==item.id):c.map(x=>x.id===item.id?{...x,qty:x.qty-1}:x))}
-                      style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+                    <button onClick={()=>setCart(c=>item.qty===1?c.filter(x=>x.id!==item.id):c.map(x=>x.id===item.id?{...x,qty:x.qty-1}:x))} style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
                     <span style={{fontSize:13,fontWeight:600,minWidth:16,textAlign:"center"}}>{item.qty}</span>
-                    <button onClick={()=>setCart(c=>c.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))}
-                      style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+                    <button onClick={()=>setCart(c=>c.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))} style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     <span style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:16}}>Rs.{(item.price*item.qty).toLocaleString()}</span>
-                    <button onClick={()=>setCart(c=>c.filter(x=>x.id!==item.id))} style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:18}}>×</button>
+                    <button onClick={()=>setCart(c=>c.filter(x=>x.id!==item.id))} style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:18,lineHeight:1}}>×</button>
                   </div>
                 </div>
               </div>
@@ -1548,24 +245,19 @@ function CartPanel({ cart, setCart, waNumber, onClose, user }) {
         {cart.length>0&&(
           <div style={{padding:"16px 20px",borderTop:"1px solid #ebebeb",flexShrink:0}}>
             <div style={{display:"flex",gap:8,marginBottom:14}}>
-              <input value={couponCode} onChange={e=>setCouponCode(e.target.value.toUpperCase())} placeholder="Coupon code"
-                style={{flex:1,border:"1px solid #ddd",borderRadius:4,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",letterSpacing:1,fontWeight:600}}/>
-              <button onClick={applyCoupon} disabled={cLoading}
-                style={{background:"#111",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,fontFamily:"inherit"}}>
-                {cLoading?"...":"APPLY"}
-              </button>
+              <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Coupon code" style={{flex:1,border:"1px solid #ddd",borderRadius:4,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",letterSpacing:1,fontWeight:600}}/>
+              <button onClick={applyC} disabled={cLoad} style={{background:"#111",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{cLoad?"...":"APPLY"}</button>
             </div>
             <div style={{marginBottom:16}}>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:4}}><span>Subtotal</span><span>Rs.{sub.toLocaleString()}</span></div>
-              {couponData&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#16a34a",marginBottom:4}}><span>Discount ({couponData.code})</span><span>-Rs.{disc.toLocaleString()}</span></div>}
+              {coupon&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#16a34a",marginBottom:4}}><span>Discount ({coupon.code})</span><span>-Rs.{disc.toLocaleString()}</span></div>}
               <div style={{display:"flex",justifyContent:"space-between",fontSize:16,fontWeight:700,marginTop:8,paddingTop:8,borderTop:"1px solid #ebebeb"}}>
                 <span>Total</span>
                 <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20}}>Rs.{total.toLocaleString()}</span>
               </div>
-              <div style={{fontSize:11,color:"#aaa",marginTop:4}}>* Delivery charges extra</div>
+              <div style={{fontSize:11,color:"#aaa",marginTop:4}}>* Delivery charges separate (WhatsApp pe discuss)</div>
             </div>
-            <button onClick={checkout}
-              style={{width:"100%",padding:14,background:"#111",color:"#fff",border:"none",borderRadius:4,fontFamily:"inherit",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+            <button onClick={checkout} style={{width:"100%",padding:14,background:"#111",color:"#fff",border:"none",borderRadius:4,fontFamily:"inherit",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
               Order via WhatsApp
             </button>
@@ -1576,26 +268,75 @@ function CartPanel({ cart, setCart, waNumber, onClose, user }) {
   );
 }
 
-/* ═══════ ACCOUNT PAGE ═══════ */
-function AccountPage({ user, onBack }) {
-  const sb = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
-  const [orders, setOrders] = useState([]);
-  const [wishItems, setWishItems] = useState([]);
+
+/* ═══ PRODUCT CARD ═══ */
+function PCard({prod,onAdd,onWish,wished,idx}){
+  const[hov,setHov]=useState(false);
+  const[added,setAdded]=useState(false);
+  const img=prod.img1||prod.photo_url||"";
+  function handleAdd(e){
+    e.stopPropagation();
+    onAdd(prod);
+    setAdded(true);
+    setTimeout(()=>setAdded(false),1200);
+  }
+  return(
+    <div style={{background:"#fff",border:"1px solid "+(hov?"#111":"#ebebeb"),cursor:"pointer",transition:"all .4s cubic-bezier(.16,1,.3,1)",position:"relative",overflow:"hidden",transform:hov?"translateY(-6px)":"none",boxShadow:hov?"0 18px 48px rgba(0,0,0,.08)":"none",animation:"fadeUp .7s ease both",animationDelay:idx*.06+"s"}} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      <div style={{position:"relative",aspectRatio:"3/4",overflow:"hidden"}}>
+        <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"clamp(48px,7vw,72px)",background:"#f5f5f5",transition:"transform .6s cubic-bezier(.16,1,.3,1)",transform:hov?"scale(1.08)":"scale(1)"}}>
+          {img?<img src={img} alt={prod.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>:(prod.icon||"👗")}
+        </div>
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)",opacity:hov?1:0,transition:"opacity .3s",display:"flex",flexDirection:"column",justifyContent:"flex-end",alignItems:"center",paddingBottom:16,gap:8}}>
+          <button onClick={handleAdd} style={{background:"#fff",color:"#111",border:"none",padding:"9px 28px",fontSize:9,fontWeight:700,letterSpacing:2,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",transform:hov?"translateY(0)":"translateY(14px)",transition:"transform .3s"}}>
+            ADD TO CART
+          </button>
+        </div>
+        {prod.badge&&<div style={{position:"absolute",top:10,left:10,background:prod.badge==="SALE"?"#c0392b":"#111",color:"#fff",padding:"3px 9px",fontSize:7,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",zIndex:2}}>{prod.badge}</div>}
+        <button onClick={e=>{e.stopPropagation();onWish(prod.id);}} style={{position:"absolute",top:10,right:10,zIndex:2,width:32,height:32,borderRadius:"50%",background:"rgba(255,255,255,.9)",border:"1px solid #e0e0e0",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:hov?1:0,transform:hov?"scale(1)":"scale(.7)",transition:"all .25s"}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" stroke={wished?"#c0392b":"currentColor"} strokeWidth="1.5" fill={wished?"#c0392b":"none"}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <div style={{padding:"12px 14px 16px"}}>
+        <div style={{fontSize:8,color:"#888",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>{CAT_L[prod.cat]||prod.website_category||prod.category||""}</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"#111",marginBottom:3,lineHeight:1.3}}>{prod.name}</div>
+        {prod.color&&<div style={{fontSize:11,color:"#888",marginBottom:6}}>{prod.color}</div>}
+        {prod.display_stock_text&&<div style={{fontSize:10,color:"#999",marginBottom:7,fontStyle:"italic"}}>{prod.display_stock_text}</div>}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+          <div style={{display:"flex",flexDirection:"column",gap:1}}>
+            {prod.old_price&&<span style={{fontSize:11,color:"#bbb",textDecoration:"line-through",fontFamily:"'Cormorant Garamond',serif"}}>Rs.{Number(prod.old_price).toLocaleString()}</span>}
+            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:700,color:prod.old_price?"#c0392b":"#111"}}>Rs.{Number(prod.sale_price||prod.price||0).toLocaleString()}</span>
+          </div>
+          <button onClick={handleAdd} style={{flexShrink:0,background:added?"#16a34a":"#111",color:"#fff",border:"none",width:40,height:40,cursor:"pointer",fontFamily:"inherit",fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s"}}>
+            {added?"✓":"ADD"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ ACCOUNT PAGE ═══ */
+function AccountPage({user,onBack}){
+  const[orders,setOrders]=useState([]);
+  const[wl,setWl]=useState([]);
   useEffect(()=>{
-    if(!sb||!user) return;
+    if(!sb||!user)return;
     sb.from("online_orders").select("*").eq("customer_id",user.id).order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));
-    sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWishItems(data||[]));
+    sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWl(data||[]));
   },[user]);
-  const C = { card:{background:"#fff",border:"1px solid #ebebeb",borderRadius:8,padding:20,marginBottom:16} };
-  return (
+  const C={card:{background:"#fff",border:"1px solid #ebebeb",borderRadius:8,padding:20,marginBottom:16}};
+  return(
     <div style={{background:"#f9f9f9",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
-      <div style={{background:"#fff",borderBottom:"1px solid #ebebeb",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16}}>
-        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"#666",fontSize:13,fontFamily:"inherit"}}>← Back to Store</button>
+      <div style={{background:"#fff",borderBottom:"1px solid #ebebeb",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16,position:"sticky",top:0,zIndex:100}}>
+        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"#666",fontSize:13,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6"/></svg>
+          Back
+        </button>
         <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700}}>My Account</div>
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"24px clamp(16px,4vw,40px)"}}>
         <div style={C.card}>
-          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Account Info</div>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:12}}>Account Info</div>
           <div style={{fontSize:14,color:"#666",marginBottom:4}}><strong>Email:</strong> {user.email}</div>
           <div style={{fontSize:14,color:"#666"}}><strong>Name:</strong> {user.user_metadata?.full_name||"Not set"}</div>
         </div>
@@ -1610,18 +351,19 @@ function AccountPage({ user, onBack }) {
                   <span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span>
                 </div>
               </div>
-            ))}
+            ))
+          }
         </div>
         <div style={C.card}>
-          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Wishlist ({wishItems.length})</div>
-          {!wishItems.length?<div style={{textAlign:"center",padding:32,color:"#aaa"}}><div style={{fontSize:32,marginBottom:8}}>🤍</div><div>No saved items</div></div>:
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:12}}>
-              {wishItems.map(w=>(
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Wishlist ({wl.length})</div>
+          {!wl.length?<div style={{textAlign:"center",padding:32,color:"#aaa"}}><div style={{fontSize:32,marginBottom:8}}>🤍</div><div>No saved items</div></div>:
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:12}}>
+              {wl.map(w=>(
                 <div key={w.id} style={{border:"1px solid #ebebeb",borderRadius:6,overflow:"hidden"}}>
-                  <div style={{aspectRatio:"3/4",background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40}}>{w.products?.icon||"👗"}</div>
+                  <div style={{aspectRatio:"3/4",background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:36}}>{w.products?.icon||"👗"}</div>
                   <div style={{padding:"10px 12px"}}>
                     <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{w.products?.name||""}</div>
-                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.price||0).toLocaleString()}</div>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.sale_price||w.products?.price||0).toLocaleString()}</div>
                   </div>
                 </div>
               ))}
@@ -1633,264 +375,950 @@ function AccountPage({ user, onBack }) {
   );
 }
 
-export default function App(){
-  const show3D=false;
-  
-  const handleEnter=useCallback(()=>{},[]);
-  const [page,setPage]=useState("home");
-  const [cat,setCat]=useState("All");
-  const [search,setSearch]=useState("");
-  const [products,setProducts]=useState([]);
-  const [reviews,setReviews]=useState([]);
-  const [cart,setCart]=useState(()=>LS.get("cart",[]));
-  const [wishlist,setWishlist]=useState(()=>LS.get("wishlist",[]));
-  const [customer,setCustomer]=useState(()=>LS.get("customer",null));
-  const [settings,setSettings]=useState(()=>({
-    announcements:["✦ New Arrivals — Limited Pieces ✦","✦ Exclusive Pakistani Fabrics ✦","✦ Each Design is Unique ✦"],
-    heroTexts:["Where Elegance Meets Heritage","Exclusive Pakistani Fabrics","Crafted with Love, Worn with Pride"],
-    heroSubtitle:"Each piece in our collection is unique — once sold, never repeated.",
-    tiktok:"@jameelfabrics",instagram:"@jameelfabrics",whatsapp:WA,
-    tiktokUrl:"",instagramUrl:"",
-    logoUrl:"",
-    faviconUrl:"",
-    uploadedVideoUrl:"",uploadedVideoTitle:"",uploadedVideoCaption:"",showUploadedVideo:false,
-    coupons:[{code:"WELCOME10",discount:10,type:"percent",active:true}],
-    catIcons:{...DEFAULT_CAT_ICONS},
-    discountBanner:"",discountBannerActive:false,
-    aboutText:"Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing.\n\nLocated in the heart of Kunjah, we serve customers from across the region with pride and dedication.",
-    policiesText:"RETURN POLICY\nWe accept exchanges within 3 days of purchase with original receipt. Sale items are non-returnable.\n\nDELIVERY POLICY\nWe deliver across Pakistan. Delivery time: 3-5 working days.\n\nPAYMENT POLICY\nWe accept Cash on Delivery (COD), JazzCash, and Easypaisa.\n\nPRIVACY POLICY\nYour personal information is safe with us.",
-    heroBg:"",
-    footerText:"",
-    showReviews:true,
-    showLocation:true,
-    showAbout:true,
-    primaryColor:"#b8922a",
-    ...LS.get("shopSettings",{})
-  }));
-  const [selProd,setSelProd]=useState(null);
-  const [showCart,setShowCart]=useState(false);
-  const [showCheckout,setShowCheckout]=useState(false);
-  const [showLogin,setShowLogin]=useState(false);
-  const [showAdmin,setShowAdmin]=useState(false);
-  const [adminInput,setAdminInput]=useState("");
-  const [showAdminLogin,setShowAdminLogin]=useState(false);
-  const [showSearch,setShowSearch]=useState(false);
-  const [showTrack,setShowTrack]=useState(false);
-  const [coupon,setCoupon]=useState(null);
-  const [adminClicks,setAdminClicks]=useState(0);
 
-  useEffect(()=>LS.set("cart",cart),[cart]);
-  useEffect(()=>LS.set("wishlist",wishlist),[wishlist]);
-
-  // Supabase Auth
-  const [authUser, setAuthUser] = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(null); // 'login' | 'register' | null
-  const [showAccount, setShowAccount] = useState(false);
+/* ═══ STORE ═══ */
+function Store({user,onLogout,onAccount,onAdmin}){
+  const settings=useSettings();
+  const[prods,setProds]=useState([]);
+  const[cat,setCat]=useState("All");
+  const[cart,setCart]=useState([]);
+  const[wish,setWish]=useState(new Set());
+  const[cartOpen,setCartOpen]=useState(false);
+  const[menuOpen,setMenuOpen]=useState(false);
+  const[authModal,setAuthModal]=useState(null);
+  const[subEmail,setSubEmail]=useState("");
+  const[subLoading,setSubLoading]=useState(false);
 
   useEffect(()=>{
-    if(!supabase) return;
-    supabase.auth.getSession().then(({data:{session}})=>setAuthUser(session?.user||null));
-    const {data:{subscription}} = supabase.auth.onAuthStateChange((_e,s)=>setAuthUser(s?.user||null));
-    return ()=>subscription.unsubscribe();
+    if(!sb)return;
+    sb.from("products").select("*").eq("website_status","approved").eq("active",true).order("created_at",{ascending:false}).then(({data})=>setProds(data||[]));
+    const ch=sb.channel("shop_prods").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{
+      sb.from("products").select("*").eq("website_status","approved").eq("active",true).order("created_at",{ascending:false}).then(({data})=>setProds(data||[]));
+    }).subscribe();
+    return()=>sb.removeChannel(ch);
   },[]);
 
-  // Realtime product updates from ERP
-  async function logout(){
-    if(supabase) await supabase.auth.signOut();
-    setAuthUser(null);
+  useEffect(()=>{
+    if(!sb||!user)return;
+    sb.from("wishlists").select("product_id").eq("customer_id",user.id).then(({data})=>{if(data)setWish(new Set(data.map(x=>x.product_id)));});
+  },[user]);
+
+  useEffect(()=>{
+    document.body.style.overflow=menuOpen?"hidden":"";
+    return()=>{document.body.style.overflow="";};
+  },[menuOpen]);
+
+  const aRef=useRef(0),aTimer=useRef(null);
+  function adminTrigger(){
+    aRef.current++;
+    clearTimeout(aTimer.current);
+    aTimer.current=setTimeout(()=>aRef.current=0,2000);
+    if(aRef.current>=5){aRef.current=0;onAdmin();}
   }
-  // Load products from Supabase
+
+  const filtered=cat==="All"?prods:prods.filter(p=>p.cat===cat||(p.website_category&&p.website_category.includes(cat)));
+  const cartCount=cart.reduce((s,x)=>s+x.qty,0);
+  const wa=settings.wa_number||WA;
+  const ann=(settings.announcement||"✦ New Arrivals|✦ Exclusive Designs|✦ Fast Delivery|✦ Book on WhatsApp").split("|");
+
+  function addToCart(prod){
+    setCart(c=>{const ex=c.find(x=>x.id===prod.id);if(ex)return c.map(x=>x.id===prod.id?{...x,qty:x.qty+1}:x);return[...c,{...prod,qty:1}];});
+    toast("Added: "+prod.name,"success");
+  }
+
+  async function toggleWish(id){
+    if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}
+    const has=wish.has(id);
+    if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}
+    else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}
+  }
+
+  async function subscribe(){
+    if(!subEmail||!subEmail.includes("@")){toast("Valid email daalo","error");return;}
+    setSubLoading(true);
+    if(sb)await sb.from("subscribers").upsert({email:subEmail},{onConflict:"email"});
+    setSubLoading(false);
+    toast("Subscribed! Discount offers milenge ✓","success");
+    setSubEmail("");
+  }
+
+  const WASvg=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>;
+
+  const menuItems=[
+    {ic:"🏠",lbl:"Home",fn:()=>{setCat("All");setMenuOpen(false);window.scrollTo({top:0,behavior:"smooth"});}},
+    {ic:"👔",lbl:"Men's Unstitched",fn:()=>{setCat("M");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+    {ic:"👗",lbl:"Women Unstitched",fn:()=>{setCat("WU");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+    {ic:"✨",lbl:"Women Stitched",fn:()=>{setCat("WS");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+    {ic:"🌟",lbl:"Kids",fn:()=>{setCat("K");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+  ];
+
+  return(
+    <div style={{background:"#fff",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
+
+      {/* Announcement */}
+      <div style={{background:"#111",height:34,display:"flex",alignItems:"center",overflow:"hidden"}}>
+        <div style={{display:"flex",animation:"annS 28s linear infinite",whiteSpace:"nowrap"}}>
+          {[...ann,...ann].map((a,i)=><span key={i} style={{padding:"0 44px",fontSize:10,letterSpacing:2,color:"#fff",textTransform:"uppercase"}}>{a.trim()}</span>)}
+        </div>
+      </div>
+
+      {/* NAV */}
+      <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(255,255,255,.96)",backdropFilter:"blur(20px)",borderBottom:"1px solid #e8e8e8",height:66,display:"flex",alignItems:"center",padding:"0 clamp(12px,3vw,48px)",gap:8,boxShadow:"0 1px 12px rgba(0,0,0,.05)"}}>
+        <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:0,lineHeight:1.1,marginRight:"auto",background:"none",border:"none",textAlign:"left"}}>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(12px,1.5vw,16px)",fontWeight:900,letterSpacing:3,color:"#111"}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+          <div style={{fontSize:8,letterSpacing:4,color:"#888",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Kunjah · Est. Punjab</div>
+        </button>
+        <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
+          {/* Wishlist */}
+          <button onClick={()=>user?onAccount():setAuthModal("login")} style={{background:"none",border:"none",cursor:"pointer",width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center",color:"#666",borderRadius:4,transition:"background .2s",position:"relative"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            {wish.size>0&&<span style={{position:"absolute",top:4,right:4,background:"#111",color:"#fff",borderRadius:"50%",width:15,height:15,fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{wish.size}</span>}
+          </button>
+          {/* Cart */}
+          <button onClick={()=>setCartOpen(true)} style={{background:"#111",color:"#fff",border:"none",padding:"8px 12px",fontSize:10,fontWeight:600,letterSpacing:1,textTransform:"uppercase",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,cursor:"pointer",transition:"background .2s",whiteSpace:"nowrap",flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.background="#333"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Cart ({cartCount})
+          </button>
+          {/* 3-dot menu */}
+          <button onClick={()=>setMenuOpen(true)} style={{background:"none",border:"none",cursor:"pointer",width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:5,flexShrink:0,borderRadius:4,transition:"background .2s"}} onMouseEnter={e=>e.currentTarget.style.background="#f0f0f0"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            {[0,1,2].map(i=><span key={i} style={{display:"block",width:5,height:5,borderRadius:"50%",background:"#111"}}/>)}
+          </button>
+        </div>
+      </nav>
+
+      {/* SIDE MENU */}
+      {menuOpen&&(
+        <>
+          <div style={{position:"fixed",inset:0,zIndex:998,background:"rgba(0,0,0,.45)",backdropFilter:"blur(3px)"}} onClick={()=>setMenuOpen(false)}/>
+          <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(310px,85vw)",zIndex:999,background:"#fff",display:"flex",flexDirection:"column",boxShadow:"-12px 0 40px rgba(0,0,0,.12)",animation:"slideR .3s cubic-bezier(.77,0,.18,1)"}}>
+            <div style={{padding:"18px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #ebebeb",flexShrink:0}}>
+              <span style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:700}}>JAMEEL FABRICS</span>
+              <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#888",lineHeight:1}}>✕</button>
+            </div>
+            <div style={{flex:1,overflowY:"auto",overscrollBehavior:"contain"}}>
+              <div style={{padding:"10px 20px 4px",fontSize:9,letterSpacing:3,textTransform:"uppercase",color:"#aaa",fontWeight:600}}>Navigation</div>
+              {menuItems.map(({ic,lbl,fn})=>(
+                <button key={lbl} onClick={fn} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 20px",cursor:"pointer",border:"none",background:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,fontWeight:500,color:"#111",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                  <span style={{opacity:.7,fontSize:18,width:24,textAlign:"center"}}>{ic}</span>{lbl}
+                </button>
+              ))}
+              <div style={{height:1,margin:"8px 20px",background:"#ebebeb"}}/>
+              <div style={{padding:"10px 20px 4px",fontSize:9,letterSpacing:3,textTransform:"uppercase",color:"#aaa",fontWeight:600}}>Account</div>
+              {user?(
+                <>
+                  <button onClick={()=>{onAccount();setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 20px",cursor:"pointer",border:"none",background:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,fontWeight:500,color:"#111"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                    <span style={{opacity:.7,fontSize:18,width:24,textAlign:"center"}}>👤</span>My Account
+                  </button>
+                  <button onClick={()=>{onLogout();setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 20px",cursor:"pointer",border:"none",background:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,fontWeight:500,color:"#888"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                    <span style={{opacity:.7,fontSize:18,width:24,textAlign:"center"}}>🚪</span>Logout
+                  </button>
+                </>
+              ):(
+                <button onClick={()=>{setAuthModal("login");setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 20px",cursor:"pointer",border:"none",background:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,fontWeight:500,color:"#111"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                  <span style={{opacity:.7,fontSize:18,width:24,textAlign:"center"}}>👤</span>Login / Register
+                </button>
+              )}
+              <div style={{height:1,margin:"8px 20px",background:"#ebebeb"}}/>
+              <div style={{padding:"10px 20px 4px",fontSize:9,letterSpacing:3,textTransform:"uppercase",color:"#aaa",fontWeight:600}}>Contact</div>
+              <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+                <button style={{display:"flex",alignItems:"center",gap:14,padding:"12px 20px",cursor:"pointer",border:"none",background:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,fontWeight:500,color:"#111"}} onMouseEnter={e=>e.currentTarget.style.background="#f5f5f5"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                  <span style={{opacity:.7,fontSize:18,width:24,textAlign:"center",color:"#25D366"}}>💬</span>WhatsApp Us
+                </button>
+              </a>
+            </div>
+            {/* Subscribe */}
+            <div style={{padding:"14px 20px 18px",borderTop:"1px solid #ebebeb",background:"#f9f9f9",flexShrink:0}}>
+              <div style={{fontSize:10,letterSpacing:2,textTransform:"uppercase",color:"#888",fontWeight:600,marginBottom:8}}>Get Discount Offers</div>
+              <div style={{display:"flex",gap:6}}>
+                <input type="email" value={subEmail} onChange={e=>setSubEmail(e.target.value)} placeholder="Your email" style={{flex:1,border:"1px solid #ddd",padding:"9px 11px",fontSize:12,color:"#111",outline:"none",fontFamily:"inherit",background:"#fff",transition:"border-color .2s"}} onFocus={e=>e.target.style.borderColor="#111"} onBlur={e=>e.target.style.borderColor="#ddd"} onKeyDown={e=>e.key==="Enter"&&subscribe()}/>
+                <button onClick={subscribe} disabled={subLoading} style={{background:"#111",color:"#fff",border:"none",padding:"9px 13px",fontSize:9,fontWeight:700,letterSpacing:1,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",whiteSpace:"nowrap",opacity:subLoading?.6:1}}>
+                  {subLoading?"...":"Subscribe"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* HERO */}
+      <section style={{minHeight:"92vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"80px clamp(16px,5vw,80px) 60px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(#efefef 1px,transparent 1px),linear-gradient(90deg,#efefef 1px,transparent 1px)",backgroundSize:"44px 44px",WebkitMaskImage:"radial-gradient(ellipse 80% 80% at 50% 50%,#000 20%,transparent 100%)",opacity:.5,pointerEvents:"none"}}/>
+        <div style={{fontSize:10,letterSpacing:7,color:"#888",textTransform:"uppercase",marginBottom:20,animation:"fadeUp .8s ease .1s both",zIndex:1}}>{settings.hlabel||"Winter Collection 2026"}</div>
+        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(52px,10vw,120px)",fontWeight:900,lineHeight:.92,color:"#111",letterSpacing:"clamp(3px,1.5vw,14px)",animation:"fadeUp .8s ease .2s both",zIndex:1}}>
+          JAMEEL
+          <span style={{display:"block",fontFamily:"'Cormorant Garamond',serif",fontWeight:300,fontStyle:"italic",color:"#888",fontSize:"clamp(28px,5vw,64px)",letterSpacing:"clamp(8px,2.5vw,28px)"}}>FABRICS</span>
+        </h1>
+        <div style={{width:44,height:1,background:"#111",margin:"clamp(18px,2.5vw,28px) auto",animation:"fadeUp .6s ease .45s both",zIndex:1}}/>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(14px,1.8vw,20px)",color:"#888",fontStyle:"italic",letterSpacing:3,marginBottom:36,animation:"fadeUp .8s ease .5s both",zIndex:1}}>{settings.hsub||"Exclusive · Elegant · Pakistani"}</p>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center",animation:"fadeUp .8s ease .6s both",zIndex:1}}>
+          <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#111",color:"#fff",border:"none",padding:"14px 40px",fontSize:10,fontWeight:600,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.background="#333";e.currentTarget.style.letterSpacing="5px"}} onMouseLeave={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.letterSpacing="4px"}}>
+            Explore Collection
+          </button>
+          <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+            <button style={{background:"transparent",color:"#111",border:"1px solid #111",padding:"14px 34px",fontSize:10,fontWeight:600,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff"}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111"}}>
+              WhatsApp Us
+            </button>
+          </a>
+        </div>
+        <div onClick={adminTrigger} style={{position:"absolute",bottom:0,left:0,width:30,height:30,opacity:0,cursor:"default"}}/>
+      </section>
+
+      {/* VIDEO SECTION */}
+      {settings.video_show==="true"&&settings.video_url&&(
+        <section style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",borderTop:"1px solid #ebebeb"}}>
+          <div style={{textAlign:"center",marginBottom:28}}>
+            <div style={{fontSize:9,letterSpacing:5,color:"#888",textTransform:"uppercase",marginBottom:10}}>{settings.video_label||"Featured"}</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(20px,2.5vw,34px)",fontWeight:700,color:"#111"}}>{settings.video_title||"Watch Our Collection"}</div>
+            <div style={{width:36,height:1,background:"#111",margin:"12px auto"}}/>
+          </div>
+          <div style={{maxWidth:900,margin:"0 auto",border:"1px solid #ebebeb"}}>
+            {(settings.video_url.includes("youtube")||settings.video_url.includes("youtu.be"))?
+              <iframe src={"https://www.youtube.com/embed/"+(settings.video_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)||[])[1]+"?rel=0"} style={{width:"100%",height:"clamp(200px,45vw,500px)",border:"none"}} allowFullScreen/>:
+              <video src={settings.video_url} controls style={{width:"100%",maxHeight:500,display:"block"}} preload="metadata"/>
+            }
+          </div>
+        </section>
+      )}
+
+      {/* PRODUCTS */}
+      <section id="prods" style={{borderTop:"1px solid #ebebeb"}}>
+        {/* Category tabs */}
+        <div style={{background:"#fff",borderBottom:"1px solid #ebebeb",display:"flex",justifyContent:"center",overflowX:"auto",position:"sticky",top:66,zIndex:99}}>
+          {CATS.map(([c,lbl])=>(
+            <button key={c} onClick={()=>setCat(c)} style={{padding:"14px clamp(10px,2vw,20px)",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:10,fontWeight:500,letterSpacing:1.5,textTransform:"uppercase",color:cat===c?"#111":"#888",borderBottom:cat===c?"2px solid #111":"2px solid transparent",transition:"all .25s",whiteSpace:"nowrap",flexShrink:0}}>
+              {lbl}
+            </button>
+          ))}
+        </div>
+        <div style={{textAlign:"center",padding:"clamp(40px,5vw,60px) clamp(16px,4vw,60px) 28px"}}>
+          <div style={{fontSize:9,letterSpacing:5,color:"#888",textTransform:"uppercase",marginBottom:8}}>Our Collection</div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(20px,2.5vw,34px)",fontWeight:700,color:"#111"}}>{cat==="All"?"All Collections":CAT_L[cat]||cat}</div>
+          <div style={{width:36,height:1,background:"#111",margin:"12px auto"}}/>
+        </div>
+        {!prods.length&&!sb?(
+          <div style={{textAlign:"center",padding:48,color:"#aaa"}}><div style={{fontSize:36,marginBottom:12}}>⚙️</div><div style={{fontSize:14}}>Database not connected</div></div>
+        ):filtered.length===0?(
+          <div style={{textAlign:"center",padding:48,color:"#aaa"}}><div style={{fontSize:36,marginBottom:12}}>📦</div><div style={{fontSize:15,fontWeight:600,color:"#888"}}>No products found</div></div>
+        ):(
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"clamp(10px,1.5vw,18px)",padding:"0 clamp(16px,4vw,60px) 80px",maxWidth:1440,margin:"0 auto"}}>
+            {filtered.map((prod,i)=>(
+              <PCard key={prod.id} prod={prod} idx={i} onAdd={addToCart} onWish={toggleWish} wished={wish.has(prod.id)}/>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ABOUT */}
+      <section style={{background:"#f9f9f9",borderTop:"1px solid #ebebeb",borderBottom:"1px solid #ebebeb",padding:"clamp(60px,8vw,100px) clamp(16px,5vw,80px)",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"center"}}>
+        <div>
+          <div style={{fontSize:9,letterSpacing:5,color:"#888",textTransform:"uppercase",marginBottom:10}}>Our Story</div>
+          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3.5vw,36px)",fontWeight:700,color:"#111",marginBottom:16}}>About Jameel Fabrics</h2>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(14px,1.6vw,18px)",color:"#888",lineHeight:2,fontStyle:"italic"}}>{settings.about||"Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing."}</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+          {[["100%","Exclusive"],["✓","Quality"],["⚡","Fast"],["🔄","Exchange"]].map(([n,l])=>(
+            <div key={l} style={{border:"1px solid #e0e0e0",padding:22,textAlign:"center",transition:"all .3s",cursor:"default"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#111";e.currentTarget.style.background="#fff";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e0e0e0";e.currentTarget.style.background="none";}}>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(18px,2.5vw,26px)",fontWeight:700,color:"#111"}}>{n}</div>
+              <div style={{fontSize:9,letterSpacing:2,color:"#aaa",textTransform:"uppercase",marginTop:4}}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",borderTop:"1px solid #ebebeb",borderBottom:"1px solid #ebebeb"}}>
+        {[["✨","Exclusive","Each piece unique"],["🧵","Premium","Finest fabrics"],["📱","Easy Booking","Via WhatsApp"],["🚀","Fast Delivery","3–5 days"],["🔄","Exchange","Hassle-free"],["💯","Trusted","Serving Kunjah"]].map(([ic,n,d])=>(
+          <div key={n} style={{padding:"clamp(18px,2.5vw,28px)",textAlign:"center",borderRight:"1px solid #ebebeb",transition:"background .2s",cursor:"default"}} onMouseEnter={e=>e.currentTarget.style.background="#f9f9f9"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <div style={{fontSize:22,marginBottom:8}}>{ic}</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:12,fontWeight:700,color:"#111",marginBottom:3}}>{n}</div>
+            <div style={{fontSize:10,color:"#888",lineHeight:1.7}}>{d}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <footer style={{background:"#111",color:"#e0e0e0",padding:"clamp(44px,5vw,70px) clamp(16px,4vw,60px) 24px"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr 1fr 1fr",gap:"clamp(20px,3vw,40px)",marginBottom:44}}>
+          <div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:900,letterSpacing:3,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:9,letterSpacing:4,color:"rgba(255,255,255,.35)",marginBottom:12,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,.3)",lineHeight:1.9,marginBottom:14}}>Premium Pakistani clothing.</div>
+            <div style={{display:"flex",gap:8}}>
+              {[{url:settings.insta||"#",bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",lbl:"IG"},{url:"https://wa.me/"+wa,bg:"#25D366",lbl:"WA"},{url:settings.tiktok||"#",bg:"#000",lbl:"TK"},{url:settings.fb||"#",bg:"#1877F2",lbl:"FB"}].map(s=>(
+                <a key={s.lbl} href={s.url} target="_blank" rel="noopener noreferrer" style={{width:34,height:34,borderRadius:4,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"transform .2s",textDecoration:"none",fontSize:10,fontWeight:700,color:"#fff"}} onMouseEnter={e=>e.currentTarget.style.transform="translateY(-2px)"} onMouseLeave={e=>e.currentTarget.style.transform="none"}>{s.lbl}</a>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h4 style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.5)",textTransform:"uppercase",marginBottom:14}}>Collection</h4>
+            {["Men's Unstitched","Women Unstitched","Women Stitched","Kids"].map(l=>(
+              <div key={l} style={{fontSize:11,color:"rgba(255,255,255,.32)",padding:"4px 0",cursor:"pointer",transition:"color .2s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.32)"}>{l}</div>
+            ))}
+          </div>
+          <div>
+            <h4 style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.5)",textTransform:"uppercase",marginBottom:14}}>Info</h4>
+            {["About Us","Delivery Info","Return Policy","Contact"].map(l=>(
+              <div key={l} style={{fontSize:11,color:"rgba(255,255,255,.32)",padding:"4px 0",cursor:"pointer",transition:"color .2s"}} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.32)"}>{l}</div>
+            ))}
+          </div>
+          <div>
+            <h4 style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.5)",textTransform:"uppercase",marginBottom:14}}>Contact</h4>
+            {["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon–Sat: 10am–8pm")].map(l=>(
+              <div key={l} style={{fontSize:11,color:"rgba(255,255,255,.32)",padding:"4px 0"}}>{l}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{borderTop:"1px solid rgba(255,255,255,.08)",paddingTop:18,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,.2)",letterSpacing:1}}>© 2026 {settings.store_name||"JAMEEL FABRICS"}. All Rights Reserved.</div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,.2)",letterSpacing:1}}>Premium Pakistani Fabrics</div>
+        </div>
+      </footer>
+
+      {/* WA Float */}
+      <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:26,right:26,width:52,height:52,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 26px rgba(37,211,102,.4)",cursor:"pointer",textDecoration:"none",zIndex:700,transition:"transform .3s",color:"#fff"}} onMouseEnter={e=>e.currentTarget.style.transform="scale(1.12)"} onMouseLeave={e=>e.currentTarget.style.transform="none"}>
+        <WASvg/>
+      </a>
+
+      {cartOpen&&<CartPanel cart={cart} setCart={setCart} waNum={wa} onClose={()=>setCartOpen(false)} user={user}/>}
+      {authModal&&<AuthModal mode={authModal} onClose={()=>setAuthModal(null)} onSuccess={()=>setAuthModal(null)}/>}
+    </div>
+  );
+}
+
+
+/* ═══ ADMIN LOGIN ═══ */
+function AdminLogin({onSuccess,onCancel}){
+  const[pass,setPass]=useState("");
+  const[loading,setLoading]=useState(false);
+  async function check(){
+    setLoading(true);
+    let ok=false;
+    if(sb){const{data}=await sb.from("website_settings").select("value").eq("key","admin_pass").single();ok=data?.value===pass;}
+    else ok=pass==="jameel@admin2026";
+    setLoading(false);
+    if(ok)onSuccess();else{setPass("");toast("Wrong password!","error");}
+  }
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(0,0,0,.85)",display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(8px)"}}>
+      <div style={{background:"#fff",padding:40,width:"100%",maxWidth:340,textAlign:"center",borderRadius:4}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700,color:"#111",marginBottom:6}}>Admin Panel</div>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:"#888",fontStyle:"italic",marginBottom:28}}>Jameel Fabrics</div>
+        <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&check()} style={{width:"100%",border:"none",borderBottom:"1px solid #ddd",padding:"10px 0",fontSize:16,color:"#111",outline:"none",textAlign:"center",letterSpacing:4,marginBottom:20,fontFamily:"inherit",background:"transparent",transition:"border-color .2s"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/>
+        <button onClick={check} disabled={loading} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:13,fontSize:11,fontWeight:700,letterSpacing:3,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",textTransform:"uppercase",marginBottom:10,opacity:loading?.6:1}}>
+          {loading?"Checking...":"Unlock"}
+        </button>
+        <button onClick={onCancel} style={{background:"none",border:"none",color:"#aaa",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ ADMIN PANEL (PROFESSIONAL SIDEBAR) ═══ */
+function AdminPanel({onExit}){
+  const[page,setPage]=useState("dashboard");
+  const[collapsed,setCollapsed]=useState(false);
+  const settings=useSettings();
+  const{data:allProds}=useDB(()=>sb.from("products").select("*").order("created_at",{ascending:false}),[]);
+  const{data:pending}=useDB(()=>sb.from("products").select("*").eq("website_status","pending"),[]);
+  const{data:orders}=useDB(()=>sb.from("online_orders").select("*").order("created_at",{ascending:false}),[]);
+  const{data:alerts}=useDB(()=>sb.from("website_alerts").select("*").eq("resolved",false).order("created_at",{ascending:false}),[]);
+  const{data:coupons}=useDB(()=>sb.from("coupons").select("*"),[]);
+  const{data:offers}=useDB(()=>sb.from("website_offers").select("*"),[]);
+  const{data:subs}=useDB(()=>sb.from("subscribers").select("*").order("subscribed_at",{ascending:false}),[]);
+
+  const pCount=pending?.length||0;
+  const aCount=alerts?.length||0;
+  const pendingOrders=orders?.filter(o=>o.status==="pending").length||0;
+
+  function refresh(){window.location.reload();}
+
+  const navItems=[
+    {id:"dashboard",ic:"⊞",lbl:"Dashboard"},
+    {id:"orders",ic:"📋",lbl:"Orders",badge:pendingOrders||0},
+    null,
+    {id:"pending",ic:"⏳",lbl:"Pending (ERP)",badge:pCount,badgeColor:"#c9a84c"},
+    {id:"products",ic:"📦",lbl:"Products"},
+    {id:"alerts",ic:"🔔",lbl:"Stock Alerts",badge:aCount,badgeColor:"#ef4444"},
+    {id:"offers",ic:"🏷️",lbl:"Offers & Deals"},
+    {id:"coupons",ic:"🎟️",lbl:"Coupons"},
+    null,
+    {id:"content",ic:"✏️",lbl:"Website Content"},
+    {id:"subscribers",ic:"✉️",lbl:"Subscribers"},
+    {id:"settings",ic:"⚙️",lbl:"Settings"},
+  ];
+
+  const titles={dashboard:"Dashboard",pending:"Pending Approval",alerts:"Stock Alerts",products:"Products",orders:"Orders",coupons:"Coupons",offers:"Offers & Deals",content:"Website Content",subscribers:"Subscribers",settings:"Settings"};
+
+  const pages={
+    dashboard:<ADash prods={allProds} orders={orders} alerts={alerts} onNav={setPage}/>,
+    pending:<APending pending={pending||[]} onRefresh={refresh}/>,
+    alerts:<AAlerts alerts={alerts||[]} onRefresh={refresh}/>,
+    products:<AProducts products={allProds||[]} onRefresh={refresh}/>,
+    orders:<AOrders orders={orders||[]} wa={settings.wa_number||WA}/>,
+    coupons:<ACoupons coupons={coupons||[]} onRefresh={refresh}/>,
+    offers:<AOffers offers={offers||[]} onRefresh={refresh}/>,
+    content:<AContent settings={settings}/>,
+    subscribers:<ASubs subs={subs||[]}/>,
+    settings:<ASettings settings={settings}/>,
+  };
+
+  const S={
+    sidebar:{width:collapsed?64:240,flexShrink:0,background:"#0f0d0a",height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden",transition:"width .3s ease"},
+    navBtn:(active)=>({display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:6,cursor:"pointer",transition:"all .15s",color:active?"#c9a84c":"rgba(255,255,255,.55)",background:active?"rgba(201,168,76,.15)":"transparent",border:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,whiteSpace:"nowrap",overflow:"hidden"}),
+  };
+
+  return(
+    <div style={{display:"flex",height:"100vh",overflow:"hidden",fontFamily:"Inter,sans-serif"}}>
+      {/* Sidebar */}
+      <aside style={S.sidebar}>
+        <div style={{padding:"18px 14px",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:900,color:"#000"}}>JF</div>
+          {!collapsed&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.35)"}}>Admin Panel</div></div>}
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:8}}>
+          {navItems.map((item,i)=>item===null?(
+            <div key={i} style={{height:1,background:"rgba(255,255,255,.06)",margin:"4px 0"}}/>
+          ):(
+            <button key={item.id} onClick={()=>setPage(item.id)} style={S.navBtn(page===item.id)}>
+              <span style={{fontSize:16,flexShrink:0,width:18,textAlign:"center"}}>{item.ic}</span>
+              {!collapsed&&<span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis"}}>{item.lbl}</span>}
+              {!collapsed&&item.badge>0&&<span style={{background:item.badgeColor||"#ef4444",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:10,fontWeight:700,flexShrink:0}}>{item.badge}</span>}
+            </button>
+          ))}
+        </div>
+        <div style={{padding:"12px 8px",borderTop:"1px solid rgba(255,255,255,.06)",flexShrink:0}}>
+          <button onClick={onExit} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:6,cursor:"pointer",border:"none",background:"none",color:"rgba(255,255,255,.4)",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:12,whiteSpace:"nowrap",overflow:"hidden"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.06)"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <span style={{fontSize:16,flexShrink:0}}>🚪</span>{!collapsed&&"Exit to Store"}
+          </button>
+        </div>
+      </aside>
+      {/* Main */}
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
+        <div style={{height:60,background:"#fff",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 24px",gap:16,flexShrink:0,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>
+          <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div style={{fontSize:16,fontWeight:600,color:"#111",flex:1}}>{titles[page]||page}</div>
+          <button onClick={onExit} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"8px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit"}}>View Store</button>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:24,background:"#f4f5f7"}}>
+          {sb?pages[page]:<div style={{textAlign:"center",padding:60,color:"#9ca3af"}}><div style={{fontSize:36,marginBottom:12}}>⚙️</div><div style={{fontWeight:600}}>Supabase not connected</div><div style={{fontSize:13,marginTop:6}}>Add REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY in Vercel</div></div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══ ADMIN SUB-PAGES ═══ */
+const Btn=(props)=><button {...props} style={{display:"inline-flex",alignItems:"center",gap:6,padding:props.sm?"5px 12px":"8px 16px",borderRadius:6,fontSize:props.sm?12:13,fontWeight:500,cursor:"pointer",border:"none",fontFamily:"inherit",transition:"all .15s",...props.style}}/>;
+const Card=({children,style})=><div style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:12,...style}}>{children}</div>;
+const Label=({children})=><div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>{children}</div>;
+function Inp({...p}){return<input {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",...p.style}} onFocus={e=>{e.target.style.borderColor="#111";if(p.onFocus)p.onFocus(e);}} onBlur={e=>{e.target.style.borderColor="#e5e7eb";if(p.onBlur)p.onBlur(e);}}/>;}
+function Sel({children,...p}){return<select {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",cursor:"pointer",...p.style}}>{children}</select>;}
+const Badge=({children,color})=><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:color==="green"?"#dcfce7":color==="yellow"?"#fef9c3":color==="red"?"#fee2e2":color==="blue"?"#dbeafe":"#f3f4f6",color:color==="green"?"#16a34a":color==="yellow"?"#ca8a04":color==="red"?"#dc2626":color==="blue"?"#2563eb":"#6b7280"}}>{children}</span>;
+
+function ADash({prods,orders,alerts,onNav}){
+  const stats=[{l:"Products",v:prods?.length||0,ic:"📦",bg:"#dbeafe"},{l:"Pending Orders",v:orders?.filter(o=>o.status==="pending").length||0,ic:"📋",bg:"#fef9c3"},{l:"Alerts",v:alerts?.length||0,ic:"🔔",bg:"#fee2e2"},{l:"Total Orders",v:orders?.length||0,ic:"✅",bg:"#dcfce7"}];
+  return(
+    <div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:16,marginBottom:20}}>
+        {stats.map(s=>(
+          <Card key={s.l} style={{padding:20}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
+              <div style={{width:36,height:36,borderRadius:8,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{s.ic}</div>
+            </div>
+            <div style={{fontSize:28,fontWeight:700,color:"#111",fontFamily:"'Playfair Display',serif"}}>{s.v}</div>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",fontSize:15,fontWeight:600}}>Recent Orders</div>
+        <div style={{padding:"8px 0"}}>
+          {!orders?.length?<div style={{padding:"24px",textAlign:"center",color:"#9ca3af",fontSize:13}}>No orders yet</div>:
+            orders.slice(0,5).map(o=>(
+              <div key={o.id} style={{display:"flex",justifyContent:"space-between",padding:"10px 20px",borderBottom:"1px solid #f3f4f6"}}>
+                <div><div style={{fontWeight:600,fontSize:13}}>{o.customer_name||o.customer_email||"Customer"}</div><div style={{fontSize:11,color:"#9ca3af"}}>{new Date(o.created_at).toLocaleString()}</div></div>
+                <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                  <div style={{fontWeight:700}}>Rs.{Number(o.total).toLocaleString()}</div>
+                  <Badge color={o.status==="pending"?"yellow":o.status==="confirmed"?"green":"blue"}>{o.status}</Badge>
+                </div>
+              </div>
+            ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function APending({pending,onRefresh}){
+  async function approve(p){
+    if(!sb)return;
+    await sb.from("products").update({website_status:"approved",active:true}).eq("id",p.id);
+    toast("Approved! Website pe live ✓","success");onRefresh();
+  }
+  async function ignore(p){
+    if(!sb)return;
+    await sb.from("products").update({website_status:"ignored"}).eq("id",p.id);
+    toast("Ignored");onRefresh();
+  }
+  return(
+    <div>
+      <div style={{marginBottom:20}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Pending Approval</div><div style={{fontSize:13,color:"#6b7280"}}>ERP se aaye products — approve ya ignore karo</div></div>
+      {!pending.length?<Card style={{padding:48,textAlign:"center",color:"#9ca3af"}}><div style={{fontSize:36,marginBottom:12}}>✓</div><div style={{fontWeight:600}}>No pending products</div></Card>:
+        pending.map(p=>(
+          <Card key={p.id} style={{padding:16,marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:14}}>
+              <div style={{width:48,height:56,borderRadius:8,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>
+                {(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}
+              </div>
+              <div>
+                <div style={{fontWeight:700,fontSize:15,color:"#111"}}>{p.name}</div>
+                <div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{CAT_L[p.cat]||p.category||""} · Rs.{Number(p.sale_price||p.price||0).toLocaleString()} · Stock: {p.real_stock||p.stock||0}</div>
+                <div style={{display:"flex",gap:6,marginTop:6}}>
+                  <Badge color="">ERP</Badge>
+                  <Badge color="yellow">Pending</Badge>
+                </div>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <Btn onClick={()=>approve(p)} style={{background:"#111",color:"#fff"}}>✓ Approve</Btn>
+              <Btn onClick={()=>ignore(p)} style={{background:"transparent",color:"#6b7280",border:"1px solid #e5e7eb"}}>Ignore</Btn>
+            </div>
+          </Card>
+        ))
+      }
+    </div>
+  );
+}
+
+function AAlerts({alerts,onRefresh}){
+  async function minus(a){
+    if(!sb)return;
+    if(a.product_id){const{data:p}=await sb.from("products").select("real_stock,stock").eq("id",a.product_id).single();if(p)await sb.from("products").update({real_stock:Math.max(0,(p.real_stock||p.stock||0)-1)}).eq("id",a.product_id);}
+    await sb.from("website_alerts").update({resolved:true}).eq("id",a.id);
+    toast("-1 Stock done","success");onRefresh();
+  }
+  async function remove(a){
+    if(!sb)return;
+    if(a.product_id)await sb.from("products").update({active:false,website_status:"removed"}).eq("id",a.product_id);
+    await sb.from("website_alerts").update({resolved:true}).eq("id",a.id);
+    toast("Removed from website","success");onRefresh();
+  }
+  async function resolve(a){
+    if(!sb)return;
+    await sb.from("website_alerts").update({resolved:true}).eq("id",a.id);
+    toast("Resolved");onRefresh();
+  }
+  return(
+    <div>
+      <div style={{marginBottom:20}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Stock Alerts</div><div style={{fontSize:13,color:"#6b7280"}}>ERP pe sale hone ke baad updates</div></div>
+      {!alerts.length?<Card style={{padding:48,textAlign:"center",color:"#9ca3af"}}><div style={{fontSize:36,marginBottom:12}}>✓</div><div style={{fontWeight:600}}>No alerts</div></Card>:
+        alerts.map(a=>(
+          <div key={a.id} style={{background:"#fff",border:"1px solid #e5e7eb",borderLeft:"3px solid "+(a.alert_type==="sold"||a.type==="sold_out"?"#ef4444":"#f59e0b"),borderRadius:8,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div style={{width:36,height:36,borderRadius:8,background:a.alert_type==="sold"||a.type==="sold_out"?"#fee2e2":"#fef3c7",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{a.alert_type==="sold"||a.type==="sold_out"?"❌":"⚠️"}</div>
+              <div>
+                <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{a.product_name}</div>
+                <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{a.message}</div>
+                {a.qty_remaining!=null&&<div style={{fontSize:11,color:"#ef4444",fontWeight:700,marginTop:2}}>Remaining: {a.qty_remaining}</div>}
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              <Btn onClick={()=>minus(a)} style={{background:"#fee2e2",color:"#dc2626"}} sm>-1 Stock</Btn>
+              <Btn onClick={()=>remove(a)} style={{background:"#111",color:"#fff"}} sm>Remove</Btn>
+              <Btn onClick={()=>resolve(a)} style={{background:"transparent",color:"#9ca3af",border:"1px solid #e5e7eb"}} sm>Ignore</Btn>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+function AProducts({products,onRefresh}){
+  const[editP,setEditP]=useState(null);
+  const[form,setForm]=useState({});
+  function open(p){setEditP(p);setForm({...p,sizes:(p.sizes||[]).join(",")});}
+  async function save(){
+    if(!sb||!form.name){toast("Name required","error");return;}
+    const data={...form,sizes:form.sizes?form.sizes.split(",").map(s=>s.trim()).filter(Boolean):[],active:form.active!==false,website_status:form.website_status||"approved"};
+    if(editP?.id&&editP.id!=="new")await sb.from("products").update(data).eq("id",editP.id);
+    else await sb.from("products").insert({...data,website_status:"approved",active:true});
+    toast("Saved!","success");setEditP(null);onRefresh();
+  }
+  async function toggle(p){if(!sb)return;await sb.from("products").update({active:!p.active}).eq("id",p.id);onRefresh();}
+  async function del(p){if(!sb||!window.confirm("Delete "+p.name+"?"))return;await sb.from("products").delete().eq("id",p.id);toast("Deleted");onRefresh();}
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Products</div><div style={{fontSize:13,color:"#6b7280"}}>{products.length} total</div></div>
+        <Btn onClick={()=>open({id:"new"})} style={{background:"#111",color:"#fff"}}>+ Add Product</Btn>
+      </div>
+      {editP&&(
+        <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+          <div style={{background:"#fff",width:"100%",maxWidth:620,maxHeight:"90vh",overflowY:"auto",borderRadius:12,boxShadow:"0 25px 50px rgba(0,0,0,.25)"}}>
+            <div style={{padding:"20px 24px",borderBottom:"1px solid #e5e7eb",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"#fff",zIndex:1}}>
+              <div style={{fontSize:16,fontWeight:600}}>{editP.id==="new"?"Add Product":"Edit Product"}</div>
+              <button onClick={()=>setEditP(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:"#9ca3af"}}>✕</button>
+            </div>
+            <div style={{padding:24}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+                <div><Label>Name *</Label><Inp value={form.name||""} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Product name"/></div>
+                <div><Label>Category</Label><Sel value={form.cat||"WU"} onChange={e=>setForm({...form,cat:e.target.value})}><option value="WU">Women Unstitched</option><option value="WS">Women Stitched</option><option value="M">Men's Unstitched</option><option value="K">Kids</option></Sel></div>
+                <div><Label>Price (Rs.) *</Label><Inp type="number" value={form.sale_price||form.price||""} onChange={e=>setForm({...form,sale_price:e.target.value,price:e.target.value})} placeholder="3500"/></div>
+                <div><Label>Old Price (Sale)</Label><Inp type="number" value={form.old_price||""} onChange={e=>setForm({...form,old_price:e.target.value})} placeholder="Leave empty"/></div>
+                <div><Label>Discount %</Label><Inp type="number" placeholder="e.g. 20 → auto" onChange={e=>{const d=parseFloat(e.target.value);if(d&&(form.sale_price||form.price)){const orig=parseFloat(form.sale_price||form.price);setForm({...form,old_price:orig,sale_price:Math.round(orig*(1-d/100)),price:Math.round(orig*(1-d/100))});}}}/></div>
+                <div><Label>Real Stock (hidden)</Label><Inp type="number" value={form.real_stock||""} onChange={e=>setForm({...form,real_stock:e.target.value})} placeholder="10"/></div>
+                <div style={{gridColumn:"1/-1"}}><Label>Display Stock Text</Label><Inp value={form.display_stock_text||""} onChange={e=>setForm({...form,display_stock_text:e.target.value})} placeholder="e.g. Last 5 Pieces!"/></div>
+                <div><Label>Badge</Label><Sel value={form.badge||""} onChange={e=>setForm({...form,badge:e.target.value})}><option value="">None</option><option>NEW</option><option>SALE</option><option>HOT</option></Sel></div>
+                <div><Label>Sizes (comma separated)</Label><Inp value={form.sizes||""} onChange={e=>setForm({...form,sizes:e.target.value})} placeholder="S,M,L,XL"/></div>
+                <div style={{gridColumn:"1/-1"}}><Label>Color / Description</Label><Inp value={form.color||""} onChange={e=>setForm({...form,color:e.target.value})}/></div>
+              </div>
+              <div style={{marginTop:14}}><Label>Product Images (5 slots)</Label>
+                {[1,2,3,4,5].map(n=>(
+                  <div key={n} style={{display:"flex",alignItems:"center",gap:10,marginTop:8}}>
+                    <div style={{width:40,height:48,background:"#f5f5f5",border:"1px solid "+(form["img"+n]||form["photo_url"+(n===1?"":n)]?"#111":"#e5e7eb"),borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:n===1?18:14,flexShrink:0,overflow:"hidden"}}>
+                      {(form["img"+n]||form["photo_url"+(n===1?"":n)])?<img src={form["img"+n]||form["photo_url"+(n===1?"":n)]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(n===1?"🖼️":"+")}
+                    </div>
+                    <Inp value={form["img"+n]||form["photo_url"+(n===1?"":n)]||""} onChange={e=>setForm({...form,["img"+n]:e.target.value,["photo_url"+(n===1?"":n)]:e.target.value})} placeholder={"Image "+n+(n===1?" (main)":"")}/>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:14}}><Label>WA Order Note</Label><textarea value={form.note||""} onChange={e=>setForm({...form,note:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:60,resize:"vertical"}} placeholder="Note for WhatsApp order..."/></div>
+              <div style={{display:"flex",gap:20,marginTop:14}}>
+                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.active!==false} onChange={e=>setForm({...form,active:e.target.checked})} style={{accentColor:"#111"}}/>Show on website</label>
+                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.featured||false} onChange={e=>setForm({...form,featured:e.target.checked})} style={{accentColor:"#111"}}/>Featured</label>
+              </div>
+            </div>
+            <div style={{padding:"16px 24px",borderTop:"1px solid #e5e7eb",display:"flex",justifyContent:"flex-end",gap:8,position:"sticky",bottom:0,background:"#fff"}}>
+              <Btn onClick={()=>setEditP(null)} style={{background:"transparent",color:"#6b7280",border:"1px solid #e5e7eb"}}>Cancel</Btn>
+              <Btn onClick={save} style={{background:"#111",color:"#fff"}}>💾 Save</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+      <Card>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Product","Category","Price","Stock Text","Status","Actions"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {products.map(p=>(
+                <tr key={p.id} style={{borderBottom:"1px solid #f3f4f6"}}>
+                  <td style={{padding:"12px 16px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{width:40,height:48,borderRadius:6,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>
+                        {(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}
+                      </div>
+                      <div><div style={{fontWeight:600,fontSize:13}}>{p.name}</div><div style={{fontSize:11,color:"#9ca3af"}}>{p.color||""}</div></div>
+                    </div>
+                  </td>
+                  <td style={{padding:"12px 16px",fontSize:12,color:"#6b7280"}}>{CAT_L[p.cat]||p.category||""}</td>
+                  <td style={{padding:"12px 16px"}}><div style={{fontWeight:600,color:p.old_price?"#c0392b":"#111"}}>Rs.{Number(p.sale_price||p.price||0).toLocaleString()}</div>{p.old_price&&<div style={{fontSize:11,textDecoration:"line-through",color:"#9ca3af"}}>Rs.{Number(p.old_price).toLocaleString()}</div>}</td>
+                  <td style={{padding:"12px 16px",fontSize:12,color:"#888",fontStyle:"italic"}}>{p.display_stock_text||"In Stock"}</td>
+                  <td style={{padding:"12px 16px"}}><Badge color={p.active?"green":""}>{p.active?"Active":"Hidden"}</Badge></td>
+                  <td style={{padding:"12px 16px"}}><div style={{display:"flex",gap:4}}>
+                    <Btn onClick={()=>open(p)} style={{background:"transparent",border:"1px solid #e5e7eb",color:"#374151"}} sm>Edit</Btn>
+                    <Btn onClick={()=>toggle(p)} style={{background:"transparent",border:"1px solid #e5e7eb",color:"#374151"}} sm>{p.active?"Hide":"Show"}</Btn>
+                    <Btn onClick={()=>del(p)} style={{background:"#fee2e2",color:"#dc2626"}} sm>Del</Btn>
+                  </div></td>
+                </tr>
+              ))}
+              {!products.length&&<tr><td colSpan={6} style={{padding:40,textAlign:"center",color:"#9ca3af"}}>No products yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function AOrders({orders,wa}){
+  async function upd(id,status){if(!sb)return;await sb.from("online_orders").update({status}).eq("id",id);toast("Status: "+status,"success");window.location.reload();}
+  return(
+    <div>
+      <div style={{marginBottom:20}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Orders</div><div style={{fontSize:13,color:"#6b7280"}}>WhatsApp se aaye orders</div></div>
+      <Card>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Order","Customer","Items","Total","Status","Date","Actions"].map(h=><th key={h} style={{padding:"10px 14px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {orders.map(o=>(
+                <tr key={o.id} style={{borderBottom:"1px solid #f3f4f6"}}>
+                  <td style={{padding:"12px 14px",fontWeight:700,color:"#c9a84c",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</td>
+                  <td style={{padding:"12px 14px"}}><div style={{fontWeight:600,fontSize:13}}>{o.customer_name||"Customer"}</div><div style={{fontSize:11,color:"#9ca3af"}}>{o.customer_email||""}</div></td>
+                  <td style={{padding:"12px 14px",fontSize:12,color:"#6b7280"}}>{(o.items||[]).length} items</td>
+                  <td style={{padding:"12px 14px",fontWeight:700}}>Rs.{Number(o.total).toLocaleString()}</td>
+                  <td style={{padding:"12px 14px"}}><Badge color={o.status==="pending"?"yellow":o.status==="confirmed"?"green":"blue"}>{o.status}</Badge></td>
+                  <td style={{padding:"12px 14px",fontSize:11,color:"#9ca3af"}}>{new Date(o.created_at).toLocaleDateString()}</td>
+                  <td style={{padding:"12px 14px"}}><div style={{display:"flex",gap:4}}>
+                    {o.status==="pending"&&<Btn onClick={()=>upd(o.id,"confirmed")} style={{background:"#dcfce7",color:"#16a34a"}} sm>Confirm</Btn>}
+                    {o.status==="confirmed"&&<Btn onClick={()=>upd(o.id,"delivered")} style={{background:"#dbeafe",color:"#2563eb"}} sm>Delivered</Btn>}
+                    <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer"><Btn style={{background:"#25D366",color:"#fff"}} sm>WA</Btn></a>
+                  </div></td>
+                </tr>
+              ))}
+              {!orders.length&&<tr><td colSpan={7} style={{padding:48,textAlign:"center",color:"#9ca3af"}}>No orders yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ACoupons({coupons,onRefresh}){
+  const[form,setForm]=useState({code:"",type:"percent",value:"",min_order:"",max_uses:"",expires_at:"",category_filter:"all",active:true});
+  async function save(){
+    if(!sb||!form.code||!form.value){toast("Code and value required","error");return;}
+    await sb.from("coupons").insert({...form,code:form.code.toUpperCase(),value:parseFloat(form.value),min_order:parseFloat(form.min_order)||0,max_uses:parseInt(form.max_uses)||null,expires_at:form.expires_at||null});
+    toast("Coupon created!","success");setForm({code:"",type:"percent",value:"",min_order:"",max_uses:"",expires_at:"",category_filter:"all",active:true});onRefresh();
+  }
+  async function del(id){if(!sb||!window.confirm("Delete?"))return;await sb.from("coupons").delete().eq("id",id);onRefresh();}
+  return(
+    <div>
+      <div style={{marginBottom:20}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Coupons</div></div>
+      <Card style={{padding:20,marginBottom:20}}>
+        <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Create Coupon</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+          <div style={{gridColumn:"1/-1"}}><Label>Code *</Label><Inp value={form.code} onChange={e=>setForm({...form,code:e.target.value.toUpperCase()})} placeholder="e.g. SAVE20" style={{fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}/></div>
+          <div><Label>Type</Label><Sel value={form.type} onChange={e=>setForm({...form,type:e.target.value})}><option value="percent">Percentage (%)</option><option value="flat">Fixed (Rs.)</option></Sel></div>
+          <div><Label>Value *</Label><Inp type="number" value={form.value} onChange={e=>setForm({...form,value:e.target.value})} placeholder={form.type==="percent"?"20":"500"}/></div>
+          <div><Label>Min Order (Rs.)</Label><Inp type="number" value={form.min_order} onChange={e=>setForm({...form,min_order:e.target.value})} placeholder="2000"/></div>
+          <div><Label>Expiry Date</Label><Inp type="date" value={form.expires_at} onChange={e=>setForm({...form,expires_at:e.target.value})}/></div>
+        </div>
+        <Btn onClick={save} style={{background:"#111",color:"#fff",marginTop:14}}>+ Create</Btn>
+      </Card>
+      {coupons.map(c=>(
+        <Card key={c.id} style={{padding:"16px 20px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+          <div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,letterSpacing:2}}>{c.code}</div>
+            <div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>{c.type==="percent"?c.value+"%":"Rs."+c.value} off{c.min_order?" · Min Rs."+c.min_order:""}{c.expires_at?" · Expires "+new Date(c.expires_at).toLocaleDateString():""}</div>
+            <div style={{display:"flex",gap:6,marginTop:6}}><Badge color={c.active?"green":""}>{c.active?"Active":"Inactive"}</Badge><Badge color="">{c.used_count||0} used</Badge></div>
+          </div>
+          <Btn onClick={()=>del(c.id)} style={{background:"#fee2e2",color:"#dc2626"}}>Delete</Btn>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function AOffers({offers,onRefresh}){
+  const types=[{id:"disc",ic:"🏷️",lbl:"Discounted Offers"},{id:"sale",ic:"⚡",lbl:"Limited Sale"},{id:"lc",ic:"⏰",lbl:"Last Chance"}];
+  async function add(type){const t=window.prompt("Title:");if(!t||!sb)return;const d=window.prompt("Description:")||"";const e=window.prompt("Emoji:","🏷️")||"🏷️";await sb.from("website_offers").insert({type,title:t,description:d,emoji:e,active:true});toast("Added!","success");onRefresh();}
+  async function del(id){if(!sb||!window.confirm("Delete?"))return;await sb.from("website_offers").delete().eq("id",id);onRefresh();}
+  return(
+    <div>
+      <div style={{marginBottom:20}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Offers & Deals</div></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
+        {types.map(t=>(
+          <Card key={t.id} style={{padding:20}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+              <div style={{fontSize:14,fontWeight:600}}>{t.ic} {t.lbl}</div>
+              <Btn onClick={()=>add(t.id)} style={{background:"#111",color:"#fff"}} sm>+ Add</Btn>
+            </div>
+            {offers.filter(o=>o.type===t.id).map(o=>(
+              <div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:10,background:"#f9fafb",borderRadius:6,marginBottom:6}}>
+                <div><div style={{fontWeight:600,fontSize:13}}>{o.emoji} {o.title}</div>{o.description&&<div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{o.description}</div>}</div>
+                <button onClick={()=>del(o.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#ef4444",fontSize:18,lineHeight:1}}>×</button>
+              </div>
+            ))}
+            {!offers.filter(o=>o.type===t.id).length&&<div style={{fontSize:12,color:"#9ca3af",textAlign:"center",padding:12}}>No offers</div>}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AContent({settings}){
+  const[f,setF]=useState({});
+  useEffect(()=>setF({...settings}),[settings]);
+  async function save(){
+    if(!sb)return;
+    await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));
+    toast("Saved!","success");
+  }
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Website Content</div></div>
+        <Btn onClick={save} style={{background:"#111",color:"#fff"}}>💾 Save All</Btn>
+      </div>
+      {[
+        {title:"📢 Announcement Bar",fields:[["announcement","Messages (pipe | separated)","✦ New Arrivals|✦ Fast Delivery"]]},
+        {title:"🏠 Hero Section",fields:[["hlabel","Hero Label","Winter Collection 2026"],["hsub","Tagline","Exclusive · Elegant · Pakistani"],["about","About Text","",true]]},
+        {title:"🎬 Video Section",fields:[["video_label","Label","Featured"],["video_title","Title","Watch Our Collection"],["video_url","YouTube or MP4 URL",""]]},
+      ].map(sec=>(
+        <Card key={sec.title} style={{padding:20,marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>{sec.title}</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            {sec.fields.map(([k,lbl,ph,full])=>(
+              <div key={k} style={full?{gridColumn:"1/-1"}:{}}>
+                <Label>{lbl}</Label>
+                {full?<textarea value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/>:<Inp value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})} placeholder={ph}/>}
+              </div>
+            ))}
+          </div>
+          {sec.title.includes("Video")&&(
+            <div style={{marginTop:12}}>
+              <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
+                <input type="checkbox" checked={f.video_show==="true"||f.video_show===true} onChange={e=>setF({...f,video_show:String(e.target.checked)})} style={{accentColor:"#111"}}/>
+                Show video section on website
+              </label>
+            </div>
+          )}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function ASubs({subs}){
+  function exportCSV(){const csv="Email,Date"+subs.map(s=>s.email+","+new Date(s.subscribed_at).toLocaleDateString()).join("");const a=document.createElement("a");a.href="data:text/csv,"+encodeURIComponent(csv);a.download="subscribers.csv";a.click();}
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4}}>Subscribers</div><div style={{fontSize:13,color:"#6b7280"}}>{subs.length} total</div></div>
+        <Btn onClick={exportCSV} style={{background:"transparent",color:"#374151",border:"1px solid #e5e7eb"}}>Export CSV</Btn>
+      </div>
+      <Card>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Email","Subscribed","Status"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {subs.map(s=>(
+                <tr key={s.id} style={{borderBottom:"1px solid #f3f4f6"}}>
+                  <td style={{padding:"12px 16px",fontWeight:500,fontSize:13}}>{s.email}</td>
+                  <td style={{padding:"12px 16px",fontSize:12,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</td>
+                  <td style={{padding:"12px 16px"}}><Badge color={s.active?"green":""}>{s.active?"Active":"Unsubscribed"}</Badge></td>
+                </tr>
+              ))}
+              {!subs.length&&<tr><td colSpan={3} style={{padding:48,textAlign:"center",color:"#9ca3af"}}>No subscribers yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ASettings({settings}){
+  const[f,setF]=useState({});
+  const[np,setNp]=useState("");
+  const[cp,setCp]=useState("");
+  useEffect(()=>setF({...settings}),[settings]);
+  async function save(){if(!sb)return;await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));toast("Saved!","success");}
+  async function chgPass(){if(!np||np.length<6){toast("Min 6 chars","error");return;}if(np!==cp){toast("Passwords don't match","error");return;}if(sb)await sb.from("website_settings").upsert({key:"admin_pass",value:np},{onConflict:"key"});toast("Password changed!","success");setNp("");setCp("");}
+  async function backup(){const{data:p}=sb?await sb.from("products").select("*"):{data:[]};const{data:s}=sb?await sb.from("website_settings").select("*"):{data:[]};const d=JSON.stringify({v:1,ts:new Date().toISOString(),products:p,settings:s},null,2);const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(d);a.download="jf-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("Downloaded!","success");}
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif"}}>Settings</div>
+        <Btn onClick={save} style={{background:"#111",color:"#fff"}}>💾 Save</Btn>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,alignItems:"start"}}>
+        <div>
+          <Card style={{padding:20,marginBottom:16}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>🏪 Store Info</div>
+            <div style={{display:"grid",gap:12}}>
+              {[["store_name","Store Name"],["wa_number","WhatsApp (923...)"],["phone","Phone"],["addr1","Address 1"],["addr2","Address 2"],["hours","Business Hours"]].map(([k,lbl])=>(
+                <div key={k}><Label>{lbl}</Label><Inp value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})}/></div>
+              ))}
+            </div>
+          </Card>
+          <Card style={{padding:20}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>📱 Social Links</div>
+            <div style={{display:"grid",gap:12}}>
+              {[["insta","Instagram URL"],["tiktok","TikTok URL"],["fb","Facebook URL"]].map(([k,lbl])=>(
+                <div key={k}><Label>{lbl}</Label><Inp value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})} placeholder={"https://...com/..."}/></div>
+              ))}
+            </div>
+          </Card>
+        </div>
+        <div>
+          <Card style={{padding:20,marginBottom:16}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:6}}>🔗 Supabase Status</div>
+            <div style={{background:"#f9fafb",borderRadius:8,padding:12,fontSize:12,color:"#6b7280",marginBottom:8}}>{SURL?"✅ Connected":"❌ Not connected — add env vars in Vercel"}</div>
+            {SURL&&<div style={{fontSize:11,color:"#9ca3af",wordBreak:"break-all"}}>{SURL}</div>}
+          </Card>
+          <Card style={{padding:20,marginBottom:16}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>🔑 Change Password</div>
+            <div style={{display:"grid",gap:12}}>
+              <div><Label>New Password</Label><Inp type="password" value={np} onChange={e=>setNp(e.target.value)} placeholder="Min 6 characters"/></div>
+              <div><Label>Confirm Password</Label><Inp type="password" value={cp} onChange={e=>setCp(e.target.value)}/></div>
+            </div>
+            <Btn onClick={chgPass} style={{background:"#111",color:"#fff",marginTop:12}}>Change</Btn>
+          </Card>
+          <Card style={{padding:20}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>💾 Backup</div>
+            <Btn onClick={backup} style={{background:"#fef3c7",color:"#92400e"}}>⬇️ Download Backup</Btn>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══ MAIN APP ═══ */
+export default function App(){
+  const[view,setView]=useState("intro");
+  const[showAdminLogin,setShowAdminLogin]=useState(false);
+  const[user,setUser]=useState(null);
+  const toasts=useToast();
+
   useEffect(()=>{
-    if(!supabase) return;
-    supabase.from("products").select("*").eq("website_status","approved").eq("active",true).then(({data})=>{
-      if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));
-    });
-    supabase.from("reviews").select("*").then(({data})=>{if(data?.length)setReviews(data);});
-    const ch=supabase.channel("shop").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{supabase.from("products").select("*").eq("website_status","approved").eq("active",true).then(({data})=>{if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));});}).subscribe();
-    return()=>supabase.removeChannel(ch);
+    if(!sb)return;
+    sb.auth.getSession().then(({data:{session}})=>setUser(session?.user||null));
+    const{data:{subscription}}=sb.auth.onAuthStateChange((_e,s)=>setUser(s?.user||null));
+    return()=>subscription.unsubscribe();
   },[]);
 
-  const addCart=useCallback(p=>{
-    setCart(c=>{const ex=c.find(x=>x.id===p.id);const price=p.offerPrice&&p.offerPrice<p.salePrice?p.offerPrice:p.salePrice;if(ex)return c.map(x=>x.id===p.id?{...x,qty:x.qty+1}:x);return[...c,{id:p.id,name:p.website_title||p.name,color:p.color,price,qty:1,photo:p.photo_url}];});
+  useEffect(()=>{
+    if(!sb)return;
+    const ch=sb.channel("global_alerts").on("postgres_changes",{event:"INSERT",schema:"public",table:"website_alerts"},payload=>{
+      toast("🔔 "+(payload.new?.message||"New stock alert!"));
+    }).subscribe();
+    return()=>sb.removeChannel(ch);
   },[]);
-  const toggleWish=useCallback(id=>setWishlist(w=>w.includes(id)?w.filter(x=>x!==id):[...w,id]),[]);
-  const openProd=useCallback(p=>{setSelProd(p);if(supabase)supabase.from("products").update({views:(p.views||0)+1}).eq("id",p.id);},[]);
-  const addReview=async r=>{setReviews(prev=>[...prev,r]);if(supabase)await supabase.from("reviews").insert({id:r.id,product_id:r.product_id,product_name:r.product_name,customer_name:r.name,rating:r.rating,comment:r.comment,date:r.date,verified:false});};
 
-  const filtered=products.filter(p=>(cat==="All"||(p.website_category||p.category)===cat)&&(!search||(p.name?.toLowerCase().includes(search.toLowerCase())||p.color?.toLowerCase().includes(search.toLowerCase())||p.brand?.toLowerCase().includes(search.toLowerCase()))));
-  const wishProds=products.filter(p=>wishlist.includes(p.id));
-
-  // Secret admin: 5 clicks bottom-left
-  const handleSecretClick=()=>{setAdminClicks(n=>{if(n+1>=5){setShowAdminLogin(true);return 0;}return n+1;});};
+  async function logout(){
+    if(sb)await sb.auth.signOut();
+    setUser(null);
+    toast("Logged out");
+    setView("store");
+  }
 
   return(
     <>
-      <style>{G}</style>
-      <style>{`@media(min-width:769px){.show-mob{display:none!important}}`}</style>
-
-      {/* Website */}
-      <div>
-        <AnnouncementBar texts={settings.announcements}/>
-
-        {/* Discount Banner */}
-        {settings.discountBannerActive&&settings.discountBanner&&(
-          <div style={{background:"linear-gradient(135deg,#b91c1c,#dc2626)",padding:"10px",textAlign:"center",fontSize:"12px",fontWeight:"700",color:"#fff",letterSpacing:"2px",fontFamily:"'Jost',sans-serif",position:"relative",zIndex:99}}>🔥 {settings.discountBanner} 🔥</div>
-        )}
-
-        <Navbar cart={cart} wishlist={wishlist} page={page} setPage={setPage} cat={cat} setCat={setCat} search={search} setSearch={setSearch} customer={customer} setShowLogin={setShowLogin} setShowCart={setShowCart} settings={settings} setShowSearch={setShowSearch} showSearch={showSearch} setShowTrack={setShowTrack}/>
-
-        {page==="home"&&<>
-          <Hero settings={settings} setCat={setCat} setPage={setPage}/>
-
-          {/* Category pills */}
-          <div style={{background:"#fff",borderBottom:"1px solid #d4a84322",padding:"14px clamp(16px,4vw,48px)",overflowX:"auto"}}>
-            <div style={{display:"flex",gap:"6px",justifyContent:"center",minWidth:"max-content",margin:"0 auto"}}>
-              {CATS.map(c=>{
-                const active = cat===c;
-                return(
-                  <button key={c} onClick={()=>{setCat(c);setPage("shop");}} style={{display:"flex",alignItems:"center",gap:"8px",padding:"10px 18px",border:`1px solid ${active?"#b8922a":"#d4a84322"}`,background:active?"#1a1208":"transparent",cursor:"pointer",transition:"all 0.25s",whiteSpace:"nowrap",transform:active?"translateY(-1px)":"none",boxShadow:active?"0 4px 16px rgba(26,18,8,0.15)":"none"}}>
-                    <span style={{color:active?"#d4a843":"#b8922a",flexShrink:0}}>
-                      <CatIcon type={c} size={18} color={active?"#d4a843":"#b8922a"}/>
-                    </span>
-                    <span style={{fontSize:"10px",fontWeight:"600",color:active?"#d4a843":"#8a7a5a",letterSpacing:"1px",textTransform:"uppercase",fontFamily:"'Jost',sans-serif"}}>
-                      {c==="All"?"All Collections":c}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Collections by category */}
-          {CATS.filter(c=>c!=="All").map(c=>{
-            const cp=products.filter(p=>p.website_status==="listed"&&(p.website_category||p.category)===c).slice(0,4);
-            if(!cp.length)return null;
-            return(
-              <section key={c} style={{padding:"clamp(48px,7vw,90px) clamp(16px,4vw,48px)",borderTop:"1px solid #d4a84322"}}>
-                <div style={{maxWidth:"1400px",margin:"0 auto"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"clamp(24px,4vw,48px)"}}>
-                    <div>
-                      <div className="reveal" style={{fontSize:"9px",color:"#b8922a",letterSpacing:"4px",marginBottom:"8px",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Collection</div>
-                      <h2 className="reveal" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,38px)",fontWeight:"700",color:"#1a1208",animationDelay:"0.1s"}}>{c}</h2>
-                    </div>
-                    <button onClick={()=>{setCat(c);setPage("shop");}} style={{background:"none",border:"none",color:"#b8922a",fontSize:"11px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"6px",padding:"8px 0",borderBottom:"1px solid #b8922a",transition:"gap 0.2s"}} onMouseEnter={e=>e.currentTarget.style.gap="10px"} onMouseLeave={e=>e.currentTarget.style.gap="6px"}>VIEW ALL →</button>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
-                    {cp.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
-                  </div>
-                </div>
-              </section>
-            );
-          })}
-
-          <VideoSection settings={settings}/>
-          <About settings={settings}/>
-          <Policies settings={settings}/>
-          <Location settings={settings}/>
-
-          {/* Features */}
-          <section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,48px)",background:"#fff",borderTop:"1px solid #d4a84322"}}>
-            <div style={{maxWidth:"1000px",margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
-              {[["✨","Exclusive","Every piece is unique"],["🧵","Premium Quality","Finest Pakistani fabrics"],["📱","Easy Booking","Book via WhatsApp"],["🔄","Exchange","3-day exchange policy"],["🚀","Fast Delivery","Pakistan-wide delivery"],["💯","Trusted","Kunjah's premium store"]].map(([ic,t,d])=>(
-                <TiltCard key={t} className="reveal" style={{background:"var(--cream2)",border:"1px solid #d4a84322",padding:"clamp(16px,2vw,22px)",textAlign:"center"}}>
-                  <div style={{fontSize:"28px",marginBottom:"10px"}}>{ic}</div>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontWeight:"700",color:"#1a1208",marginBottom:"6px",fontSize:"14px"}}>{t}</div>
-                  <div style={{fontSize:"12px",color:"#8a7a5a",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}>{d}</div>
-                </TiltCard>
-              ))}
-            </div>
-          </section>
-
-          <Footer settings={settings} setShowTrack={setShowTrack}/>
-        </>}
-
-        {page==="shop"&&<>
-          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
-            <div style={{maxWidth:"1400px",margin:"0 auto"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"28px",flexWrap:"wrap",gap:"12px"}}>
-                <div>
-                  <div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"4px",marginBottom:"6px",fontFamily:"'Jost',sans-serif"}}>COLLECTION</div>
-                  <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,42px)",fontWeight:"700",color:"#1a1208"}}>{cat==="All"?"All Collections":cat}</h1>
-                  <p style={{color:"#8a7a5a",fontSize:"12px",marginTop:"4px",fontFamily:"'Jost',sans-serif",letterSpacing:"1px"}}>{filtered.length} pieces</p>
-                </div>
-                <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
-                  {CATS.map(c=><button key={c} onClick={()=>setCat(c)} style={{background:cat===c?"#1a1208":"transparent",color:cat===c?"#d4a843":"#8a7a5a",border:`1px solid ${cat===c?"#1a1208":"#d4a84333"}`,padding:"7px 16px",fontSize:"9px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",transition:"all 0.2s",fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>{c==="All"?"ALL":c.toUpperCase()}</button>)}
-                </div>
-              </div>
-              {filtered.length===0
-                ?<div style={{textAlign:"center",padding:"80px",color:"#8a7a5a"}}><div style={{fontSize:"48px",marginBottom:"16px"}}>🔍</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",color:"#1a1208",marginBottom:"8px"}}>No products found</div><button onClick={()=>{setSearch("");setCat("All");}} style={{background:"none",border:"1px solid #b8922a",color:"#b8922a",padding:"8px 20px",fontSize:"10px",cursor:"pointer",fontFamily:"'Jost',sans-serif",letterSpacing:"2px"}}>CLEAR FILTERS</button></div>
-                :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
-                  {filtered.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
-                </div>
-              }
-            </div>
-          </section>
-          <Footer settings={settings} setShowTrack={setShowTrack}/>
-        </>}
-
-        {page==="wishlist"&&<>
-          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
-            <div style={{maxWidth:"1400px",margin:"0 auto"}}>
-              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,42px)",fontWeight:"700",color:"#1a1208",marginBottom:"28px"}}>My Wishlist</h1>
-              {wishProds.length===0
-                ?<div style={{textAlign:"center",padding:"80px",color:"#8a7a5a"}}><div style={{fontSize:"48px",marginBottom:"16px"}}>🤍</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",color:"#1a1208"}}>Your wishlist is empty</div></div>
-                :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"clamp(14px,2vw,24px)"}}>
-                  {wishProds.map((p,i)=><ProdCard key={p.id} p={p} onView={openProd} onAdd={addCart} wishlist={wishlist} toggleWish={toggleWish} i={i}/>)}
-                </div>
-              }
-            </div>
-          </section>
-          <Footer settings={settings} setShowTrack={setShowTrack}/>
-        </>}
-
-        {page==="account"&&customer&&<>
-          <section style={{padding:"clamp(32px,5vw,60px) clamp(16px,4vw,48px)",minHeight:"70vh"}}>
-            <div style={{maxWidth:"500px",margin:"0 auto"}}>
-              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,4vw,36px)",fontWeight:"700",color:"#1a1208",marginBottom:"28px"}}>My Account</h1>
-              <div style={{background:"#fff",border:"1px solid #d4a84322",padding:"24px"}}>
-                {[["👤","Name",customer.name],["📞","Phone",customer.phone],["🏙️","City",customer.city],["📍","Address",customer.address]].map(([ic,l,v])=>(
-                  <div key={l} style={{display:"flex",gap:"12px",padding:"12px 0",borderBottom:"1px solid #d4a84311"}}>
-                    <span style={{fontSize:"18px"}}>{ic}</span>
-                    <div><div style={{fontSize:"9px",color:"#b8922a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"2px",fontFamily:"'Jost',sans-serif"}}>{l}</div><div style={{color:"#1a1208",fontSize:"14px",fontFamily:"'Cormorant Garamond',serif"}}>{v||"—"}</div></div>
-                  </div>
-                ))}
-                <button onClick={()=>{LS.set("customer",null);setCustomer(null);setPage("home");}} style={{marginTop:"16px",background:"none",border:"1px solid #dc2626",padding:"10px 20px",color:"#dc2626",cursor:"pointer",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",fontFamily:"'Jost',sans-serif"}}>SIGN OUT</button>
-              </div>
-            </div>
-          </section>
-          <Footer settings={settings} setShowTrack={setShowTrack}/>
-        </>}
-
-        {/* Modals */}
-        {selProd&&<ProdModal p={selProd} onClose={()=>setSelProd(null)} wishlist={wishlist} toggleWish={toggleWish} onAdd={addCart} reviews={reviews} onReview={addReview} settings={settings}/>}
-        {showCart&&<Cart cart={cart} setCart={setCart} onClose={()=>setShowCart(false)} customer={customer} setShowLogin={setShowLogin} setShowCheckout={setShowCheckout} settings={settings} coupon={coupon} setCoupon={setCoupon}/>}
-        {showCheckout&&customer&&<Checkout cart={cart} customer={customer} onClose={()=>setShowCheckout(false)} settings={settings} coupon={coupon}/>}
-        {showAuthModal&&<AuthModal mode={showAuthModal} onClose={()=>setShowAuthModal(null)} onSuccess={()=>setShowAuthModal(null)}/>}
-        {showTrack&&<Tracking onClose={()=>setShowTrack(false)}/>}
-        {showAccount&&authUser&&<AccountPage user={authUser} onBack={()=>setShowAccount(false)}/>}
-        {showAdmin&&<AdminPanel products={products} setProducts={setProducts} reviews={reviews} settings={settings} setSettings={setSettings} onClose={()=>setShowAdmin(false)}/>}
-
-        {/* Admin Login — hidden */}
-        {showAdminLogin&&!showAdmin&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.9)",zIndex:9000,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(12px)"}}>
-            <div style={{background:"#faf8f3",width:"100%",maxWidth:"360px",padding:"36px",textAlign:"center",animation:"scaleIn 0.3s ease"}}>
-              <div style={{fontSize:"32px",marginBottom:"12px"}}>🔐</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:"700",color:"#1a1208",marginBottom:"4px"}}>Admin Access</div>
-              <p style={{fontSize:"12px",color:"#8a7a5a",marginBottom:"20px",fontFamily:"'Jost',sans-serif",letterSpacing:"0.5px"}}>Enter admin password</p>
-              <input type="password" value={adminInput} onChange={e=>setAdminInput(e.target.value)} placeholder="Password..." style={{width:"100%",background:"transparent",border:"none",borderBottom:"1px solid #d4a84344",padding:"10px 0",fontSize:"14px",color:"#1a1208",outline:"none",marginBottom:"16px",textAlign:"center",fontFamily:"'Cormorant Garamond',serif",letterSpacing:"4px"}} onKeyDown={e=>{if(e.key==="Enter"){const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(adminInput===sv){setShowAdmin(true);setShowAdminLogin(false);setAdminInput("");}else alert("Wrong password!");}}}/>
-              <div style={{display:"flex",gap:"8px"}}>
-                <button onClick={()=>{const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(adminInput===sv){setShowAdmin(true);setShowAdminLogin(false);setAdminInput("");}else alert("Wrong password!");}} style={{flex:1,background:"#1a1208",color:"#d4a843",border:"none",padding:"13px",fontSize:"10px",fontWeight:"700",letterSpacing:"2px",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.background="#d4a843";e.target.style.color="#1a1208";}} onMouseLeave={e=>{e.target.style.background="#1a1208";e.target.style.color="#d4a843";}}>UNLOCK</button>
-                <button onClick={()=>{setShowAdminLogin(false);setAdminInput("");}} style={{background:"none",border:"1px solid #d4a84344",padding:"13px 18px",color:"#8a7a5a",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:"10px"}}>✕</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <WAFloat settings={settings}/>
-
-        {/* Hidden admin trigger */}
-        <div onClick={handleSecretClick} style={{position:"fixed",bottom:0,left:0,width:"30px",height:"30px",zIndex:999,cursor:"default",opacity:0}}/>
-      </div>
+      <style>{CSS}</style>
+      {view==="intro"&&<Intro onEnter={()=>setView("store")}/>}
+      {view==="store"&&(
+        <Store
+          user={user}
+          onLogout={logout}
+          onAccount={()=>setView("account")}
+          onAdmin={()=>setShowAdminLogin(true)}
+        />
+      )}
+      {view==="account"&&user&&(
+        <AccountPage user={user} onBack={()=>setView("store")}/>
+      )}
+      {view==="account"&&!user&&(
+        <>{setView("store")}</>
+      )}
+      {view==="admin"&&(
+        <AdminPanel onExit={()=>setView("store")}/>
+      )}
+      {showAdminLogin&&(
+        <AdminLogin
+          onSuccess={()=>{setShowAdminLogin(false);setView("admin");}}
+          onCancel={()=>setShowAdminLogin(false)}
+        />
+      )}
+      <Toasts list={toasts}/>
     </>
   );
 }
