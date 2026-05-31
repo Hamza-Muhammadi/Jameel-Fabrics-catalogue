@@ -610,7 +610,7 @@ function Cart({cart,setCart,onClose,customer,setShowLogin,setShowCheckout,settin
 function Checkout({cart,customer,onClose,settings,coupon}){
   const sub=cart.reduce((a,c)=>a+c.price*c.qty,0);
   const total=coupon?Math.max(0,sub-coupon.discount):sub;
-  const msg=[`🛍️ *NEW ORDER — ${BRAND} ${SUB}*`,`━━━━━━━━━━━━━━━━━━━━`,`👤 *Customer*`,`Name: ${customer?.name}`,`Phone: ${customer?.phone}`,`City: ${customer?.city}`,`Address: ${customer?.address}`,`━━━━━━━━━━━━━━━━━━━━`,`📦 *Items*`,...cart.map((it,i)=>`${i+1}. ${it.name}\n   Qty: ${it.qty} | ${pkr(it.price*it.qty)}`),`━━━━━━━━━━━━━━━━━━━━`,coupon?`🎫 Coupon: ${coupon.code} (-Rs.${coupon.discount.toLocaleString()})`:"",`💰 *TOTAL: ${pkr(total)}*`,`💳 Cash on Delivery`,`━━━━━━━━━━━━━━━━━━━━`,`Date: ${new Date().toLocaleString()}`,`Please confirm. Thank you! 🙏`].filter(Boolean).join("\n");
+  const msg=[`Assalamualaikum! 🌙`,'',`I would like to place an order from *${BRAND}*`,'',`🛍️ *NEW ORDER — ${BRAND} ${SUB}*`,`━━━━━━━━━━━━━━━━━━━━`,`👤 *Customer*`,`Name: ${customer?.name}`,`Phone: ${customer?.phone}`,`City: ${customer?.city}`,`Address: ${customer?.address}`,`━━━━━━━━━━━━━━━━━━━━`,`📦 *Items*`,...cart.map((it,i)=>`${i+1}. ${it.name}\n   Qty: ${it.qty} | ${pkr(it.price*it.qty)}`),`━━━━━━━━━━━━━━━━━━━━`,coupon?`🎫 Coupon: ${coupon.code} (-Rs.${coupon.discount.toLocaleString()})`:"",`💰 *TOTAL: ${pkr(total)}*`,`💳 Cash on Delivery`,`━━━━━━━━━━━━━━━━━━━━`,`Date: ${new Date().toLocaleString()}`,`Please confirm. Thank you! 🙏`,'','JazakAllah Khair! 🤲'].filter(Boolean).join("\n");
 
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(26,18,8,0.8)",zIndex:1100,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px",backdropFilter:"blur(10px)"}}>
@@ -924,7 +924,7 @@ function AdminPanel({products,setProducts,reviews,settings,setSettings,onClose})
   const markRead=async(id,action)=>{setAlerts(a=>a.map(x=>x.id===id?{...x,is_read:true,action_taken:action}:x));if(supabase)await supabase.from("website_alerts").update({is_read:true,action_taken:action}).eq("id",id);};
   const handleAlert=async(al,action)=>{if(action==="sold_out")await updateStatus(al.product_id,"sold_out");if(action==="remove")await updateStatus(al.product_id,"hidden");if(action==="waiting")await updateStatus(al.product_id,"waiting_stock");await markRead(al.id,action);};
   const uploadImg=async(file,field)=>{if(!supabase||!file||!editProd)return;setUploading(true);const ext=file.name.split(".").pop();const path=`${editProd.id}/${field}-${Date.now()}.${ext}`;const{error}=await supabase.storage.from("product-images").upload(path,file,{upsert:true});if(!error){const{data:u}=supabase.storage.from("product-images").getPublicUrl(path);setEditProd(p=>({...p,[field]:u.publicUrl}));}setUploading(false);};
-  const saveProd=async()=>{if(!editProd)return;setAllProds(p=>p.map(x=>x.id===editProd.id?editProd:x));setProducts(p=>p.map(x=>x.id===editProd.id?{...x,...editProd}:x));if(supabase)await supabase.from("products").upsert({id:editProd.id,name:editProd.name,brand:editProd.brand,color:editProd.color,fabric:editProd.fabric,category:editProd.category,rack:editProd.rack,stock:editProd.stock,sale_price:editProd.salePrice,cost_price:editProd.costPrice,offer_price:editProd.offerPrice,qty_type:editProd.qtyType,barcode:editProd.barcode,description:editProd.website_description,fabric_type:editProd.fabric_type,washing_instructions:editProd.washing_instructions,size_guide:editProd.size_guide,is_new_arrival:editProd.is_new_arrival,is_active:editProd.is_active,website_status:editProd.website_status||"pending",website_title:editProd.website_title,website_description:editProd.website_description,website_category:editProd.website_category,size_type:editProd.size_type,available_sizes:JSON.stringify(editProd.available_sizes||[]),photo_url:editProd.photo_url,photo_url2:editProd.photo_url2,photo_url3:editProd.photo_url3,photo_url4:editProd.photo_url4,photo_url5:editProd.photo_url5});setEditProd(null);alert("✅ Saved!");};
+  const saveProd=async()=>{if(!editProd)return;setAllProds(p=>p.map(x=>x.id===editProd.id?editProd:x));setProducts(p=>p.map(x=>x.id===editProd.id?{...x,...editProd}:x));if(supabase)await supabase.from("products").upsert({id:editProd.id,name:editProd.name,brand:editProd.brand,color:editProd.color,fabric:editProd.fabric,category:editProd.category,rack:editProd.rack,stock:editProd.stock,sale_price:editProd.salePrice,cost_price:editProd.costPrice,offer_price:editProd.offerPrice,qty_type:editProd.qtyType,barcode:editProd.barcode,description:editProd.website_description,fabric_type:editProd.fabric_type,washing_instructions:editProd.washing_instructions,size_guide:editProd.size_guide,is_new_arrival:editProd.is_new_arrival,is_active:editProd.is_active,website_status:editProd.website_status||"pending",website_title:editProd.website_title,website_description:editProd.website_description,website_category:editProd.website_category,size_type:editProd.size_type,available_sizes:JSON.stringify(editProd.available_sizes||[]),photo_url:editProd.photo_url,photo_url2:editProd.photo_url2,photo_url3:editProd.photo_url3,photo_url4:editProd.photo_url4,photo_url5:editProd.photo_url5,img1:editProd.photo_url||editProd.img1||'',img2:editProd.photo_url2||editProd.img2||'',img3:editProd.photo_url3||editProd.img3||'',img4:editProd.photo_url4||editProd.img4||'',img5:editProd.photo_url5||editProd.img5||'',display_stock_text:editProd.display_stock_text||'',active:editProd.active!==false,website_status:editProd.website_status||'approved',badge:editProd.badge||'',old_price:editProd.old_price||null,sizes:editProd.sizes||[],note:editProd.note||''});setEditProd(null);alert("✅ Saved!");};
   const saveSettings=()=>{setSettings(sEdit);LS.set("shopSettings",sEdit);alert("✅ Saved!");};
   const changePw=()=>{const sv=LS.get("adminPass",ADMIN_PASS_DEFAULT);if(pwForm.old!==sv)return alert("Wrong current password!");if(!pwForm.nw||pwForm.nw.length<6)return alert("Min 6 chars!");if(pwForm.nw!==pwForm.cf)return alert("Passwords don't match!");LS.set("adminPass",pwForm.nw);setPwForm({old:"",nw:"",cf:""});alert("✅ Password changed!");};
 
@@ -1373,6 +1373,266 @@ function OrdersAdmin(){
 }
 
 // ── MAIN APP ──────────────────────────────────────────────────
+
+/* ═══════ AUTH MODAL ═══════ */
+function AuthModal({ mode, onClose, onSuccess }) {
+  const [tab, setTab] = useState(mode || "login");
+  const [email, setEmail] = useState(""), [pass, setPass] = useState("");
+  const [name, setName] = useState(""), [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const supabase = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
+
+  const I = { width:"100%", border:"none", borderBottom:"1px solid #ddd", padding:"10px 0",
+    fontSize:14, outline:"none", fontFamily:"inherit", background:"transparent", transition:"border-color .2s" };
+  const L = { fontSize:10, fontWeight:600, letterSpacing:2, color:"#888", textTransform:"uppercase", marginBottom:4, display:"block" };
+
+  async function login() {
+    if (!supabase) { alert("Database not connected"); return; }
+    if (!email||!pass) { alert("Email aur password daalo"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    setLoading(false);
+    if (error) alert("Login failed: "+error.message);
+    else { onSuccess(); }
+  }
+
+  async function register() {
+    if (!supabase) { alert("Database not connected"); return; }
+    if (!email||!pass||!name) { alert("Sab fields fill karo"); return; }
+    if (pass.length < 6) { alert("Password min 6 characters"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({ email, password: pass, options:{data:{full_name:name,phone}} });
+    setLoading(false);
+    if (error) alert("Register failed: "+error.message);
+    else { alert("Account created! Check email to verify."); onSuccess(); }
+  }
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(0,0,0,.5)",
+      backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}
+      onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div style={{background:"#fff",width:"100%",maxWidth:400,padding:36,borderRadius:4,
+        boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+        <div style={{display:"flex",marginBottom:28,borderBottom:"1px solid #ebebeb"}}>
+          {["login","register"].map(t=>(
+            <button key={t} onClick={()=>setTab(t)}
+              style={{flex:1,padding:"10px 0",border:"none",background:"none",cursor:"pointer",
+                fontFamily:"inherit",fontSize:13,fontWeight:600,
+                color:tab===t?"#111":"#888",
+                borderBottom:tab===t?"2px solid #111":"2px solid transparent",transition:"all .2s"}}>
+              {t==="login"?"Login":"Register"}
+            </button>
+          ))}
+        </div>
+        <div style={{display:"grid",gap:20}}>
+          {tab==="register"&&<div><label style={L}>Full Name *</label>
+            <input style={I} value={name} onChange={e=>setName(e.target.value)} placeholder="Ayesha Tariq"
+              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
+          <div><label style={L}>Email *</label>
+            <input style={I} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@email.com"
+              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>
+          <div><label style={L}>Password *</label>
+            <input style={I} type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"
+              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}
+              onKeyDown={e=>e.key==="Enter"&&(tab==="login"?login():register())}/></div>
+          {tab==="register"&&<div><label style={L}>Phone</label>
+            <input style={I} value={phone} onChange={e=>setPhone(e.target.value)} placeholder="0300-1234567"
+              onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#ddd"}/></div>}
+        </div>
+        <button onClick={tab==="login"?login:register} disabled={loading}
+          style={{width:"100%",marginTop:24,padding:13,background:"#111",color:"#fff",border:"none",
+            fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",
+            cursor:loading?"not-allowed":"pointer",opacity:loading?.6:1}}>
+          {loading?"Please wait...":(tab==="login"?"Login":"Create Account")}
+        </button>
+        <button onClick={onClose} style={{width:"100%",marginTop:10,padding:10,background:"none",
+          border:"none",color:"#aaa",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ CART PANEL WITH COUPON + WHATSAPP ═══════ */
+function CartPanel({ cart, setCart, waNumber, onClose, user }) {
+  const [couponCode, setCouponCode] = useState("");
+  const [couponData, setCouponData] = useState(null);
+  const [cLoading, setCLoading] = useState(false);
+  const sb = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
+  const CAT_LABELS = { WU:"Women Unstitched", WS:"Women Stitched", M:"Men's Unstitched", K:"Kids" };
+
+  const sub = cart.reduce((s,x)=>s+x.price*x.qty, 0);
+  const disc = couponData ? (couponData.type==="percent" ? Math.round(sub*couponData.value/100) : couponData.value) : 0;
+  const total = Math.max(0, sub - disc);
+
+  async function applyCoupon() {
+    if (!couponCode.trim()||!sb) return;
+    setCLoading(true);
+    const { data } = await sb.from("coupons").select("*").eq("code",couponCode.toUpperCase()).eq("active",true).single();
+    setCLoading(false);
+    if (!data) { alert("Invalid coupon"); return; }
+    if (data.expires_at && new Date(data.expires_at)<new Date()) { alert("Coupon expired!"); return; }
+    if (sub < (data.min_order||0)) { alert("Min order Rs."+data.min_order+" needed"); return; }
+    setCouponData(data);
+  }
+
+  async function checkout() {
+    if (!cart.length) return;
+    const wa = waNumber || "923228722232";
+    if (sb && user) {
+      await sb.from("online_orders").insert({
+        customer_id:user.id, customer_email:user.email,
+        customer_name:user.user_metadata?.full_name||"",
+        items:cart, total, coupon_code:couponData?.code||null,
+        discount_amount:disc, status:"pending"
+      });
+      if (couponData) await sb.from("coupons").update({used_count:(couponData.used_count||0)+1}).eq("id",couponData.id);
+    }
+    let lines = cart.map(p => {
+      let l = "*"+p.name+"*";
+      l += "\n   Category: "+(CAT_LABELS[p.cat]||p.cat);
+      if(p.color) l += "\n   Color: "+p.color;
+      l += "\n   Price: Rs."+Number(p.price).toLocaleString()+" x "+p.qty+" = Rs."+(p.price*p.qty).toLocaleString();
+      if(p.img1) l += "\n   Image: "+p.img1;
+      return l;
+    }).join("\n\n");
+    let msg = "Assalamualaikum! 🌙\n\n";
+    msg += "I would like to place an order from *JAMEEL FABRICS*.\n\n";
+    msg += "━━━━━━━━━━━━━━━━━━━━\n🛍️ *ORDER DETAILS*\n━━━━━━━━━━━━━━━━━━━━\n\n";
+    msg += lines + "\n\n";
+    if (couponData) msg += "🏷️ Coupon: "+couponData.code+" (-Rs."+disc.toLocaleString()+")\n\n";
+    msg += "━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: Rs."+total.toLocaleString()+"*\n━━━━━━━━━━━━━━━━━━━━\n\n";
+    msg += "Please confirm availability and delivery details.\n\nJazakAllah Khair! 🤲";
+    window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(msg), "_blank");
+    setCart([]); onClose();
+  }
+
+  return (
+    <>
+      <div style={{position:"fixed",inset:0,zIndex:9990,background:"rgba(0,0,0,.4)",backdropFilter:"blur(3px)"}} onClick={onClose}/>
+      <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(400px,95vw)",background:"#fff",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-12px 0 40px rgba(0,0,0,.15)"}}>
+        <div style={{padding:"18px 20px",borderBottom:"1px solid #ebebeb",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700}}>Cart ({cart.reduce((s,x)=>s+x.qty,0)})</div>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#888"}}>✕</button>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"16px 20px"}}>
+          {!cart.length ? (
+            <div style={{textAlign:"center",padding:"48px 20px",color:"#aaa"}}>
+              <div style={{fontSize:40,marginBottom:12}}>🛒</div>
+              <div style={{fontSize:15,fontWeight:600,color:"#888"}}>Cart is empty</div>
+            </div>
+          ) : cart.map(item=>(
+            <div key={item.id} style={{display:"flex",gap:12,marginBottom:16,padding:12,background:"#f9f9f9",borderRadius:8}}>
+              <div style={{width:52,height:64,background:"#f0f0f0",borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0,overflow:"hidden"}}>
+                {item.img1?<img src={item.img1} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(item.icon||"👗")}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14,marginBottom:2}}>{item.name}</div>
+                <div style={{fontSize:12,color:"#888",marginBottom:6}}>{item.color}</div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <button onClick={()=>setCart(c=>item.qty===1?c.filter(x=>x.id!==item.id):c.map(x=>x.id===item.id?{...x,qty:x.qty-1}:x))}
+                      style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+                    <span style={{fontSize:13,fontWeight:600,minWidth:16,textAlign:"center"}}>{item.qty}</span>
+                    <button onClick={()=>setCart(c=>c.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))}
+                      style={{width:26,height:26,border:"1px solid #ddd",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:16}}>Rs.{(item.price*item.qty).toLocaleString()}</span>
+                    <button onClick={()=>setCart(c=>c.filter(x=>x.id!==item.id))} style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:18}}>×</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {cart.length>0&&(
+          <div style={{padding:"16px 20px",borderTop:"1px solid #ebebeb",flexShrink:0}}>
+            <div style={{display:"flex",gap:8,marginBottom:14}}>
+              <input value={couponCode} onChange={e=>setCouponCode(e.target.value.toUpperCase())} placeholder="Coupon code"
+                style={{flex:1,border:"1px solid #ddd",borderRadius:4,padding:"8px 12px",fontSize:13,outline:"none",fontFamily:"inherit",letterSpacing:1,fontWeight:600}}/>
+              <button onClick={applyCoupon} disabled={cLoading}
+                style={{background:"#111",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,fontFamily:"inherit"}}>
+                {cLoading?"...":"APPLY"}
+              </button>
+            </div>
+            <div style={{marginBottom:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:4}}><span>Subtotal</span><span>Rs.{sub.toLocaleString()}</span></div>
+              {couponData&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#16a34a",marginBottom:4}}><span>Discount ({couponData.code})</span><span>-Rs.{disc.toLocaleString()}</span></div>}
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:16,fontWeight:700,marginTop:8,paddingTop:8,borderTop:"1px solid #ebebeb"}}>
+                <span>Total</span>
+                <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20}}>Rs.{total.toLocaleString()}</span>
+              </div>
+              <div style={{fontSize:11,color:"#aaa",marginTop:4}}>* Delivery charges extra</div>
+            </div>
+            <button onClick={checkout}
+              style={{width:"100%",padding:14,background:"#111",color:"#fff",border:"none",borderRadius:4,fontFamily:"inherit",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+              Order via WhatsApp
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ═══════ ACCOUNT PAGE ═══════ */
+function AccountPage({ user, onBack }) {
+  const sb = SUPA_URL && SUPA_KEY ? createClient(SUPA_URL, SUPA_KEY) : null;
+  const [orders, setOrders] = useState([]);
+  const [wishItems, setWishItems] = useState([]);
+  useEffect(()=>{
+    if(!sb||!user) return;
+    sb.from("online_orders").select("*").eq("customer_id",user.id).order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));
+    sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWishItems(data||[]));
+  },[user]);
+  const C = { card:{background:"#fff",border:"1px solid #ebebeb",borderRadius:8,padding:20,marginBottom:16} };
+  return (
+    <div style={{background:"#f9f9f9",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
+      <div style={{background:"#fff",borderBottom:"1px solid #ebebeb",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16}}>
+        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"#666",fontSize:13,fontFamily:"inherit"}}>← Back to Store</button>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700}}>My Account</div>
+      </div>
+      <div style={{maxWidth:800,margin:"0 auto",padding:"24px clamp(16px,4vw,40px)"}}>
+        <div style={C.card}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Account Info</div>
+          <div style={{fontSize:14,color:"#666",marginBottom:4}}><strong>Email:</strong> {user.email}</div>
+          <div style={{fontSize:14,color:"#666"}}><strong>Name:</strong> {user.user_metadata?.full_name||"Not set"}</div>
+        </div>
+        <div style={C.card}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>My Orders ({orders.length})</div>
+          {!orders.length?<div style={{textAlign:"center",padding:32,color:"#aaa"}}><div style={{fontSize:32,marginBottom:8}}>📦</div><div>No orders yet</div></div>:
+            orders.map(o=>(
+              <div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 0",borderBottom:"1px solid #f0f0f0",flexWrap:"wrap",gap:8}}>
+                <div><div style={{fontWeight:600,fontSize:13}}>#{o.id.slice(-6).toUpperCase()}</div><div style={{fontSize:11,color:"#aaa",marginTop:2}}>{(o.items||[]).length} items · {new Date(o.created_at).toLocaleDateString()}</div></div>
+                <div style={{display:"flex",gap:12,alignItems:"center"}}>
+                  <div style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:17}}>Rs.{Number(o.total).toLocaleString()}</div>
+                  <span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span>
+                </div>
+              </div>
+            ))}
+        </div>
+        <div style={C.card}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14}}>Wishlist ({wishItems.length})</div>
+          {!wishItems.length?<div style={{textAlign:"center",padding:32,color:"#aaa"}}><div style={{fontSize:32,marginBottom:8}}>🤍</div><div>No saved items</div></div>:
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:12}}>
+              {wishItems.map(w=>(
+                <div key={w.id} style={{border:"1px solid #ebebeb",borderRadius:6,overflow:"hidden"}}>
+                  <div style={{aspectRatio:"3/4",background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40}}>{w.products?.icon||"👗"}</div>
+                  <div style={{padding:"10px 12px"}}>
+                    <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{w.products?.name||""}</div>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.price||0).toLocaleString()}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App(){
   const show3D=false;
   
@@ -1425,11 +1685,40 @@ export default function App(){
   // Load products
   useEffect(()=>{
     if(!supabase)return;
-    supabase.from("products").select("*").eq("website_status","listed").then(({data})=>{
+    supabase.from
+
+  // Supabase Auth
+  const [authUser, setAuthUser] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(null); // 'login' | 'register' | null
+  const [showAccount, setShowAccount] = useState(false);
+
+  useEffect(()=>{
+    if(!supabase) return;
+    supabase.auth.getSession().then(({data:{session}})=>setAuthUser(session?.user||null));
+    const {data:{subscription}} = supabase.auth.onAuthStateChange((_e,s)=>setAuthUser(s?.user||null));
+    return ()=>subscription.unsubscribe();
+  },[]);
+
+  // Realtime product updates from ERP
+  useEffect(()=>{
+    if(!supabase) return;
+    const ch = supabase.channel("store_prods")
+      .on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{
+        supabase.from("products").select("*").eq("website_status","approved").eq("active",true)
+          .then(({data})=>{ if(data) setProducts(data); });
+      }).subscribe();
+    return ()=>supabase.removeChannel(ch);
+  },[]);
+
+  async function logout(){
+    if(supabase) await supabase.auth.signOut();
+    setAuthUser(null);
+  }
+("products").select("*").eq("website_status","approved").eq("active",true).then(({data})=>{
       if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));
     });
     supabase.from("reviews").select("*").then(({data})=>{if(data?.length)setReviews(data);});
-    const ch=supabase.channel("shop").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{supabase.from("products").select("*").eq("website_status","listed").then(({data})=>{if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));});}).subscribe();
+    const ch=supabase.channel("shop").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{supabase.from("products").select("*").eq("website_status","approved").eq("active",true).then(({data})=>{if(data?.length)setProducts(data.map(r=>({...r,salePrice:r.sale_price,costPrice:r.cost_price,offerPrice:r.offer_price,qtyType:r.qty_type,fabric_type:r.fabric_type||r.fabric,available_sizes:tryParse(r.available_sizes,[])})));});}).subscribe();
     return()=>supabase.removeChannel(ch);
   },[]);
 
@@ -1588,8 +1877,10 @@ export default function App(){
         {selProd&&<ProdModal p={selProd} onClose={()=>setSelProd(null)} wishlist={wishlist} toggleWish={toggleWish} onAdd={addCart} reviews={reviews} onReview={addReview} settings={settings}/>}
         {showCart&&<Cart cart={cart} setCart={setCart} onClose={()=>setShowCart(false)} customer={customer} setShowLogin={setShowLogin} setShowCheckout={setShowCheckout} settings={settings} coupon={coupon} setCoupon={setCoupon}/>}
         {showCheckout&&customer&&<Checkout cart={cart} customer={customer} onClose={()=>setShowCheckout(false)} settings={settings} coupon={coupon}/>}
-        {showLogin&&<Login onClose={()=>setShowLogin(false)} onLogin={setCustomer}/>}
+        {showAuthModal&&<AuthModal mode={showAuthModal} onClose={()=>setShowAuthModal(null)} onSuccess={()=>setShowAuthModal(null)}/>}
         {showTrack&&<Tracking onClose={()=>setShowTrack(false)}/>}
+        {showAccount&&authUser&&<AccountPage user={authUser} onBack={()=>setShowAccount(false)}/>}
+        {showAuthModal&&<AuthModal mode={showAuthModal} onClose={()=>setShowAuthModal(null)} onSuccess={()=>setShowAuthModal(null)}/>}
         {showAdmin&&<AdminPanel products={products} setProducts={setProducts} reviews={reviews} settings={settings} setSettings={setSettings} onClose={()=>setShowAdmin(false)}/>}
 
         {/* Admin Login — hidden */}
