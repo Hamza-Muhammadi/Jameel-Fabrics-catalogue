@@ -1695,16 +1695,6 @@ export default function App(){
   },[]);
 
   // Realtime product updates from ERP
-  useEffect(()=>{
-    if(!supabase) return;
-    const ch = supabase.channel("store_prods")
-      .on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{
-        supabase.from("products").select("*").eq("website_status","approved").eq("active",true)
-          .then(({data})=>{ if(data) setProducts(data); });
-      }).subscribe();
-    return ()=>supabase.removeChannel(ch);
-  },[]);
-
   async function logout(){
     if(supabase) await supabase.auth.signOut();
     setAuthUser(null);
