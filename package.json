@@ -6,15 +6,14 @@
     "@supabase/supabase-js": "^2.39.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "three": "^0.160.0"
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead"],
+    "production": [">0.2%", "not dead", "not ie 11"],
     "development": ["last 1 chrome version"]
   }
 }
