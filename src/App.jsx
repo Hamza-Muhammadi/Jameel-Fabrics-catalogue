@@ -28,6 +28,20 @@ button{font-family:'Jost',sans-serif}
 @keyframes revealUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
 .rv{opacity:0;transform:translateY(36px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
 .rv.visible{opacity:1;transform:translateY(0);}
+/* Admin Panel CSS */
+.adm-sb{width:240px;flex-shrink:0;background:#0f0d0a;height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:width .3s ease}
+.adm-sb.col{width:64px}
+.adm-sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer;transition:all .15s;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;position:relative;background:none;border:none;width:100%;text-align:left;font-family:'Inter',sans-serif;font-size:13px;font-weight:500}
+.adm-sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.adm-sb-item.act{background:rgba(201,168,76,.15);color:#c9a84c}
+.adm-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
+.adm-th{padding:10px 16px;font-size:11px;font-weight:600;color:#6b7280;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;background:#f9fafb}
+.adm-td{padding:12px 16px;font-size:13px;color:#111827;border-bottom:1px solid #f3f4f6}
+.adm-inp{width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:9px 12px;font-size:13px;color:#111;outline:none;font-family:inherit;transition:border-color .15s}
+.adm-inp:focus{border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.adm-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit;white-space:nowrap}
+@media(max-width:768px){.adm-sb{position:fixed;z-index:200;transform:translateX(-100%);transition:transform .3s}.adm-sb.mob-open{transform:translateX(0)}}
+
 /* Countdown */
 @keyframes cdTick{0%{transform:scaleY(1)}50%{transform:scaleY(.85)}100%{transform:scaleY(1)}}
 .cd-tick{animation:cdTick .15s ease}
@@ -560,7 +574,6 @@ function ReviewsSection(){
           ))}
         </div>
       )}
-      {!reviews.length&&<div style={{textAlign:"center",padding:"32px 0",color:"#b5aba2",fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontStyle:"italic",marginBottom:24}}>Pehla review app wale dein ge — aap bhi share karein apna tajruba!</div>}
       {/* Submit review */}
       {!showForm?(
         <div style={{textAlign:"center"}}>
@@ -1086,21 +1099,98 @@ const Bdg=({c,children})=><span style={{padding:"3px 10px",borderRadius:20,fontS
 const AH=({title,sub})=><div style={{marginBottom:22}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4,color:"#111"}}>{title}</div>{sub&&<div style={{fontSize:13,color:"#6b7280"}}>{sub}</div>}</div>;
 const ALbl=({c})=><div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>{c}</div>;
 
-function ADash({prods,orders,alerts}){
-  const s=[{l:"Products",v:prods?.length||0,ic:"📦",bg:"#dbeafe"},{l:"Pending Orders",v:orders?.filter(o=>o.status==="pending").length||0,ic:"📋",bg:"#fef9c3"},{l:"Alerts",v:alerts?.length||0,ic:"🔔",bg:"#fee2e2"},{l:"Total Orders",v:orders?.length||0,ic:"✅",bg:"#dcfce7"}];
+function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
+  const stats=[
+    {l:"Today's Orders",v:todayOrders?.length||0,ic:<OrdIc/>,bg:"#fef3c7",ibc:"#92400e",change:"Today"},
+    {l:"Revenue (Today)",v:"Rs."+(todayRev||0).toLocaleString(),ic:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,bg:"#dcfce7",ibc:"#16a34a",change:"Active"},
+    {l:"Active Products",v:prods?.filter(p=>p.active).length||0,ic:<ProdIc/>,bg:"#dbeafe",ibc:"#2563eb",change:(pending?.length||0)+" pending"},
+    {l:"Total Orders",v:orders?.length||0,ic:<ChartIc/>,bg:"#fee2e2",ibc:"#dc2626",change:"All time"},
+  ];
+  const barH=[45,70,55,88,60,95,38];
+  const barD=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   return(<div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))",gap:16,marginBottom:22}}>
-      {s.map(x=><ACard key={x.l} style={{padding:20}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}><div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{x.l}</div><div style={{width:36,height:36,borderRadius:8,background:x.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{x.ic}</div></div><div style={{fontSize:28,fontWeight:700,color:"#111",fontFamily:"'Playfair Display',serif"}}>{x.v}</div></ACard>)}
+    {/* Header */}
+    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:12,flexWrap:"wrap"}}>
+      <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700,color:"#111827"}}>Good Morning 👋</div><div style={{fontSize:13,color:"#6b7280",marginTop:3}}>Here's what's happening with your store today</div></div>
+      <button onClick={()=>onNav("products")} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"9px 18px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#0f0d0a"}>+ Add Product</button>
     </div>
-    <ACard><div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",fontSize:15,fontWeight:600,color:"#111"}}>Recent Orders</div>
-      <div style={{padding:"4px 0"}}>
-        {!orders?.length?<div style={{padding:32,textAlign:"center",color:"#9ca3af",fontSize:13}}>No orders yet</div>:
-          orders.slice(0,6).map(o=><div key={o.id} style={{display:"flex",justifyContent:"space-between",padding:"11px 20px",borderBottom:"1px solid #f3f4f6"}}><div><div style={{fontWeight:600,fontSize:13,color:"#111"}}>{o.customer_name||o.customer_email||"Customer"}</div><div style={{fontSize:11,color:"#9ca3af"}}>{new Date(o.created_at).toLocaleString()}</div></div><div style={{display:"flex",gap:10,alignItems:"center"}}><div style={{fontWeight:700,fontSize:13}}>Rs.{Number(o.total).toLocaleString()}</div><Bdg c={o.status==="pending"?"y":o.status==="confirmed"?"g":"b"}>{o.status}</Bdg></div></div>)
-        }
+    {/* Stats */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:16,marginBottom:20}}>
+      {stats.map(s=><div key={s.l} style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:12,padding:20,transition:"box-shadow .2s",cursor:"default"}} onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 6px rgba(0,0,0,.07)"} onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
+          <div style={{width:36,height:36,borderRadius:8,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",color:s.ibc}}>{s.ic}</div>
+        </div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:700,color:"#111827",marginBottom:4}}>{s.v}</div>
+        <div style={{fontSize:12,color:"#9ca3af"}}>{s.change}</div>
+      </div>)}
+    </div>
+    {/* Chart + Alerts */}
+    <div style={{display:"grid",gridTemplateColumns:"1.6fr 1fr",gap:16,marginBottom:16}} className="two-col">
+      {/* Chart */}
+      <div className="adm-card">
+        <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div><div style={{fontSize:15,fontWeight:600,color:"#111827"}}>Sales This Week</div><div style={{fontSize:12,color:"#6b7280",marginTop:2}}>Daily orders count</div></div>
+          <span style={{background:"#dcfce7",color:"#16a34a",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>● Live</span>
+        </div>
+        <div style={{padding:20}}>
+          <div style={{display:"flex",alignItems:"flex-end",gap:8,height:140,paddingTop:20}}>
+            {barH.map((h,i)=>(
+              <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6,height:"100%"}}>
+                <div style={{width:"100%",background:i===6?"#f3f4f6":"linear-gradient(to top,#c9a84c,#e8d5a3)",borderRadius:"4px 4px 0 0",height:h+"%",border:i===6?"1px dashed #e5e7eb":"none",cursor:"pointer",transition:"filter .2s"}} onMouseEnter={e=>e.currentTarget.style.filter="brightness(1.1)"} onMouseLeave={e=>e.currentTarget.style.filter="none"}/>
+                <div style={{fontSize:9,color:"#9ca3af"}}>{barD[i]}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </ACard>
+      {/* Quick alerts */}
+      <div className="adm-card">
+        <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{fontSize:15,fontWeight:600,color:"#111827"}}>Alerts</div>
+          {aC>0&&<span style={{background:"#fee2e2",color:"#dc2626",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{aC} urgent</span>}
+        </div>
+        <div>
+          {!alerts?.length?<div style={{padding:32,textAlign:"center",color:"#9ca3af",fontSize:13}}>All clear ✓</div>:
+            alerts.slice(0,3).map(a=><div key={a.id} style={{padding:"14px 16px",borderBottom:"1px solid #f3f4f6",display:"flex",gap:10,alignItems:"flex-start"}}>
+              <div style={{width:8,height:8,borderRadius:"50%",background:a.alert_type==="sold"||a.type==="sold_out"?"#ef4444":"#f59e0b",marginTop:4,flexShrink:0}}/>
+              <div><div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{a.product_name}</div><div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{a.message}</div></div>
+            </div>)
+          }
+          {(pC>0)&&<div style={{padding:"14px 16px",display:"flex",gap:10,alignItems:"flex-start"}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#c9a84c",marginTop:4,flexShrink:0}}/>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{pC} Products Pending</div><div style={{fontSize:11,color:"#6b7280",marginTop:2}}>ERP se aaye — approval chahiye</div></div>
+          </div>}
+        </div>
+      </div>
+    </div>
+    {/* Recent orders table */}
+    <div className="adm-card">
+      <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div><div style={{fontSize:15,fontWeight:600,color:"#111827"}}>Recent Orders</div><div style={{fontSize:12,color:"#6b7280",marginTop:2}}>Latest WhatsApp orders</div></div>
+        <button onClick={()=>onNav("orders")} style={{background:"transparent",border:"1px solid #e5e7eb",padding:"6px 14px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit",color:"#374151"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>View All</button>
+      </div>
+      <div style={{overflowX:"auto"}}>
+        <table style={{width:"100%",borderCollapse:"collapse"}}>
+          <thead><tr>{["Order","Customer","Items","Total","Status","Time"].map(h=><th key={h} className="adm-th">{h}</th>)}</tr></thead>
+          <tbody>
+            {!orders?.length?<tr><td colSpan={6} style={{padding:40,textAlign:"center",color:"#9ca3af"}}>No orders yet</td></tr>:
+              orders.slice(0,5).map(o=><tr key={o.id}>
+                <td className="adm-td"><span style={{fontWeight:700,color:"#c9a84c",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</span></td>
+                <td className="adm-td"><div style={{fontWeight:500,fontSize:13}}>{o.customer_name||"Customer"}</div><div style={{fontSize:11,color:"#6b7280"}}>{o.customer_email||""}</div></td>
+                <td className="adm-td" style={{color:"#6b7280"}}>{(o.items||[]).length} items</td>
+                <td className="adm-td"><span style={{fontWeight:700}}>Rs.{Number(o.total||0).toLocaleString()}</span></td>
+                <td className="adm-td"><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:o.status==="pending"?"#fef9c3":o.status==="confirmed"?"#dcfce7":"#dbeafe",color:o.status==="pending"?"#ca8a04":o.status==="confirmed"?"#16a34a":"#2563eb"}}>{o.status}</span></td>
+                <td className="adm-td" style={{fontSize:12,color:"#9ca3af"}}>{new Date(o.created_at).toLocaleString()}</td>
+              </tr>)
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>);
 }
+
 function APending({pending,onRefresh}){
   async function approve(p){if(!sb)return;await sb.from("products").update({website_status:"approved",active:true}).eq("id",p.id);toast("Approved! Website pe live","success");onRefresh();}
   async function ignore(p){if(!sb)return;await sb.from("products").update({website_status:"ignored"}).eq("id",p.id);toast("Ignored");onRefresh();}
@@ -1558,82 +1648,149 @@ function AAnalytics({settings={}}){
 /* ─ AReviews ─ */
 
 function AdminPanel({onExit}){
-  const[page,setPage]=useState("dashboard");const[col,setCol]=useState(false);
+  const[page,setPage]=useState("dashboard");
+  const[col,setCol]=useState(false);
+  const[mobOpen,setMobOpen]=useState(false);
   const settings=useSettings();
-  const{data:allProds}=useDB(()=>sb.from("products").select("*").order("created_at",{ascending:false}),[]);
+  const{data:allProds,loading:pLoad}=useDB(()=>sb.from("products").select("*").order("created_at",{ascending:false}),[]);
   const{data:pending}=useDB(()=>sb.from("products").select("*").eq("website_status","pending"),[]);
   const{data:orders}=useDB(()=>sb.from("online_orders").select("*").order("created_at",{ascending:false}),[]);
   const{data:alerts}=useDB(()=>sb.from("website_alerts").select("*").eq("resolved",false).order("created_at",{ascending:false}),[]);
   const{data:coupons}=useDB(()=>sb.from("coupons").select("*"),[]);
   const{data:subs}=useDB(()=>sb.from("subscribers").select("*").order("subscribed_at",{ascending:false}),[]);
+  const{data:customers}=useDB(()=>sb.auth.admin?sb.from("profiles").select("*"):sb.from("online_orders").select("customer_email,customer_name").limit(50),[]);
   const refresh=()=>window.location.reload();
-  const pC=pending?.length||0,aC=alerts?.length||0,oC=orders?.filter(o=>o.status==="pending").length||0;
-  const nav=[
-    {id:"dashboard",ic:"⊞",lbl:"Dashboard"},
-    {id:"orders",ic:"📋",lbl:"Orders",badge:oC,bc:"#f59e0b"},
-    null,
-    {id:"pending",ic:"⏳",lbl:"Pending (ERP)",badge:pC,bc:"#c9a84c"},
-    {id:"products",ic:"📦",lbl:"Products"},
-    {id:"alerts",ic:"🔔",lbl:"Stock Alerts",badge:aC,bc:"#ef4444"},
-    {id:"coupons",ic:"🎟️",lbl:"Coupons"},
-    null,
-    {id:"content",ic:"✏️",lbl:"Website Content"},
-    {id:"reviews",ic:"⭐",lbl:"Reviews"},
-    {id:"subscribers",ic:"✉️",lbl:"Subscribers"},
-    {id:"settings",ic:"⚙️",lbl:"Settings"},
-    null,
-    {id:"analytics",ic:"📊",lbl:"Analytics"},
+  const pC=pending?.length||0;
+  const aC=alerts?.length||0;
+  const oC=orders?.filter(o=>o.status==="pending").length||0;
+  const todayOrders=orders?.filter(o=>new Date(o.created_at).toDateString()===new Date().toDateString())||[];
+  const todayRev=todayOrders.reduce((s,o)=>s+Number(o.total||0),0);
+
+  const NAV=[
+    {section:"Main"},
+    {id:"dashboard",ic:<DashIc/>,lbl:"Dashboard"},
+    {id:"orders",ic:<OrdIc/>,lbl:"Orders",badge:oC,bc:"#f59e0b"},
+    {section:"Catalogue"},
+    {id:"pending",ic:<PendIc/>,lbl:"Pending (ERP)",badge:pC,bc:"#c9a84c"},
+    {id:"products",ic:<ProdIc/>,lbl:"Products"},
+    {id:"alerts",ic:<AlertIc/>,lbl:"Stock Alerts",badge:aC,bc:"#ef4444"},
+    {id:"coupons",ic:<CoupIc/>,lbl:"Coupons"},
+    {section:"Content"},
+    {id:"reviews",ic:<StarIc/>,lbl:"Reviews"},
+    {id:"sold",ic:<ChartIc/>,lbl:"Sold Counter"},
+    {id:"analytics",ic:<AnalyticIc/>,lbl:"Analytics"},
+    {id:"content",ic:<EditIc/>,lbl:"Website Content"},
+    {id:"subscribers",ic:<MailIc/>,lbl:"Subscribers"},
+    {id:"settings",ic:<SettIc/>,lbl:"Settings"},
   ];
-  const titles={dashboard:"Dashboard",pending:"Pending Approval",alerts:"Stock Alerts",products:"Products",orders:"Orders",coupons:"Coupons",content:"Website Content",reviews:"Reviews",subscribers:"Subscribers",settings:"Settings",analytics:"Analytics"};
-  const pages={
-    dashboard:<ADash prods={allProds} orders={orders} alerts={alerts}/>,
+
+  const TITLES={dashboard:"Dashboard",pending:"Pending Approval",alerts:"Stock Alerts",products:"Products",orders:"Orders",coupons:"Coupons",reviews:"Reviews",sold:"Sold Counter",analytics:"Analytics",content:"Website Content",subscribers:"Subscribers",settings:"Settings"};
+
+  const PAGES={
+    dashboard:<ADash prods={allProds} orders={orders} alerts={alerts} pending={pending} todayOrders={todayOrders} todayRev={todayRev} onNav={setPage}/>,
     pending:<APending pending={pending||[]} onRefresh={refresh}/>,
     alerts:<AAlerts alerts={alerts||[]} onRefresh={refresh}/>,
     products:<AProducts products={allProds||[]} onRefresh={refresh}/>,
     orders:<AOrders orders={orders||[]} wa={settings.wa_number||WA_NUM}/>,
     coupons:<ACoupons coupons={coupons||[]} onRefresh={refresh}/>,
+    reviews:<AReviews onRefresh={refresh}/>,
+    sold:<ASoldCounter onRefresh={refresh}/>,
+    analytics:<AAnalytics/>,
     content:<AContent settings={settings}/>,
-    reviews:<AReviews/>,
     subscribers:<ASubs subs={subs||[]}/>,
     settings:<ASettings settings={settings}/>,
-    analytics:<AAnalytics settings={settings}/>,
   };
-  return(<div style={{display:"flex",height:"100vh",overflow:"hidden",fontFamily:"'Inter',sans-serif"}}>
-    <aside style={{width:col?64:248,flexShrink:0,background:"#0f0d0a",height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden",transition:"width .3s ease"}}>
-      <div style={{padding:"18px 14px",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-        <div style={{width:36,height:36,background:"#c9a84c",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:12,fontWeight:900,color:"#0a0907"}}>JF</div>
-        {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:12,fontWeight:700,color:"#fff",letterSpacing:1.5}}>JAMEEL FABRICS</div><div style={{fontSize:9,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
-      </div>
-      <div style={{flex:1,overflowY:"auto",padding:8}}>
-        {nav.map((item,i)=>item===null?(
-          <div key={i} style={{height:1,background:"rgba(255,255,255,.06)",margin:"5px 0"}}/>
-        ):(
-          <button key={item.id} onClick={()=>setPage(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:6,cursor:"pointer",transition:"all .15s",color:page===item.id?"#c9a84c":"rgba(255,255,255,.5)",background:page===item.id?"rgba(201,168,76,.12)":"transparent",border:"none",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:13,whiteSpace:"nowrap",overflow:"hidden"}}>
-            <span style={{fontSize:15,flexShrink:0,width:18,textAlign:"center"}}>{item.ic}</span>
-            {!col&&<><span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis"}}>{item.lbl}</span>{item.badge>0&&<span style={{background:item.bc||"#ef4444",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:10,fontWeight:700,flexShrink:0}}>{item.badge}</span>}</>}
+
+  return(
+    <div style={{display:"flex",height:"100vh",overflow:"hidden",fontFamily:"'Inter',sans-serif",background:"#f4f5f7"}}>
+
+      {/* Mobile overlay */}
+      {mobOpen&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:199}} onClick={()=>setMobOpen(false)}/>}
+
+      {/* Sidebar */}
+      <aside className={`adm-sb${col?" col":""}${mobOpen?" mob-open":""}`}>
+        {/* Logo */}
+        <div style={{padding:"18px 14px",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:900,color:"#0a0907"}}>JF</div>
+          {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
+        </div>
+
+        {/* Nav items */}
+        <div style={{flex:1,overflowY:"auto",padding:"8px 8px"}}>
+          {NAV.map((item,i)=>{
+            if(item.section) return(
+              <div key={i} style={{fontSize:10,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",color:"rgba(255,255,255,.2)",padding:"10px 8px 4px",whiteSpace:"nowrap",overflow:"hidden",display:col?"none":"block"}}>{item.section}</div>
+            );
+            return(
+              <button key={item.id} onClick={()=>{setPage(item.id);setMobOpen(false);}} className={`adm-sb-item${page===item.id?" act":""}`}>
+                <span style={{flexShrink:0,display:"flex",width:18,alignItems:"center",justifyContent:"center",opacity:page===item.id?1:.65}}>{item.ic}</span>
+                {!col&&<><span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis"}}>{item.lbl}</span>{item.badge>0&&<span style={{background:item.bc||"#ef4444",color:"#fff",borderRadius:10,padding:"1px 7px",fontSize:10,fontWeight:700,flexShrink:0}}>{item.badge}</span>}</>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom user area */}
+        <div style={{padding:"10px 8px",borderTop:"1px solid rgba(255,255,255,.06)",flexShrink:0}}>
+          <button onClick={onExit} className="adm-sb-item" style={{color:"rgba(255,255,255,.35)"}}>
+            <span style={{flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+            {!col&&"Exit to Store"}
           </button>
-        ))}
-      </div>
-      <div style={{padding:"10px 8px",borderTop:"1px solid rgba(255,255,255,.06)",flexShrink:0}}>
-        <button onClick={onExit} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:6,cursor:"pointer",border:"none",background:"none",color:"rgba(255,255,255,.35)",width:"100%",textAlign:"left",fontFamily:"inherit",fontSize:12,whiteSpace:"nowrap",overflow:"hidden"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.06)"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
-          <span style={{fontSize:15,flexShrink:0}}>X</span>{!col&&"Exit to Store"}
-        </button>
-      </div>
-    </aside>
-    <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
-      <div style={{height:60,background:"#fff",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 24px",gap:16,flexShrink:0,boxShadow:"0 1px 4px rgba(0,0,0,.08)"}}>
-        <button onClick={()=>setCol(c=>!c)} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <div style={{fontSize:16,fontWeight:600,color:"#111",flex:1}}>{titles[page]||page}</div>
-        <button onClick={onExit} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"8px 18px",fontSize:12,fontWeight:500,cursor:"pointer",fontFamily:"inherit"}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#0f0d0a"}>View Store</button>
-      </div>
-      <div style={{flex:1,overflowY:"auto",padding:24,background:"#f4f5f7"}}>
-        {sb?pages[page]:<div style={{textAlign:"center",padding:60,color:"#9ca3af"}}><div style={{fontSize:36,marginBottom:12}}>!</div><div style={{fontWeight:600,fontSize:16}}>Supabase Not Connected</div></div>}
+        </div>
+      </aside>
+
+      {/* Main */}
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
+        {/* Topbar */}
+        <div style={{height:60,background:"#fff",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 20px",gap:12,flexShrink:0,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
+          <button onClick={()=>{setCol(c=>!c);setMobOpen(m=>!m);}} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div style={{fontSize:16,fontWeight:600,color:"#111827",flex:1}}>{TITLES[page]||page}</div>
+          {/* Search */}
+          <div style={{display:"flex",alignItems:"center",gap:8,background:"#f4f5f7",border:"1px solid #e5e7eb",borderRadius:6,padding:"7px 12px",width:200}} className="hide-mob">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search..." style={{background:"none",border:"none",outline:"none",fontSize:13,color:"#111",width:"100%",fontFamily:"inherit"}}/>
+          </div>
+          {/* Alerts bell */}
+          <button onClick={()=>setPage("alerts")} style={{background:"none",border:"none",cursor:"pointer",width:36,height:36,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",color:"#6b7280",position:"relative",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            {aC>0&&<span style={{position:"absolute",top:4,right:4,width:8,height:8,background:"#ef4444",borderRadius:"50%",border:"2px solid #fff"}}/>}
+          </button>
+          <button onClick={onExit} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"8px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,transition:"background .2s"}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#0f0d0a"}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Store
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{flex:1,overflowY:"auto",padding:"clamp(16px,2vw,24px)",background:"#f4f5f7"}}>
+          {sb?PAGES[page]:(
+            <div style={{textAlign:"center",padding:60,color:"#9ca3af"}}>
+              <div style={{fontSize:40,marginBottom:12}}>⚙️</div>
+              <div style={{fontWeight:600,fontSize:16,color:"#374151"}}>Supabase Not Connected</div>
+              <div style={{fontSize:13,marginTop:8}}>Add env vars in Vercel Settings</div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>);
+  );
 }
+
+/* SVG Icons */
+const DashIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>;
+const OrdIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 12 2 2 4-4"/></svg>;
+const PendIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg>;
+const ProdIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>;
+const AlertIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+const CoupIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
+const StarIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>;
+const ChartIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
+const AnalyticIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>;
+const EditIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+const MailIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const SettIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 
 export default function App(){
   const[view,setView]=useState("intro");
