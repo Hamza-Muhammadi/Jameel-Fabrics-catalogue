@@ -4,8 +4,8 @@ const SURL=process.env.REACT_APP_SUPABASE_URL||"";
 const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
 const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
 const WA_NUM="923228722232";
-const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids",EID:"Eid Collection",WIN:"Winter Collection",SUM:"Summer Collection"};
-const CATS=[["All","All"],["M","Men's"],["WU","Women Unstitched"],["WS","Women Stitched"],["K","Kids"],["EID","Eid Collection"],["WIN","Winter Collection"],["SUM","Summer Collection"]];
+const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids",HOT:"Hot Sale",NEW:"New Arrivals","3PC":"3-Piece Sets"};
+const CATS=[["All","All"],["M","Men's"],["WU","Women Unstitched"],["WS","Women Stitched"],["K","Kids"],["HOT","Hot Sale"],["NEW","New Arrivals"],["3PC","3-Piece Sets"]];
 const G=`
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Jost:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,6 +18,8 @@ button{font-family:'Jost',sans-serif}
 @keyframes slideR{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes annScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes floatBadge1{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes floatBadge2{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 @keyframes textSlide{0%{opacity:0;transform:translateY(10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 @keyframes skeletonShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -590,6 +592,29 @@ function ReviewsSection(){
 }
 
 
+
+/* ═══ BROWSING BADGE ═══ */
+function BrowsingBadge(){
+  const[count,setCount]=useState(()=>Math.floor(Math.random()*12)+8);
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      setCount(c=>{
+        const change=Math.random()>.5?1:-1;
+        return Math.max(5,Math.min(28,c+change));
+      });
+    },4000);
+    return()=>clearInterval(t);
+  },[]);
+  return(
+    <div style={{position:"fixed",bottom:92,right:28,zIndex:699,background:"rgba(17,17,17,.88)",backdropFilter:"blur(8px)",color:"#fff",padding:"7px 12px",borderRadius:20,fontSize:11,display:"flex",alignItems:"center",gap:7,boxShadow:"0 4px 16px rgba(0,0,0,.25)",pointerEvents:"none"}}>
+      <span style={{width:7,height:7,borderRadius:"50%",background:"#22c55e",display:"inline-block",animation:"pulse 1.5s ease infinite",flexShrink:0}}/>
+      <span style={{fontWeight:600}}>{count}</span>
+      <span style={{color:"rgba(255,255,255,.6)",fontSize:10}}>people browsing now</span>
+    </div>
+  );
+}
+
+
 function Store({user,onLogout,onAccount,onAdmin}){
   const settings=useSettings();
   const[prods,setProds]=useState([]);
@@ -789,8 +814,8 @@ function Store({user,onLogout,onAccount,onAdmin}){
       </div>
       <div className="hero-right" style={{zIndex:1,animation:"fadeUp 1.2s ease .4s both"}}>
         <div style={{background:"#f0ede8",border:"1px solid #e0dbd3",aspectRatio:"3/4",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",top:14,right:14,background:"#111",color:"#fff",padding:"6px 14px",fontSize:7,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",top:14,left:14,background:"#c9a84c",color:"#fff",padding:"6px 14px",fontSize:7,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3}}>LIMITED EDITION</div>
+          <div style={{position:"absolute",top:16,right:16,background:"#111",color:"#fff",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge1 3s ease-in-out infinite",boxShadow:"0 4px 16px rgba(0,0,0,.3)"}}>NEW ARRIVAL</div>
+          <div style={{position:"absolute",bottom:20,left:16,background:"#c9a84c",color:"#111",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge2 3.5s ease-in-out infinite",boxShadow:"0 4px 16px rgba(201,168,76,.4)"}}>LIMITED EDITION</div>
           <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:"'Playfair Display',serif",fontWeight:900,color:"#111",lineHeight:1,userSelect:"none"}}>JF</div>
           <div style={{textAlign:"center",padding:"36px 20px",zIndex:2}}>
             <div style={{fontSize:"clamp(52px,9vw,96px)",marginBottom:18}}>👗</div>
@@ -923,12 +948,29 @@ function Store({user,onLogout,onAccount,onAdmin}){
     <section style={{background:"#111",color:"#fff",padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)"}}>
       <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"center",maxWidth:1200,margin:"0 auto"}}>
         <div className="rv">
-          <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:12}}>Our Story</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(24px,3vw,40px)",fontWeight:700,color:"#fff",marginBottom:20,lineHeight:1.1}}>About<br/><span style={{fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontWeight:300,color:"rgba(255,255,255,.6)"}}>Jameel Fabrics</span></div>
-          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,1.6vw,19px)",color:"rgba(255,255,255,.65)",lineHeight:2,fontStyle:"italic"}}>{settings.about||"Welcome to Jameel Fabrics Kunjah — your trusted destination for premium Pakistani clothing."}</p>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+            <div style={{width:32,height:1,background:"#c9a84c"}}/>
+            <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700}}>Est. 1975</div>
+            <div style={{width:32,height:1,background:"#c9a84c"}}/>
+          </div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,52px)",fontWeight:900,color:"#fff",marginBottom:6,lineHeight:.9,letterSpacing:2}}>OUR</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,52px)",fontWeight:300,fontStyle:"italic",color:"#c9a84c",marginBottom:20,lineHeight:.9,letterSpacing:3}}>Story</div>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,1.6vw,19px)",color:"rgba(255,255,255,.7)",lineHeight:2,fontStyle:"italic",marginBottom:20}}>{settings.about||"Located in the heart of Kunjah, Jameel Fabrics has been serving families with premium Pakistani clothing since 1975. Each piece in our collection is personally handpicked for quality, exclusivity and timeless elegance."}</p>
+          <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
+            {[
+              [settings.story_stat1||"50+",settings.story_stat1_label||"Years of Trust"],
+              [settings.story_stat2||"1000+",settings.story_stat2_label||"Happy Families"],
+              [settings.story_stat3||"100%",settings.story_stat3_label||"Exclusive Designs"]
+            ].map(([n,l])=>(
+              <div key={l} style={{borderLeft:"2px solid #c9a84c",paddingLeft:14}}>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:"#fff"}}>{n}</div>
+                <div style={{fontSize:9,color:"rgba(255,255,255,.4)",letterSpacing:1.5,textTransform:"uppercase",marginTop:2}}>{l}</div>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="rv" className="stat-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:1}}>
-          {[["✨","Exclusive","Each design unique"],["🧵","Premium","Finest quality"],["📱","Easy Order","Via WhatsApp"],["🚀","Fast","Nationwide"],["🔄","Exchange","No hassle"],["💯","Trusted","Since 1985"]].map(([ic,n,d])=>(
+          {[["✨","Exclusive Designs","Har piece unique — dobara nahi milega"],["🧵","Premium Quality","Best fabric, best craftsmanship"],["📱","WhatsApp Order","Seedha message karo, ghar baithe"],["🚀","Fast Delivery","Pak Post se poore Pakistan mein"],["🔄","Easy Exchange","3 din mein — koi sawaal nahi"],["💯","Since 1975","50+ saal se families ka bharosa"]].map(([ic,n,d])=>(
             <div key={n} style={{padding:"clamp(16px,2vw,24px)",textAlign:"center",background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.07)",transition:"background .3s",cursor:"default"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(201,168,76,.1)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.04)"}>
               <div style={{fontSize:20,marginBottom:7}}>{ic}</div>
               <div style={{fontFamily:"'Playfair Display',serif",fontSize:12,fontWeight:700,color:"#fff",marginBottom:3}}>{n}</div>
@@ -963,6 +1005,8 @@ function Store({user,onLogout,onAccount,onAdmin}){
         <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>Premium Pakistani Clothing</div>
       </div>
     </footer>
+    {/* Browsing counter */}
+    <BrowsingBadge/>
     <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:28,right:28,width:54,height:54,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 28px rgba(37,211,102,.4)",cursor:"pointer",textDecoration:"none",zIndex:700,transition:"transform .3s,box-shadow .3s",color:"#fff"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.14)";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";}}><WaSvg/></a>
     {/* Recently Viewed */}
     {recentlyViewed.length>0&&(
@@ -1122,7 +1166,7 @@ function AProducts({products,onRefresh}){
           <div style={{padding:24}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
               <div><ALbl c="Name *"/><AI value={form.name||""} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Product name"/></div>
-              <div><ALbl c="Category"/><AS value={form.cat||"WU"} onChange={e=>setForm({...form,cat:e.target.value})}><option value="WU">Women Unstitched</option><option value="WS">Women Stitched</option><option value="M">Men's Unstitched</option><option value="K">Kids</option><option value="EID">Eid Collection</option><option value="WIN">Winter Collection</option><option value="SUM">Summer Collection</option></AS></div>
+              <div><ALbl c="Category"/><AS value={form.cat||"WU"} onChange={e=>setForm({...form,cat:e.target.value})}><option value="WU">Women Unstitched</option><option value="WS">Women Stitched</option><option value="M">Men's Unstitched</option><option value="K">Kids</option><option value="HOT">Hot Sale</option><option value="NEW">New Arrivals</option><option value="3PC">3-Piece Sets</option></AS></div>
               <div><ALbl c="Price (Rs.) *"/><AI type="number" value={form.sale_price||form.price||""} onChange={e=>setForm({...form,sale_price:e.target.value,price:e.target.value})} placeholder="3500"/></div>
               <div><ALbl c="Old Price (Sale)"/><AI type="number" value={form.old_price||""} onChange={e=>setForm({...form,old_price:e.target.value})} placeholder="Leave empty"/></div>
               <div><ALbl c="Discount %"/><AI type="number" placeholder="e.g. 20 auto" onChange={e=>{const d=parseFloat(e.target.value);if(d&&(form.sale_price||form.price)){const o=parseFloat(form.sale_price||form.price);setForm({...form,old_price:o,sale_price:Math.round(o*(1-d/100)),price:Math.round(o*(1-d/100))});}}}/></div>
@@ -1139,7 +1183,22 @@ function AProducts({products,onRefresh}){
                   <div style={{width:42,height:50,background:"#f5f2ee",border:"1px solid "+(form["img"+n]||form["photo_url"+(n===1?"":n)]?"#111":"#e5e7eb"),display:"flex",alignItems:"center",justifyContent:"center",fontSize:n===1?16:12,flexShrink:0,overflow:"hidden"}}>
                     {(form["img"+n]||form["photo_url"+(n===1?"":n)])?<img src={form["img"+n]||form["photo_url"+(n===1?"":n)]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(n===1?"img":"+")}
                   </div>
-                  <AI value={form["img"+n]||form["photo_url"+(n===1?"":n)]||""} onChange={e=>setForm({...form,["img"+n]:e.target.value,["photo_url"+(n===1?"":n)]:e.target.value})} placeholder={"Image "+n+(n===1?" (main)":"")} style={{flex:1}}/>
+                  <AI value={form["img"+n]||form["photo_url"+(n===1?"":n)]||""} onChange={e=>setForm({...form,["img"+n]:e.target.value,["photo_url"+(n===1?"":n)]:e.target.value})} placeholder={"Image "+n+(n===1?" (main — URL ya upload karo)":"")} style={{flex:1}}/>
+                  <label style={{flexShrink:0,background:"#f0ede8",border:"1px solid #d0ccc5",padding:"8px 10px",cursor:"pointer",fontSize:11,fontWeight:600,color:"#9a8f83",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:4}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={async(e)=>{
+                      const file=e.target.files[0];
+                      if(!file||!sb)return;
+                      const ext=file.name.split('.').pop();
+                      const path="products/"+Date.now()+"-"+n+"."+ext;
+                      const{data,error}=await sb.storage.from("product-images").upload(path,file,{upsert:true});
+                      if(error){toast("Upload failed: "+error.message,"error");return;}
+                      const{data:{publicUrl}}=sb.storage.from("product-images").getPublicUrl(path);
+                      setForm(f=>({...f,["img"+n]:publicUrl,["photo_url"+(n===1?"":n)]:publicUrl}));
+                      toast("Image "+n+" uploaded!","success");
+                    }}/>
+                  </label>
                 </div>
               ))}
             </div>
@@ -1151,7 +1210,7 @@ function AProducts({products,onRefresh}){
           </div>
           <div style={{padding:"16px 24px",borderTop:"1px solid #e5e7eb",display:"flex",justifyContent:"flex-end",gap:8,position:"sticky",bottom:0,background:"#fff"}}>
             <ABtn onClick={()=>setEditP(null)} style={{background:"transparent",color:"#6b7280",border:"1px solid #e5e7eb"}}>Cancel</ABtn>
-            <ABtn onClick={save} style={{background:"#111",color:"#fff"}}>Save</ABtn>
+            <ABtn onClick={save} style={{background:saved?"#16a34a":"#111",color:"#fff",transition:"background .3s"}}>{saving?"Saving...":saved?"✓ Saved":"Save"}</ABtn>
           </div>
         </div>
       </div>
@@ -1228,21 +1287,39 @@ function ACoupons({coupons,onRefresh}){
 }
 function AContent({settings}){
   const[f,setF]=useState({});
+  const[saving,setSaving]=useState(false);
+  const[saved,setSaved]=useState(false);
+  const debRef=useRef(null);
   useEffect(()=>setF({...settings}),[settings]);
-  async function save(){if(!sb)return;await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));toast("Saved!","success");}
+  function updateF(key,val){
+    const nf={...f,[key]:val};
+    setF(nf);
+    // Debounced auto-save after 1.5s
+    clearTimeout(debRef.current);
+    setSaved(false);
+    debRef.current=setTimeout(async()=>{
+      if(!sb)return;
+      setSaving(true);
+      await Promise.all(Object.entries(nf).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));
+      setSaving(false);setSaved(true);
+      setTimeout(()=>setSaved(false),2000);
+    },1500);
+  }
+  async function save(){if(!sb)return;setSaving(true);await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2000);toast("Saved!","success");}
   return(<div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
       <AH title="Website Content" sub="Sab content yahan se change karo"/>
-      <ABtn onClick={save} style={{background:"#111",color:"#fff"}}>Save All</ABtn>
+      <ABtn onClick={save} style={{background:saved?"#16a34a":"#111",color:"#fff",transition:"background .3s"}}>{saving?"Saving...":saved?"✓ Saved":"Save All"}</ABtn>
     </div>
     {[{t:"Announcement Bar",fields:[["announcement","Messages (pipe | separated)"]]},{t:"Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},{t:"Video Section",fields:[["video_label","Label"],["video_title","Title"],["video_url","YouTube or MP4 URL"]]},
     {t:"Countdown Timer",fields:[["countdown_title","Sale Title (e.g. Eid Special Sale)"],["countdown_subtext","Sub Text (e.g. Up to 30% Off)"],["countdown_end","End Date & Time",false,true]]},
+    {t:"Our Story Section",fields:[["about","Story Text (website pe dikhega)",true],["story_stat1","Stat 1 (e.g. 50+)"],["story_stat1_label","Stat 1 Label (e.g. Years of Trust)"],["story_stat2","Stat 2"],["story_stat2_label","Stat 2 Label"],["story_stat3","Stat 3"],["story_stat3_label","Stat 3 Label"]]},
   ].map(sec=><ACard key={sec.t} style={{padding:20,marginBottom:16}}>
       <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>{sec.t}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-        {sec.fields.map(([k,lbl,full,isDate])=><div key={k} style={full?{gridColumn:"1/-1"}:{}}><ALbl c={lbl}/>{full?<textarea value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/>:isDate?<AI type="datetime-local" value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})}/>:<AI value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})}/>}</div>)}
-        {sec.t.includes("Video")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.video_show==="true"||f.video_show===true} onChange={e=>setF({...f,video_show:String(e.target.checked)})} style={{accentColor:"#111"}}/>Show video section on website</label></div>}
-        {sec.t.includes("Countdown")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.countdown_active==="true"||f.countdown_active===true} onChange={e=>setF({...f,countdown_active:String(e.target.checked)})} style={{accentColor:"#b91c1c"}}/>Show countdown banner on website</label></div>}
+        {sec.fields.map(([k,lbl,full,isDate])=><div key={k} style={full?{gridColumn:"1/-1"}:{}}><ALbl c={lbl}/>{full?<textarea value={f[k]||""} onChange={e=>updateF(k,e.target.value)} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/>:isDate?<AI type="datetime-local" value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>:<AI value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>}</div>)}
+        {sec.t.includes("Video")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.video_show==="true"||f.video_show===true} onChange={e=>updateF("video_show",String(e.target.checked))} style={{accentColor:"#111"}}/>Show video section on website</label></div>}
+        {sec.t.includes("Countdown")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.countdown_active==="true"||f.countdown_active===true} onChange={e=>updateF("countdown_active",String(e.target.checked))} style={{accentColor:"#b91c1c"}}/>Show countdown banner on website</label></div>}
       </div>
     </ACard>)}
   </div>);
@@ -1268,7 +1345,9 @@ function ASubs({subs}){
 function ASettings({settings}){
   const[f,setF]=useState({});const[np,setNp]=useState("");const[cp,setCp]=useState("");
   useEffect(()=>setF({...settings}),[settings]);
-  async function save(){if(!sb)return;await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));toast("Saved!","success");}
+  const[saving,setSaving]=useState(false);
+  const[saved,setSaved]=useState(false);
+  async function save(){if(!sb)return;setSaving(true);await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2000);toast("Saved!","success");}
   async function chgPass(){if(!np||np.length<6){toast("Min 6 chars","error");return;}if(np!==cp){toast("Passwords don't match","error");return;}if(sb)await sb.from("website_settings").upsert({key:"admin_pass",value:np},{onConflict:"key"});toast("Password changed!","success");setNp("");setCp("");}
   async function backup(){const{data:p}=sb?await sb.from("products").select("*"):{data:[]};const{data:s}=sb?await sb.from("website_settings").select("*"):{data:[]};const d=JSON.stringify({v:1,ts:new Date().toISOString(),products:p,settings:s},null,2);const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(d);a.download="jf-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("Downloaded!","success");}
   return(<div>
@@ -1280,13 +1359,13 @@ function ASettings({settings}){
         <ACard style={{padding:20,marginBottom:16}}>
           <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Store Info</div>
           <div style={{display:"grid",gap:12}}>
-            {[["store_name","Store Name"],["wa_number","WhatsApp (923...)"],["phone","Phone"],["addr1","Address 1"],["addr2","Address 2"],["hours","Business Hours"]].map(([k,lbl])=><div key={k}><ALbl c={lbl}/><AI value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})}/></div>)}
+            {[["store_name","Store Name"],["wa_number","WhatsApp (923...)"],["phone","Phone"],["addr1","Address 1"],["addr2","Address 2"],["hours","Business Hours"]].map(([k,lbl])=><div key={k}><ALbl c={lbl}/><AI value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/></div>)}
           </div>
         </ACard>
         <ACard style={{padding:20}}>
           <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Social Links</div>
           <div style={{display:"grid",gap:12}}>
-            {[["insta","Instagram URL"],["tiktok","TikTok URL"],["fb","Facebook URL"]].map(([k,lbl])=><div key={k}><ALbl c={lbl}/><AI value={f[k]||""} onChange={e=>setF({...f,[k]:e.target.value})} placeholder="https://..."/></div>)}
+            {[["insta","Instagram URL"],["tiktok","TikTok URL"],["fb","Facebook URL"]].map(([k,lbl])=><div key={k}><ALbl c={lbl}/><AI value={f[k]||""} onChange={e=>updateF(k,e.target.value)} placeholder="https://..."/></div>)}
           </div>
         </ACard>
       </div>
@@ -1326,7 +1405,7 @@ function AReviews({onRefresh}){
   async function del(id){if(!sb||!window.confirm("Delete?"))return;await sb.from("reviews").delete().eq("id",id);onRefresh();}
   const stars=n=>"★".repeat(n)+"☆".repeat(5-n);
   return(<div>
-    <AH title="Customer Reviews" sub="Manual add ya customer uploaded reviews"/>
+    <AH title="Customer Reviews" sub="Website pe dikhne wale reviews manage karo"/>
     <ACard style={{padding:20,marginBottom:20}}>
       <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Add Review Manually</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
