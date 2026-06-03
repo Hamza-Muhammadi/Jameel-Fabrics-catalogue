@@ -1,11 +1,47 @@
-import{useState,useEffect,useRef,useCallback}from"react";
+{onPriceDrop&&<button onClick={e=>{e.stopPropagation();onPriceDrop(prod);}} title="Price Drop Alert" style={{position:"absolute",bottom:12,left:12,zIndex:2,width:28,height:28,borderRadius:"50%",background:"rgba(255,255,255,.9)",border:"1px solid #e0d8cc",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🔔</button>}import{useState,useEffect,useRef,useCallback}from"react";
 import{createClient}from"@supabase/supabase-js";
 const SURL=process.env.REACT_APP_SUPABASE_URL||"";
 const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
 const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
 const WA_NUM="923228722232";
-const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids",HOT:"Hot Sale",NEW:"New Arrivals","3PC":"3-Piece Sets"};
-const CATS=[["All","All"],["M","Men's"],["WU","Women Unstitched"],["WS","Women Stitched"],["K","Kids"],["HOT","Hot Sale"],["NEW","New Arrivals"],["3PC","3-Piece Sets"]];
+const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids Unstitch",HOT:"Hot Sale",NEW:"New Arrivals","2PC":"2-Piece Sets"};
+const CATS=[
+  ["All","All"],
+  ["WU","Women Unstitch"],
+  ["WS","Women Stitch"],
+  ["RS","Women Stitch + Unstitch – Fancy (Reshmi Suiting)"],
+  ["AB","Abayas"],
+  ["MP","Mens Unstitch Plain"],
+  ["ME","Mens Unstitch Embroidery"],
+  ["KU","Kids Unstitch"],
+  ["BS","Bedsheets"],
+  ["BL","Blankets"],
+  ["OT","Others"],
+  ["HOT","Hot Sale"],
+  ["NEW","New Arrivals"],
+];
+// ── Brand limits per category ─────────────────────────────────
+const CAT_BRAND_LIMITS={
+  "MP":{min:10,max:16},   // Mens Plain
+  "ME":{min:3, max:6},    // Mens Embroidery
+  "WS":{min:1, max:15},   // Women Stitch
+  "RS":{min:1, max:15},   // Reshmi Suiting
+  "AB":{min:1, max:1},    // Abayas - no brand
+  "KU":{min:1, max:1},    // Kids Unstitch - no brand
+  "BS":{min:1, max:5},    // Bedsheets
+  "BL":{min:1, max:5},    // Blankets
+  "OT":{min:1, max:10},   // Others
+  "WU":{min:1, max:20},   // Women Unstitch
+};
+
+
+// ── Feature Constants ────────────────────────────────────────
+const FEEL_OPTS=["Soft","Medium","Stiff"];
+const SEASON_OPTS=["Summer","Winter","All-season"];
+const CARE_OPTS=["Machine Wash","Hand Wash","Dry Clean Only"];
+const SORT_OPTS=[{v:"new",l:"Newest First"},{v:"price_asc",l:"Price: Low to High"},{v:"price_desc",l:"Price: High to Low"},{v:"name",l:"Name A-Z"}];
+
+
 const G=`
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Jost:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -65,6 +101,30 @@ button{font-family:'Jost',sans-serif}
   .stat-grid{grid-template-columns:1fr 1fr!important;}
 }
 
+
+/* Custom Cursor */
+@media (pointer:fine){
+  body{cursor:none!important;}
+  .jf-cursor{pointer-events:none;position:fixed;z-index:99999;top:0;left:0;transform:translate(-50%,-50%);transition:opacity .2s;}
+  .jf-cursor-dot{width:8px;height:8px;background:#c9a84c;border-radius:50%;position:fixed;z-index:99998;pointer-events:none;transform:translate(-50%,-50%);}
+  a,button,[role=button]{cursor:none!important;}
+}
+/* Free Shipping Bar */
+.fs-bar{background:linear-gradient(90deg,#1a1612,#2c2416);color:#c9a84c;text-align:center;padding:8px 16px;font-size:12px;letter-spacing:.5px;position:relative;overflow:hidden;}
+.fs-bar .fs-prog{position:absolute;left:0;top:0;height:100%;background:#c9a84c22;transition:width .4s ease;}
+/* Fabric Feel */
+.feel-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid currentColor;}
+/* Voice search pulse */
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.voice-active{animation:pulse .6s infinite;background:#ef4444!important;}
+/* Price slider */
+input[type=range].price-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(to right,#c9a84c var(--val,50%),#e0d8cc var(--val,50%));outline:none;}
+input[type=range].price-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#c9a84c;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+/* Gift option */
+.gift-box{border:2px dashed #c9a84c;border-radius:12px;padding:16px;background:#fffef5;}
+/* AI suggester */
+.ai-typing::after{content:"▌";animation:blink .7s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 `;
 let _tf=null;
 function useToast(){const[list,setList]=useState([]);_tf=useCallback((msg,type="")=>{const id=Date.now();setList(t=>[...t,{id,msg,type}]);setTimeout(()=>setList(t=>t.filter(x=>x.id!==id)),3200);},[]);return list;}
@@ -89,6 +149,302 @@ const IgSvg=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="currentCol
 const WaSvg=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>;
 const TkSvg=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.19a8.19 8.19 0 0 0 4.79 1.53V6.27a4.85 4.85 0 0 1-1.02-.57z"/></svg>;
 const FbSvg=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
+
+// ══════════════════════════════════════════════════════════════
+// CUSTOM CURSOR (desktop only)
+// ══════════════════════════════════════════════════════════════
+function CustomCursor(){
+  const dot=useRef(null);const cursor=useRef(null);
+  useEffect(()=>{
+    const move=e=>{
+      if(dot.current){dot.current.style.left=e.clientX+"px";dot.current.style.top=e.clientY+"px";}
+      if(cursor.current){
+        setTimeout(()=>{if(cursor.current){cursor.current.style.left=e.clientX+"px";cursor.current.style.top=e.clientY+"px";}},80);
+      }
+    };
+    window.addEventListener("mousemove",move);
+    return()=>window.removeEventListener("mousemove",move);
+  },[]);
+  // Only show on desktop
+  if(typeof window!=="undefined"&&window.matchMedia("(pointer:coarse)").matches)return null;
+  return(<>
+    <div ref={dot} className="jf-cursor-dot"/>
+    <div ref={cursor} className="jf-cursor">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        {/* Needle shape */}
+        <line x1="4" y1="28" x2="24" y2="8" stroke="#1a1612" strokeWidth="2" strokeLinecap="round"/>
+        <ellipse cx="24.5" cy="7.5" rx="3" ry="1.5" transform="rotate(-45 24.5 7.5)" fill="#c9a84c" stroke="#1a1612" strokeWidth="1"/>
+        <circle cx="24.5" cy="7.5" r="1" fill="#1a1612"/>
+        {/* Thread */}
+        <path d="M4 28 Q2 30 3 31 Q4 32 6 30 Q8 28 7 26" stroke="#c9a84c" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      </svg>
+    </div>
+  </>);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FREE SHIPPING BAR
+// ══════════════════════════════════════════════════════════════
+function FreeShippingBar({cartTotal,settings}){
+  const min=Number(settings?.free_shipping_min||2000);
+  const active=settings?.free_shipping_active!=="false";
+  if(!active)return null;
+  const remaining=Math.max(0,min-cartTotal);
+  const pct=Math.min(100,Math.round((cartTotal/min)*100));
+  return(
+    <div className="fs-bar">
+      <div className="fs-prog" style={{width:pct+"%"}}/>
+      <span style={{position:"relative",zIndex:1}}>
+        {remaining<=0
+          ?<>✨ You've unlocked <strong>Free Shipping!</strong></>
+          :<>Add <strong>Rs. {remaining.toLocaleString()}</strong> more for 🚚 <strong>Free Shipping</strong></>
+        }
+      </span>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// EID COUNTDOWN
+// ══════════════════════════════════════════════════════════════
+function EidCountdown({settings}){
+  const[time,setTime]=useState({d:0,h:0,m:0,s:0});
+  const active=settings?.eid_show==="true";
+  const eidDate=settings?.eid_date;
+  useEffect(()=>{
+    if(!active||!eidDate)return;
+    const tick=()=>{
+      const diff=new Date(eidDate)-new Date();
+      if(diff<=0){setTime({d:0,h:0,m:0,s:0});return;}
+      setTime({d:Math.floor(diff/86400000),h:Math.floor((diff%86400000)/3600000),m:Math.floor((diff%3600000)/60000),s:Math.floor((diff%60000)/1000)});
+    };
+    tick();const t=setInterval(tick,1000);return()=>clearInterval(t);
+  },[active,eidDate]);
+  if(!active||!eidDate)return null;
+  return(
+    <div style={{background:"linear-gradient(135deg,#1a1612,#2c2416)",color:"#fff",padding:"20px",textAlign:"center",margin:"24px 0",borderRadius:12,border:"1px solid #c9a84c44"}}>
+      <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:6}}>🌙 {settings?.eid_title||"Eid Collection"}</div>
+      <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginBottom:12}}>{settings?.eid_subtitle||"Exclusive Eid Arrivals — Coming Soon"}</div>
+      <div style={{display:"flex",justifyContent:"center",gap:12}}>
+        {[["Days",time.d],["Hours",time.h],["Min",time.m],["Sec",time.s]].map(([l,v])=>(
+          <div key={l} style={{background:"rgba(201,168,76,.1)",border:"1px solid #c9a84c44",borderRadius:8,padding:"10px 14px",minWidth:56}}>
+            <div style={{fontSize:24,fontWeight:700,color:"#c9a84c",fontFamily:"'Cormorant Garamond',serif"}}>{String(v).padStart(2,"0")}</div>
+            <div style={{fontSize:9,color:"rgba(255,255,255,.4)",letterSpacing:1,textTransform:"uppercase"}}>{l}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// FABRIC FEEL INDICATOR
+// ══════════════════════════════════════════════════════════════
+function FabricFeel({feel,season,care}){
+  if(!feel&&!season&&!care)return null;
+  const feelColor={Soft:"#4caf7d",Medium:"#e0a052",Stiff:"#5296e0"};
+  const seasonIcon={Summer:"☀️","All-season":"🌤️",Winter:"❄️"};
+  const careIcon={"Machine Wash":"🫧","Hand Wash":"🤲","Dry Clean Only":"🧺"};
+  return(
+    <div style={{display:"flex",flexWrap:"wrap",gap:5,margin:"8px 0"}}>
+      {feel&&<span className="feel-badge" style={{color:feelColor[feel]||"#9a8f83",borderColor:feelColor[feel]||"#9a8f83"}}>{feel==="Soft"?"🪶":feel==="Stiff"?"💎":"✋"} {feel}</span>}
+      {season&&<span className="feel-badge" style={{color:"#6b5f52",borderColor:"#e0d8cc"}}>{seasonIcon[season]||"🌤️"} {season}</span>}
+      {care&&<span className="feel-badge" style={{color:"#6b5f52",borderColor:"#e0d8cc"}}>{careIcon[care]||"🧺"} {care}</span>}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// PRICE RANGE SLIDER
+// ══════════════════════════════════════════════════════════════
+function PriceSlider({min,max,value,onChange}){
+  return(
+    <div style={{padding:"0 4px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9a8f83",marginBottom:4}}>
+        <span>Rs. {value[0].toLocaleString()}</span>
+        <span>Rs. {value[1].toLocaleString()}</span>
+      </div>
+      <div style={{position:"relative",height:4,background:"#e0d8cc",borderRadius:2,margin:"8px 0 4px"}}>
+        <div style={{position:"absolute",left:((value[0]-min)/(max-min)*100)+"%",right:(100-(value[1]-min)/(max-min)*100)+"%",height:"100%",background:"#c9a84c",borderRadius:2}}/>
+        <input type="range" min={min} max={max} value={value[0]} onChange={e=>onChange([Math.min(+e.target.value,value[1]-500),value[1]])} className="price-slider" style={{position:"absolute",width:"100%",opacity:0,height:20,top:-8,cursor:"pointer"}}/>
+        <input type="range" min={min} max={max} value={value[1]} onChange={e=>onChange([value[0],Math.max(+e.target.value,value[0]+500)])} className="price-slider" style={{position:"absolute",width:"100%",opacity:0,height:20,top:-8,cursor:"pointer"}}/>
+        <div style={{position:"absolute",left:((value[0]-min)/(max-min)*100)+"%",top:-6,width:16,height:16,background:"#c9a84c",borderRadius:"50%",border:"2px solid #fff",boxShadow:"0 1px 4px rgba(0,0,0,.2)",transform:"translateX(-50%)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",left:((value[1]-min)/(max-min)*100)+"%",top:-6,width:16,height:16,background:"#c9a84c",borderRadius:"50%",border:"2px solid #fff",boxShadow:"0 1px 4px rgba(0,0,0,.2)",transform:"translateX(-50%)",pointerEvents:"none"}}/>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// VOICE SEARCH
+// ══════════════════════════════════════════════════════════════
+function VoiceSearchBtn({onResult}){
+  const[listening,setListening]=useState(false);
+  const SR=typeof window!=="undefined"&&(window.SpeechRecognition||window.webkitSpeechRecognition);
+  if(!SR)return null;
+  function start(){
+    const r=new SR();r.lang="ur-PK";r.interimResults=false;r.maxAlternatives=3;
+    r.onresult=e=>{
+      const t=e.results[0][0].transcript;
+      setListening(false);onResult(t);
+    };
+    r.onerror=()=>setListening(false);
+    r.onend=()=>setListening(false);
+    r.start();setListening(true);
+  }
+  return(
+    <button onClick={start} title="Voice Search" className={listening?"voice-active":""} style={{background:listening?"#ef4444":"#f5f0e8",border:"1px solid #e0d8cc",borderRadius:8,width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,transition:"background .2s"}}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={listening?"#fff":"#c9a84c"} strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// AI OUTFIT SUGGESTER
+// ══════════════════════════════════════════════════════════════
+function AIOutfitSuggester({prods,onFilter}){
+  const[open,setOpen]=useState(false);
+  const[q,setQ]=useState("");
+  const[ans,setAns]=useState("");
+  const[loading,setLoading]=useState(false);
+
+  async function ask(){
+    if(!q.trim())return;
+    setLoading(true);setAns("");
+    const prodList=prods.slice(0,30).map(p=>`${p.name}|${p.category}|Rs.${p.sale_price||p.price}|${p.feel||""}|${p.season||""}`).join("\n");
+    try{
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:`You are a Pakistani fabric store assistant for Jameel Fabrics Kunjah. Available products:\n${prodList}\n\nCustomer asks: "${q}"\n\nSuggest 2-3 specific products from the list above with reasons. Be brief, friendly, in simple English. Format: Product Name — Why it's perfect. Max 3 lines.`}]})});
+      const d=await r.json();
+      setAns(d.content?.[0]?.text||"Could not get suggestions.");
+    }catch{setAns("Service unavailable. Please try again.");}
+    setLoading(false);
+  }
+
+  return(
+    <>
+      <button onClick={()=>setOpen(true)} style={{position:"fixed",bottom:80,right:16,zIndex:900,background:"linear-gradient(135deg,#1a1612,#2c2416)",color:"#c9a84c",border:"1px solid #c9a84c44",borderRadius:50,padding:"10px 16px",fontSize:12,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.3)",display:"flex",alignItems:"center",gap:6}}>
+        ✨ Style Help
+      </button>
+      {open&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:1000,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setOpen(false)}>
+        <div style={{background:"#fff",borderRadius:"16px 16px 0 0",padding:24,width:"100%",maxWidth:480,maxHeight:"70vh",overflow:"auto"}} onClick={e=>e.stopPropagation()}>
+          <div style={{fontWeight:700,fontSize:16,color:"#1a1612",marginBottom:4}}>✨ AI Outfit Suggester</div>
+          <div style={{fontSize:12,color:"#9a8f83",marginBottom:16}}>Tell me the occasion — I'll suggest the perfect fabric</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
+            {["Mehndi ke liye","Eid outfit","Office wear","Wedding guest","Gift for wife"].map(s=>(
+              <button key={s} onClick={()=>setQ(s)} style={{background:"#f5f0e8",border:"1px solid #e0d8cc",borderRadius:20,padding:"5px 12px",fontSize:11,cursor:"pointer",color:"#6b5f52"}}>{s}</button>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:8,marginBottom:16}}>
+            <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&ask()} placeholder="Type your occasion or question..." style={{flex:1,padding:"10px 14px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:13,outline:"none"}}/>
+            <button onClick={ask} disabled={loading} style={{background:"#1a1612",color:"#c9a84c",border:"none",borderRadius:8,padding:"10px 18px",fontSize:13,cursor:"pointer",fontWeight:600}}>{loading?"...":"Ask"}</button>
+          </div>
+          {loading&&<div style={{fontSize:13,color:"#9a8f83"}} className="ai-typing">Finding perfect suggestions</div>}
+          {ans&&<div style={{background:"#fdfcf8",border:"1px solid #e0d8cc",borderRadius:8,padding:14,fontSize:13,color:"#4a4035",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{ans}</div>}
+          <button onClick={()=>setOpen(false)} style={{marginTop:16,width:"100%",background:"none",border:"1px solid #e0d8cc",borderRadius:8,padding:"10px",fontSize:13,cursor:"pointer",color:"#9a8f83"}}>Close</button>
+        </div>
+      </div>}
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// IMAGE ZOOM MODAL
+// ══════════════════════════════════════════════════════════════
+function ImageZoom({src,alt,onClose}){
+  if(!src)return null;
+  return(
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.92)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",cursor:"zoom-out"}}>
+      <img src={src} alt={alt||""} style={{maxWidth:"95vw",maxHeight:"95vh",objectFit:"contain",borderRadius:4}}/>
+      <button onClick={onClose} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,.15)",border:"none",color:"#fff",width:36,height:36,borderRadius:"50%",fontSize:18,cursor:"pointer"}}>✕</button>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// GIFT OPTION COMPONENT
+// ══════════════════════════════════════════════════════════════
+function GiftOption({value,onChange}){
+  const opts=[{id:"box",l:"Gift Box",p:200},{id:"sheet",l:"Wrapping Sheet",p:100},{id:"card",l:"Greeting Card",p:50}];
+  const extra=opts.filter(o=>value?.extras?.includes(o.id)).reduce((a,o)=>a+o.p,0)+(value?.enabled?200:0);
+  return(
+    <div className="gift-box" style={{marginTop:12}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:value?.enabled?12:0}}>
+        <input type="checkbox" id="gift-cb" checked={!!value?.enabled} onChange={e=>onChange({...value,enabled:e.target.checked})} style={{width:16,height:16,accentColor:"#c9a84c"}}/>
+        <label htmlFor="gift-cb" style={{fontWeight:600,fontSize:13,color:"#1a1612",cursor:"pointer"}}>🎁 Send as Gift <span style={{color:"#c9a84c",fontWeight:700}}>+Rs. 200</span></label>
+      </div>
+      {value?.enabled&&<>
+        <div style={{fontSize:12,color:"#9a8f83",marginBottom:8}}>Recipient Details</div>
+        <input value={value?.to_name||""} onChange={e=>onChange({...value,to_name:e.target.value})} placeholder="Recipient Name" style={{width:"100%",padding:"8px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",marginBottom:6,boxSizing:"border-box"}}/>
+        <input value={value?.to_address||""} onChange={e=>onChange({...value,to_address:e.target.value})} placeholder="Delivery Address" style={{width:"100%",padding:"8px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",marginBottom:6,boxSizing:"border-box"}}/>
+        <input value={value?.to_phone||""} onChange={e=>onChange({...value,to_phone:e.target.value})} placeholder="Recipient Phone" style={{width:"100%",padding:"8px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",marginBottom:8,boxSizing:"border-box"}}/>
+        <div style={{fontSize:12,color:"#9a8f83",marginBottom:6}}>Add-ons:</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+          {opts.map(o=>(
+            <label key={o.id} style={{display:"flex",alignItems:"center",gap:5,fontSize:12,cursor:"pointer",background:"#fff",border:"1px solid #e0d8cc",borderRadius:6,padding:"5px 10px"}}>
+              <input type="checkbox" checked={value?.extras?.includes(o.id)||false} onChange={e=>{const ex=value?.extras||[];onChange({...value,extras:e.target.checked?[...ex,o.id]:ex.filter(x=>x!==o.id)});}} style={{accentColor:"#c9a84c"}}/>
+              {o.l} <span style={{color:"#c9a84c"}}>+Rs.{o.p}</span>
+            </label>
+          ))}
+        </div>
+        <textarea value={value?.message||""} onChange={e=>onChange({...value,message:e.target.value})} placeholder="Gift card message (optional)..." rows={2} style={{width:"100%",padding:"8px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",resize:"none",boxSizing:"border-box",marginBottom:4}}/>
+        <div style={{fontSize:11,color:"#c9a84c",fontWeight:600,textAlign:"right"}}>Gift extras total: Rs. {extra}</div>
+      </>}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUBSCRIPTION BOX
+// ══════════════════════════════════════════════════════════════
+function SubscriptionBox({settings,user,onAuth}){
+  const[open,setOpen]=useState(false);
+  const[form,setForm]=useState({name:user?.user_metadata?.full_name||"",phone:"",address:"",plan:"monthly"});
+  const[done,setDone]=useState(false);
+  const price=Number(settings?.sub_price||2500);
+  const active=settings?.sub_active!=="false";
+  if(!active)return null;
+  async function subscribe(){
+    if(!form.name||!form.phone)return alert("Name and phone required");
+    if(sb&&user)await sb.from("subscriptions").insert({user_id:user.id,name:form.name,phone:form.phone,address:form.address,plan:form.plan,status:"pending",created_at:new Date().toISOString()});
+    setDone(true);
+  }
+  return(
+    <>
+      <div style={{background:"linear-gradient(135deg,#1a1612,#2c2416)",borderRadius:16,padding:"28px 24px",margin:"32px 0",textAlign:"center",border:"1px solid #c9a84c44",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:-20,right:-20,fontSize:80,opacity:.05}}>📦</div>
+        <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:8}}>Exclusive</div>
+        <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,color:"#fff",margin:"0 0 8px",fontWeight:600}}>Monthly Fabric Box</h3>
+        <p style={{fontSize:13,color:"rgba(255,255,255,.6)",margin:"0 0 16px",lineHeight:1.6}}>Surprise premium fabrics delivered every month.<br/>Curated by our experts — just for you.</p>
+        <div style={{fontSize:28,fontWeight:700,color:"#c9a84c",fontFamily:"'Cormorant Garamond',serif",marginBottom:16}}>Rs. {price.toLocaleString()}<span style={{fontSize:13,fontWeight:400,color:"rgba(255,255,255,.5)"}}>/month</span></div>
+        <div style={{display:"flex",justifyContent:"center",gap:16,marginBottom:20,fontSize:12,color:"rgba(255,255,255,.6)"}}>
+          {["🧵 2-3 Premium Fabrics","📦 Free Delivery","✨ Surprise Every Month"].map((t,i)=><span key={i}>{t}</span>)}
+        </div>
+        <button onClick={()=>user?setOpen(true):onAuth("login")} style={{background:"#c9a84c",color:"#1a1612",border:"none",padding:"12px 28px",borderRadius:6,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:.5}}>Subscribe Now</button>
+      </div>
+      {open&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setOpen(false)}>
+        <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:400}} onClick={e=>e.stopPropagation()}>
+          {done?<div style={{textAlign:"center",padding:"20px 0"}}>
+            <div style={{fontSize:48,marginBottom:12}}>📦</div>
+            <div style={{fontWeight:700,fontSize:16,color:"#1a1612",marginBottom:6}}>Subscribed!</div>
+            <div style={{fontSize:13,color:"#9a8f83"}}>We'll contact you on WhatsApp for payment and delivery details.</div>
+            <button onClick={()=>{setOpen(false);setDone(false);}} style={{marginTop:16,background:"#1a1612",color:"#fff",border:"none",padding:"10px 24px",borderRadius:6,cursor:"pointer"}}>Close</button>
+          </div>:<>
+            <div style={{fontWeight:700,fontSize:16,color:"#1a1612",marginBottom:16}}>📦 Subscribe to Monthly Box</div>
+            {[["name","Your Name"],["phone","WhatsApp Number"],["address","Delivery Address"]].map(([k,l])=>(
+              <div key={k} style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:"#9a8f83",display:"block",marginBottom:3}}>{l}</label>
+                <input value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})} style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+              </div>
+            ))}
+            <div style={{fontSize:12,color:"#9a8f83",margin:"8px 0 14px",padding:"8px",background:"#fdfcf8",borderRadius:6}}>💳 Payment via EasyPaisa/JazzCash after confirmation on WhatsApp</div>
+            <button onClick={subscribe} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",borderRadius:6,fontSize:14,fontWeight:700,cursor:"pointer"}}>Confirm — Rs. {price.toLocaleString()}/month</button>
+          </>}
+        </div>
+      </div>}
+    </>
+  );
+}
+
 
 function Intro({onEnter}){
   const[step,setStep]=useState(0);
@@ -140,7 +496,7 @@ function AuthModal({mode,onClose,onSuccess}){
         {["login","register"].map(t=><button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"10px 0",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:11,fontWeight:600,letterSpacing:1,color:tab===t?"#111":"#9a8f83",borderBottom:tab===t?"2px solid #111":"2px solid transparent",transition:"all .2s",textTransform:"uppercase"}}>{t==="login"?"Sign In":"Register"}</button>)}
       </div>
       <div style={{display:"grid",gap:22}}>
-        {tab==="register"&&<div><label style={L}>Full Name *</label><input style={I} value={name} onChange={e=>setName(e.target.value)} placeholder="Ayesha Tariq" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/></div>}
+        {tab==="register"&&<div><label style={L}>Full Name *</label><input style={I} value={name} onChange={e=>setName(e.target.value)} placeholder="Hamza Muhammadi" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/></div>}
         <div><label style={L}>Email *</label><input style={I} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@email.com" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/></div>
         <div><label style={L}>Password *</label><input style={I} type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"} onKeyDown={e=>e.key==="Enter"&&(tab==="login"?login():register())}/></div>
         {tab==="register"&&<div><label style={L}>Phone</label><input style={I} value={phone} onChange={e=>setPhone(e.target.value)} placeholder="0300-1234567" onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/></div>}
@@ -264,7 +620,7 @@ function PCardSkeleton(){
 }
 
 
-function PCard({prod,onAdd,onWish,wished,idx,onOpenModal}){
+function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
   const[hov,setHov]=useState(false);const[added,setAdded]=useState(false);
   const img=prod.img1||prod.photo_url||"";
   const price=Number(prod.sale_price||prod.price||0);
@@ -298,6 +654,7 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal}){
           <div style={{fontSize:10,marginBottom:7,fontWeight:lowStock?700:400,color:lowStock?"#b91c1c":"#b5aba2",fontStyle:lowStock?"normal":"italic",display:"flex",alignItems:"center",gap:4}}>
             {lowStock&&<span style={{animation:"pulse 1.2s ease infinite",display:"inline-block",width:6,height:6,borderRadius:"50%",background:"#b91c1c",flexShrink:0}}/>}
             {prod.display_stock_text}
+            <FabricFeel feel={prod.feel} season={prod.season} care={prod.care}/>
           </div>
         )}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:8}}>
@@ -538,77 +895,98 @@ function PWAInstallBtn(){
 function ReviewsSection(){
   const[reviews,setReviews]=useState([]);
   const[showForm,setShowForm]=useState(false);
-  const[form,setForm]=useState({name:"",city:"",text:"",rating:5});
-  const[submitting,setSubmitting]=useState(false);
+  const[form,setForm]=useState({name:"",city:"",text:"",rating:5,photo:""});
+  const[submitting,setSub]=useState(false);
+  const sb=typeof createClient!=="undefined"&&process.env.REACT_APP_SUPABASE_URL?createClient(process.env.REACT_APP_SUPABASE_URL,process.env.REACT_APP_SUPABASE_ANON_KEY):null;
 
   useEffect(()=>{
     if(!sb)return;
-    sb.from("website_reviews").select("*").eq("approved",true).order("created_at",{ascending:false}).then(({data})=>setReviews(data||[]));
+    sb.from("reviews").select("*").eq("approved",true).order("created_at",{ascending:false}).limit(20).then(({data})=>setReviews(data||[]));
   },[]);
 
   async function submit(){
-    if(!form.name||!form.text){toast("Naam aur review daalo","error");return;}
-    setSubmitting(true);
-    if(sb)await sb.from("website_reviews").insert({...form,approved:false});
-    setSubmitting(false);
-    toast("Review submit! Admin approve karega. Shukriya ✓","success");
-    setForm({name:"",city:"",text:"",rating:5});
-    setShowForm(false);
+    if(!form.name||!form.text)return alert("Please fill name and review.");
+    setSub(true);
+    const payload={name:form.name,city:form.city,text:form.text,rating:form.rating,photo:form.photo||null,approved:false};
+    if(sb)await sb.from("reviews").insert(payload);
+    setSub(false);setShowForm(false);
+    setForm({name:"",city:"",text:"",rating:5,photo:""});
+    alert("Thank you! Your review will appear after approval.");
   }
 
-  const stars=n=>Array(5).fill(0).map((_,i)=><span key={i} style={{color:i<n?"#c9a84c":"#d0ccc5",fontSize:16,cursor:showForm?"pointer":"default"}} onClick={()=>showForm&&setForm(f=>({...f,rating:i+1}))}>★</span>);
+  const stars=(n)=>Array.from({length:5},(_,i)=><span key={i} style={{color:i<n?"#c9a84c":"#ddd",fontSize:14}}>★</span>);
 
   return(
-    <div style={{maxWidth:1100,margin:"0 auto"}}>
-      {reviews.length>0&&(
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16,marginBottom:28}}>
-          {reviews.map(r=>(
-            <div key={r.id} className="rv" style={{background:"#faf9f7",border:"1px solid #e8e4df",padding:"20px 22px",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.background="#fff";e.currentTarget.style.borderColor="#c0b9b0";e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 12px 32px rgba(0,0,0,.07)";}} onMouseLeave={e=>{e.currentTarget.style.background="#faf9f7";e.currentTarget.style.borderColor="#e8e4df";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
-              <div style={{display:"flex",gap:2,marginBottom:10}}>{stars(r.rating||5)}</div>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,color:"#6b6358",lineHeight:1.8,fontStyle:"italic",marginBottom:14}}>"{r.text}"</div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div><div style={{fontWeight:700,fontSize:13,color:"#111"}}>{r.name}</div>{r.city&&<div style={{fontSize:11,color:"#9a8f83",marginTop:2}}>{r.city}</div>}</div>
-                <div style={{fontSize:9,color:"#b5aba2"}}>{new Date(r.created_at).toLocaleDateString()}</div>
+    <section style={{padding:"60px 20px",background:"#fdfcf8",borderTop:"1px solid #f0ece0"}}>
+      <div style={{maxWidth:900,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:40}}>
+          <div style={{fontSize:11,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:8}}>Customer Reviews</div>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(26px,4vw,38px)",fontWeight:600,color:"#1a1612",margin:0}}>What Our Customers Say</h2>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:20,marginBottom:36}}>
+          {reviews.length===0&&<div style={{gridColumn:"1/-1",textAlign:"center",color:"#9a8f83",padding:"40px 0",fontSize:14}}>No reviews yet. Be the first!</div>}
+          {reviews.map((r,i)=>(
+            <div key={i} style={{background:"#fff",borderRadius:12,padding:"20px 18px",boxShadow:"0 2px 12px rgba(0,0,0,0.06)",border:"1px solid #f0ece0"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                {r.photo
+                  ?<img src={r.photo} alt="" style={{width:42,height:42,borderRadius:"50%",objectFit:"cover",border:"2px solid #c9a84c"}}/>
+                  :<div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,#c9a84c,#a07830)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:16}}>{r.name?r.name[0].toUpperCase():"?"}</div>
+                }
+                <div>
+                  <div style={{fontWeight:600,fontSize:13,color:"#1a1612"}}>{r.name}</div>
+                  {r.city&&<div style={{fontSize:11,color:"#9a8f83"}}>📍 {r.city}</div>}
+                </div>
+                <div style={{marginLeft:"auto"}}>{stars(r.rating||5)}</div>
               </div>
+              <p style={{fontSize:13,color:"#4a4035",lineHeight:1.6,margin:0}}>"{r.text}"</p>
             </div>
           ))}
         </div>
-      )}
-      {/* Submit review */}
-      {!showForm?(
+
         <div style={{textAlign:"center"}}>
-          <button onClick={()=>setShowForm(true)} style={{background:"transparent",color:"#111",border:"1px solid #111",padding:"12px 32px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>
-            Share Your Review
-          </button>
+          {!showForm
+            ?<button onClick={()=>setShowForm(true)} style={{background:"#1a1612",color:"#fff",border:"none",padding:"12px 28px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",letterSpacing:1}}>Write a Review</button>
+            :<div style={{background:"#fff",border:"1px solid #e8dfc0",borderRadius:12,padding:"24px 20px",maxWidth:480,margin:"0 auto",textAlign:"left"}}>
+              <div style={{fontWeight:600,fontSize:15,color:"#1a1612",marginBottom:16}}>Share Your Experience</div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:12,color:"#9a8f83",display:"block",marginBottom:4}}>Your Name *</label>
+                <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Hamza Muhammadi" style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:12,color:"#9a8f83",display:"block",marginBottom:4}}>City</label>
+                <input value={form.city} onChange={e=>setForm({...form,city:e.target.value})} placeholder="e.g. Lahore" style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:12,color:"#9a8f83",display:"block",marginBottom:4}}>Rating</label>
+                <div style={{display:"flex",gap:6}}>
+                  {[1,2,3,4,5].map(n=>(
+                    <button key={n} onClick={()=>setForm({...form,rating:n})} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:n<=form.rating?"#c9a84c":"#ddd",padding:"2px"}}>★</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:12,color:"#9a8f83",display:"block",marginBottom:4}}>Your Review *</label>
+                <textarea value={form.text} onChange={e=>setForm({...form,text:e.target.value})} placeholder="Share your experience with our products..." rows={3} style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+              </div>
+              <div style={{marginBottom:14}}>
+                <label style={{fontSize:12,color:"#9a8f83",display:"block",marginBottom:4}}>📸 Add Photo (optional)</label>
+                <input type="file" accept="image/*" capture="environment" onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>setForm(p=>({...p,photo:ev.target.result}));r.readAsDataURL(f);}} style={{fontSize:12,width:"100%"}}/>
+                {form.photo&&<img src={form.photo} alt="" style={{width:60,height:60,objectFit:"cover",borderRadius:6,marginTop:6,border:"1px solid #e0d8cc"}}/>}
+              </div>
+              <div style={{display:"flex",gap:10}}>
+                <button onClick={submit} disabled={submitting} style={{flex:1,background:"#1a1612",color:"#fff",border:"none",padding:"10px",borderRadius:6,fontSize:13,cursor:"pointer"}}>{submitting?"Submitting...":"Submit Review"}</button>
+                <button onClick={()=>setShowForm(false)} style={{background:"none",border:"1px solid #e0d8cc",padding:"10px 16px",borderRadius:6,fontSize:13,cursor:"pointer",color:"#9a8f83"}}>Cancel</button>
+              </div>
+            </div>
+          }
         </div>
-      ):(
-        <div style={{maxWidth:520,margin:"0 auto",background:"#faf9f7",border:"1px solid #e8e4df",padding:"24px"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:17,fontWeight:700,color:"#111",marginBottom:4}}>Share Your Experience</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,color:"#9a8f83",fontStyle:"italic",marginBottom:20}}>Aapka review doosron ki madad karega</div>
-          <div style={{display:"flex",gap:4,marginBottom:16}}>
-            {[1,2,3,4,5].map(n=><span key={n} onClick={()=>setForm(f=>({...f,rating:n}))} style={{fontSize:28,cursor:"pointer",color:n<=form.rating?"#c9a84c":"#d0ccc5",transition:"all .2s"}}>★</span>)}
-          </div>
-          <div style={{display:"grid",gap:12}}>
-            <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="Aapka Naam *" style={{border:"none",borderBottom:"1px solid #d0ccc5",padding:"10px 0",fontSize:14,outline:"none",fontFamily:"inherit",background:"transparent"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/>
-            <input value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))} placeholder="Sheher (optional)" style={{border:"none",borderBottom:"1px solid #d0ccc5",padding:"10px 0",fontSize:14,outline:"none",fontFamily:"inherit",background:"transparent"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/>
-            <textarea value={form.text} onChange={e=>setForm(f=>({...f,text:e.target.value}))} placeholder="Aapka tajruba likhein *" style={{border:"1px solid #d0ccc5",padding:"10px 12px",fontSize:14,outline:"none",fontFamily:"inherit",background:"#fff",minHeight:80,resize:"vertical"}} onFocus={e=>e.target.style.borderColor="#111"} onBlur={e=>e.target.style.borderColor="#d0ccc5"}/>
-          </div>
-          <div style={{display:"flex",gap:8,marginTop:16}}>
-            <button onClick={submit} disabled={submitting} style={{flex:1,background:"#111",color:"#fff",border:"none",padding:12,fontSize:10,fontWeight:700,letterSpacing:2.5,textTransform:"uppercase",cursor:submitting?"not-allowed":"pointer",fontFamily:"inherit",opacity:submitting?.6:1}}>{submitting?"Submitting...":"Submit Review"}</button>
-            <button onClick={()=>setShowForm(false)} style={{padding:"12px 20px",background:"transparent",border:"1px solid #d0ccc5",cursor:"pointer",fontFamily:"inherit",fontSize:12,color:"#9a8f83"}}>Cancel</button>
-          </div>
-          <div style={{fontSize:10,color:"#b5aba2",marginTop:10,textAlign:"center"}}>Review admin approval ke baad dikhega</div>
-        </div>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
 
 
-
-/* ═══ BROWSING BADGE ═══ */
-
-/* ═══ FEATURE ICONS ═══ */
 function FeatureIcon({code}){
   const icons={
     "EX":<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
@@ -654,6 +1032,13 @@ function Store({user,onLogout,onAccount,onAdmin}){
   const[authModal,setAuthModal]=useState(null);
   const[search,setSearch]=useState("");
   const[heroIdx,setHeroIdx]=useState(0);
+  const[priceRange,setPriceRange]=useState([0,15000]);
+  const[sortBy,setSortBy]=useState("new");
+  const[brandFilter,setBrandFilter]=useState("All");
+  const[zoomImg,setZoomImg]=useState(null);
+  const[gift,setGift]=useState({enabled:false});
+  const[abandonTimer,setAbandonTimer]=useState(null);
+  const[priceDrop,setPriceDrop]=useState({});
   const[heroImgIdx,setHeroImgIdx]=useState(0);
   const[cdTime,setCdTime]=useState({d:"00",h:"00",m:"00",s:"00"});
   const heroImgs=["👗","✨","🌸","🧵","💎"];
@@ -691,7 +1076,21 @@ function Store({user,onLogout,onAccount,onAdmin}){
 
   const aRef=useRef(0),aTimer=useRef(null);
   function adminTrigger(){aRef.current++;clearTimeout(aTimer.current);aTimer.current=setTimeout(()=>aRef.current=0,2000);if(aRef.current>=5){aRef.current=0;onAdmin();}}
-  const filtered=prods.filter(p=>{const cOk=cat==="All"||(p.cat===cat);const sOk=!search||p.name?.toLowerCase().includes(search.toLowerCase())||p.color?.toLowerCase().includes(search.toLowerCase());return cOk&&sOk;});
+  const allBrands=["All",...new Set(prods.map(p=>p.brand).filter(Boolean))];
+  const filtered=prods.filter(p=>{
+    const cOk=cat==="All"||(p.cat===cat||p.category===cat);
+    const sOk=!search||(p.name?.toLowerCase().includes(search.toLowerCase())||p.color?.toLowerCase().includes(search.toLowerCase())||p.brand?.toLowerCase().includes(search.toLowerCase())||p.category?.toLowerCase().includes(search.toLowerCase()));
+    const price=Number(p.sale_price||p.price||0);
+    const prOk=price>=priceRange[0]&&price<=priceRange[1];
+    const brOk=brandFilter==="All"||p.brand===brandFilter;
+    return cOk&&sOk&&prOk&&brOk;
+  }).sort((a,b)=>{
+    if(sortBy==="price_asc")return(a.sale_price||a.price||0)-(b.sale_price||b.price||0);
+    if(sortBy==="price_desc")return(b.sale_price||b.price||0)-(a.sale_price||a.price||0);
+    if(sortBy==="name")return(a.name||"").localeCompare(b.name||"");
+    return new Date(b.created_at||0)-new Date(a.created_at||0); // newest
+  });
+  const maxPrice=Math.max(15000,...prods.map(p=>Number(p.sale_price||p.price||0)));
   const cartCount=cart.reduce((s,x)=>s+x.qty,0);
   const wa=settings.wa_number||WA_NUM;
   const ann=(settings.announcement||"New Arrivals|Exclusive Designs|Fast Delivery|Book on WhatsApp").split("|");
@@ -706,10 +1105,32 @@ function Store({user,onLogout,onAccount,onAdmin}){
     });
   }
 
-  function addToCart(prod){setCart(c=>{const ex=c.find(x=>x.id===prod.id);if(ex)return c.map(x=>x.id===prod.id?{...x,qty:x.qty+1}:x);return[...c,{...prod,qty:1,price:Number(prod.sale_price||prod.price||0)}];});toast("Added: "+prod.name,"success");}
+  function addToCart(prod){
+    setCart(c=>{const ex=c.find(x=>x.id===prod.id);if(ex)return c.map(x=>x.id===prod.id?{...x,qty:x.qty+1}:x);return[...c,{...prod,qty:1,price:Number(prod.sale_price||prod.price||0)}];});
+    toast("Added: "+prod.name,"success");
+    // Cart abandon reminder — 15 min
+    if(abandonTimer)clearTimeout(abandonTimer);
+    const t=setTimeout(()=>{
+      const wa=settings?.wa_number||WA_NUM;
+      const msg=encodeURIComponent("Assalam! You left items in your cart at Jameel Fabrics. Complete your order: "+window.location.href);
+      // Show notification instead of redirecting
+      if(Notification.permission==="granted"){new Notification("Don't forget your cart! 🛍️",{body:"Complete your Jameel Fabrics order",icon:"/logo192.png"});}
+    },15*60*1000);
+    setAbandonTimer(t);
+  }
+  function savePriceDrop(prod){
+    const saved=JSON.parse(localStorage.getItem("jf_pricedrop")||"{}");
+    saved[prod.id]={price:Number(prod.sale_price||prod.price||0),name:prod.name,wa:settings?.wa_number||WA_NUM};
+    localStorage.setItem("jf_pricedrop",JSON.stringify(saved));
+    toast("Price drop alert set for "+prod.name+" 🔔","success");
+  }
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
   return(<div style={{background:"#faf9f7",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
+    <CustomCursor/>
+    <FreeShippingBar cartTotal={cart.reduce((s,i)=>s+(i.price*i.qty),0)} settings={settings}/>
+    <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
+    <AIOutfitSuggester prods={prods} onFilter={setCat}/>
     {/* Countdown Banner - above announcement */}
     {cdTime&&(
       <div style={{background:"linear-gradient(135deg,#b91c1c,#dc2626)",padding:"9px clamp(14px,3vw,32px)",display:"flex",alignItems:"center",justifyContent:"center",gap:"clamp(10px,2vw,24px)",flexWrap:"wrap",borderBottom:"1px solid rgba(0,0,0,.15)"}}>
@@ -779,11 +1200,17 @@ function Store({user,onLogout,onAccount,onAdmin}){
           {[
             {sep:true,label:"Navigate"},
             {ic:"🏠",lbl:"Home",fn:()=>{setCat("All");setMenuOpen(false);window.scrollTo({top:0,behavior:"smooth"});}},
-            {sep:true,label:"Collections"},
-            {ic:"👔",lbl:"Men's Unstitched",fn:()=>{setCat("M");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
-            {ic:"👗",lbl:"Women Unstitched",fn:()=>{setCat("WU");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
-            {ic:"✨",lbl:"Women Stitched",fn:()=>{setCat("WS");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
-            {ic:"🌟",lbl:"Kids",fn:()=>{setCat("K");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {sep:true,label:"Categories"},
+            {ic:"👗",lbl:"Women Unstitch",fn:()=>{setCat("WU");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"✂️",lbl:"Women Stitch",fn:()=>{setCat("WS");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"💎",lbl:"Reshmi Suiting",fn:()=>{setCat("RS");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"🕌",lbl:"Abayas",fn:()=>{setCat("AB");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"👔",lbl:"Mens Plain",fn:()=>{setCat("MP");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"🪡",lbl:"Mens Embroidery",fn:()=>{setCat("ME");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"🧒",lbl:"Kids Unstitch",fn:()=>{setCat("KU");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"🛏️",lbl:"Bedsheets",fn:()=>{setCat("BS");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"🧣",lbl:"Blankets",fn:()=>{setCat("BL");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
+            {ic:"📦",lbl:"Others",fn:()=>{setCat("OT");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}},
             {sep:true,label:"Account"},
             ...(user?[
               {ic:"👤",lbl:"My Account",fn:()=>{onAccount();setMenuOpen(false);}},
@@ -805,6 +1232,8 @@ function Store({user,onLogout,onAccount,onAdmin}){
         </div>
       </div>
     </>)}
+    {/* EID COUNTDOWN */}
+    <EidCountdown settings={settings}/>
     {/* HERO */}
     <section className="hero-grid" style={{minHeight:"95vh",display:"grid",gridTemplateColumns:"1fr 1fr",alignItems:"center",padding:"80px clamp(16px,5vw,80px) 60px",position:"relative",overflow:"hidden",gap:"clamp(24px,4vw,60px)"}}>
       <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(#e8e4df 1px,transparent 1px),linear-gradient(90deg,#e8e4df 1px,transparent 1px)",backgroundSize:"52px 52px",WebkitMaskImage:"radial-gradient(ellipse 90% 90% at 30% 50%,#000 20%,transparent 100%)",opacity:.4,pointerEvents:"none"}}/>
@@ -904,6 +1333,24 @@ function Store({user,onLogout,onAccount,onAdmin}){
         </div>
         {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"#9a8f83",textAlign:"center",marginTop:8,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
       </div>
+      {/* ── ADVANCED FILTERS ─────────────────────────── */}
+      <div style={{padding:"12px clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #f0ece0"}}>
+        <div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",marginBottom:10}}>
+          <VoiceSearchBtn onResult={t=>setSearch(t)}/>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"#fff",color:"#4a4035",cursor:"pointer"}}>
+            {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
+          </select>
+          {allBrands.length>2&&<select value={brandFilter} onChange={e=>setBrandFilter(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"#fff",color:"#4a4035",cursor:"pointer"}}>
+            {allBrands.map(b=><option key={b} value={b}>{b==="All"?"All Brands":b}</option>)}
+          </select>}
+          <span style={{fontSize:11,color:"#9a8f83",marginLeft:"auto"}}>{filtered.length} products</span>
+        </div>
+        <div style={{maxWidth:320}}>
+          <div style={{fontSize:11,color:"#9a8f83",marginBottom:4}}>Price Range</div>
+          <PriceSlider min={0} max={maxPrice} value={priceRange} onChange={setPriceRange}/>
+        </div>
+      </div>
+
       {filtered.length===0?(
         <div style={{textAlign:"center",padding:64,color:"#b5aba2"}}><div style={{fontSize:40,marginBottom:12,opacity:.4}}>📦</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:"#9a8f83"}}>No products found</div></div>
       ):(
@@ -973,48 +1420,37 @@ function Store({user,onLogout,onAccount,onAdmin}){
       </div>
     </section>
     {/* ABOUT */}
-    <section style={{background:"#111",color:"#fff",padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)"}}>
-      <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"center",maxWidth:1200,margin:"0 auto"}}>
-        <div className="rv">
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
-            <div style={{width:32,height:1,background:"#c9a84c"}}/>
-            <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700}}>Est. 1975</div>
-            <div style={{width:32,height:1,background:"#c9a84c"}}/>
-          </div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(28px,4vw,52px)",fontWeight:900,color:"#fff",marginBottom:6,lineHeight:.9,letterSpacing:2}}>OUR</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,52px)",fontWeight:300,fontStyle:"italic",color:"#c9a84c",marginBottom:20,lineHeight:.9,letterSpacing:3}}>Story</div>
-          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,1.6vw,19px)",color:"rgba(255,255,255,.7)",lineHeight:2,fontStyle:"italic",marginBottom:20}}>{settings.about||"Located in the heart of Kunjah, Jameel Fabrics has been serving families with premium Pakistani clothing since 1975. Each piece in our collection is personally handpicked for quality, exclusivity and timeless elegance."}</p>
+    <section style={{background:"#fdfcf8",padding:"56px clamp(16px,4vw,60px)",borderTop:"1px solid #f0ece0",borderBottom:"1px solid #f0ece0"}}>
+      <div style={{maxWidth:960,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(28px,4vw,60px)",alignItems:"center"}}>
+        <div>
+          <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Est. 1985</div>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(26px,3.5vw,40px)",fontWeight:600,color:"#1a1612",lineHeight:1.2,margin:"0 0 16px"}}>Jameel Fabrics<br/><em style={{fontWeight:300}}>Kunjah</em></h2>
+          <p style={{fontSize:14,color:"#6b5f52",lineHeight:1.8,margin:"0 0 20px"}}>{settings?.about||"For nearly four decades, Jameel Fabrics has been Kunjah's most trusted name in premium Pakistani clothing. From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality."}</p>
           <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
             {[
-              [settings.story_stat1||"50+",settings.story_stat1_label||"Years of Trust"],
-              [settings.story_stat2||"1000+",settings.story_stat2_label||"Happy Families"],
-              [settings.story_stat3||"100%",settings.story_stat3_label||"Exclusive Designs"]
-            ].map(([n,l])=>(
-              <div key={l} style={{borderLeft:"2px solid #c9a84c",paddingLeft:14}}>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:"#fff"}}>{n}</div>
-                <div style={{fontSize:9,color:"rgba(255,255,255,.4)",letterSpacing:1.5,textTransform:"uppercase",marginTop:2}}>{l}</div>
+              [settings?.story_stat1||"40+","Years"],
+              [settings?.story_stat2||"10K+","Happy Customers"],
+              [settings?.story_stat3||"500+","Products"],
+            ].map(([n,d],i)=>(
+              <div key={i} style={{textAlign:"center"}}>
+                <div style={{fontSize:22,fontWeight:700,color:"#c9a84c",fontFamily:"'Cormorant Garamond',serif"}}>{n}</div>
+                <div style={{fontSize:10,color:"#9a8f83",letterSpacing:1,textTransform:"uppercase"}}>{d}</div>
               </div>
             ))}
           </div>
         </div>
-        <div className="rv" className="stat-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:1}}>
-          {[
-              ["EX",settings.feat1_title||"Exclusive Designs",settings.feat1_desc||"Every piece is unique — once sold, never repeated. Each design crafted for the discerning."],
-              ["PQ",settings.feat2_title||"Premium Quality",settings.feat2_desc||"Finest Pakistani fabrics, personally inspected. We sell only what meets our own standards."],
-              ["WA",settings.feat3_title||"WhatsApp Orders",settings.feat3_desc||"Place your order directly via WhatsApp. Simple, fast and personal — no apps needed."],
-              ["FD",settings.feat4_title||"Nationwide Delivery",settings.feat4_desc||"Swift delivery across Pakistan via Pak Post. Your order, at your doorstep."],
-              ["EE",settings.feat5_title||"Easy Exchange",settings.feat5_desc||"Exchanges accepted within 3 days of delivery. Your satisfaction is our priority."],
-              ["TS",settings.feat6_title||"Trusted Since 1975",settings.feat6_desc||"Over five decades of serving families with premium fabrics. Our reputation is our promise."]
-            ].map(([ic,n,d])=>(
-            <div key={n} style={{padding:"clamp(14px,2vw,22px)",background:"rgba(255,255,255,.03)",border:"1px solid rgba(201,168,76,.12)",transition:"all .35s",cursor:"default"}} onMouseEnter={e=>{e.currentTarget.style.background="rgba(201,168,76,.07)";e.currentTarget.style.borderColor="rgba(201,168,76,.35)";}} onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.03)";e.currentTarget.style.borderColor="rgba(201,168,76,.12)";}}>
-              <div style={{marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",width:40,height:40,background:"rgba(201,168,76,.1)",borderRadius:8}}><FeatureIcon code={ic}/></div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:"#fff",marginBottom:5,letterSpacing:.3}}>{n}</div>
-              <div style={{fontSize:10,color:"rgba(255,255,255,.4)",lineHeight:1.8}}>{d}</div>
+        <div style={{background:"linear-gradient(135deg,#1a1612,#2c2416)",borderRadius:12,padding:"32px 28px",color:"#fff"}}>
+          <div style={{fontSize:11,letterSpacing:3,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Why Choose Us</div>
+          {[["🧵","Premium Quality","Only the finest Pakistani fabrics"],["✂️","Expert Craftsmanship","Decades of tailoring expertise"],["🚚","Nationwide Delivery","Fast & secure shipping"],["💬","Personal Service","Guidance on every purchase"]].map(([ic,t,d],i)=>(
+            <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:i<3?16:0}}>
+              <span style={{fontSize:18,marginTop:2}}>{ic}</span>
+              <div><div style={{fontWeight:600,fontSize:13,marginBottom:2}}>{t}</div><div style={{fontSize:12,color:"rgba(255,255,255,.55)"}}>{d}</div></div>
             </div>
           ))}
         </div>
       </div>
     </section>
+    <SubscriptionBox settings={settings} user={user} onAuth={setAuthModal}/>
     {/* FOOTER */}
     <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 28px"}}>
       <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"1.8fr 1fr 1fr 1fr",gap:"clamp(24px,3.5vw,52px)",marginBottom:52,maxWidth:1200,margin:"0 auto 52px"}}>
@@ -1028,7 +1464,7 @@ function Store({user,onLogout,onAccount,onAdmin}){
             ))}
           </div>
         </div>
-        {[{title:"Collections",items:["Men's Unstitched","Women Unstitched","Women Stitched","Kids Wear","New Arrivals"]},{title:"Information",items:["About Us","Our Policies","Delivery Info","Exchange Policy","Contact Us"]},{title:"Contact",items:["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon-Sat: 10am-8pm")]}].map(col=>(
+        {[{title:"Collections",items:["Men's Unstitched","Women Unstitched","Women Stitched","Kids Unstitch Wear","New Arrivals"]},{title:"Information",items:["About Us","Our Policies","Delivery Info","Exchange Policy","Contact Us"]},{title:"Contact",items:["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon-Sat: 10am-8pm")]}].map(col=>(
           <div key={col.title}>
             <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.35)",textTransform:"uppercase",fontWeight:700,marginBottom:16}}>{col.title}</div>
             {col.items.map(l=><div key={l} style={{fontSize:11,color:"rgba(255,255,255,.28)",padding:"5px 0",cursor:"pointer",transition:"color .2s",lineHeight:1.6}} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.7)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.28)"}>{l}</div>)}
@@ -1278,7 +1714,7 @@ function AProducts({products,onRefresh}){
           <div style={{padding:24}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
               <div><ALbl c="Name *"/><AI value={form.name||""} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Product name"/></div>
-              <div><ALbl c="Category"/><AS value={form.cat||"WU"} onChange={e=>setForm({...form,cat:e.target.value})}><option value="WU">Women Unstitched</option><option value="WS">Women Stitched</option><option value="M">Men's Unstitched</option><option value="K">Kids</option><option value="HOT">Hot Sale</option><option value="NEW">New Arrivals</option><option value="3PC">3-Piece Sets</option></AS></div>
+              <div><ALbl c="Category"/><AS value={form.cat||"WU"} onChange={e=>setForm({...form,cat:e.target.value})}><option value="WU">Women Unstitch</option><option value="WS">Women Stitch</option><option value="RS">Reshmi Suiting</option><option value="AB">Abayas</option><option value="MP">Mens Plain</option><option value="ME">Mens Embroidery</option><option value="KU">Kids Unstitch</option><option value="BS">Bedsheets</option><option value="BL">Blankets</option><option value="OT">Others</option><option value="HOT">Hot Sale</option><option value="NEW">New Arrivals</option><option value="2PC">2-Piece Sets</option></AS></div>
               <div><ALbl c="Price (Rs.) *"/><AI type="number" value={form.sale_price||form.price||""} onChange={e=>setForm({...form,sale_price:e.target.value,price:e.target.value})} placeholder="3500"/></div>
               <div><ALbl c="Old Price (Sale)"/><AI type="number" value={form.old_price||""} onChange={e=>setForm({...form,old_price:e.target.value})} placeholder="Leave empty"/></div>
               <div><ALbl c="Discount %"/><AI type="number" placeholder="e.g. 20 auto" onChange={e=>{const d=parseFloat(e.target.value);if(d&&(form.sale_price||form.price)){const o=parseFloat(form.sale_price||form.price);setForm({...form,old_price:o,sale_price:Math.round(o*(1-d/100)),price:Math.round(o*(1-d/100))});}}}/></div>
@@ -1286,6 +1722,10 @@ function AProducts({products,onRefresh}){
               <div style={{gridColumn:"1/-1"}}><ALbl c="Display Stock Text"/><AI value={form.display_stock_text||""} onChange={e=>setForm({...form,display_stock_text:e.target.value})} placeholder="e.g. Last 5 Pieces!"/></div>
               <div><ALbl c="Badge"/><AS value={form.badge||""} onChange={e=>setForm({...form,badge:e.target.value})}><option value="">None</option><option>NEW</option><option>SALE</option><option>HOT</option></AS></div>
               <div><ALbl c="Sizes (comma)"/><AI value={form.sizes||""} onChange={e=>setForm({...form,sizes:e.target.value})} placeholder="S,M,L,XL"/></div>
+              <div><ALbl c="Brand Name"/><AI value={form.brand||""} onChange={e=>setForm({...form,brand:e.target.value})} placeholder="e.g. Gul Ahmed"/></div>
+              <div><ALbl c="Fabric Feel"/><AS value={form.feel||""} onChange={e=>setForm({...form,feel:e.target.value})}><option value="">Not specified</option>{FEEL_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
+              <div><ALbl c="Season"/><AS value={form.season||""} onChange={e=>setForm({...form,season:e.target.value})}><option value="">Not specified</option>{SEASON_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
+              <div><ALbl c="Care Instructions"/><AS value={form.care||""} onChange={e=>setForm({...form,care:e.target.value})}><option value="">Not specified</option>{CARE_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
               <div style={{gridColumn:"1/-1"}}><ALbl c="Color / Description"/><AI value={form.color||""} onChange={e=>setForm({...form,color:e.target.value})}/></div>
             </div>
             <ALbl c="Product Images (5 slots)"/>
@@ -1399,6 +1839,24 @@ function ACoupons({coupons,onRefresh}){
 }
 function AContent({settings}){
   const[f,setF]=useState({});
+  const[vidUploading,setVidUploading]=useState(false);
+  const[vidProgress,setVidProgress]=useState(0);
+  async function uploadVideo(file){
+    if(!sb)return alert("Supabase not connected");
+    if(!file)return;
+    if(file.size>100*1024*1024)return alert("Max 100MB video");
+    setVidUploading(true);setVidProgress(0);
+    const ext=file.name.split(".").pop();
+    const path="videos/"+Date.now()+"."+ext;
+    const{data,error}=await sb.storage.from("videos").upload(path,file,{contentType:file.type,upsert:true});
+    if(error){alert("Upload failed: "+error.message);setVidUploading(false);return;}
+    const{data:{publicUrl}}=sb.storage.from("videos").getPublicUrl(path);
+    setF(p=>({...p,video_url:publicUrl,video_show:"true"}));
+    await sb.from("website_settings").upsert({key:"video_url",value:publicUrl},{onConflict:"key"});
+    await sb.from("website_settings").upsert({key:"video_show",value:"true"},{onConflict:"key"});
+    setVidUploading(false);setVidProgress(100);
+    toast("Video uploaded! ✅","success");
+  }
   const[saving,setSaving]=useState(false);
   const[saved,setSaved]=useState(false);
   const debRef=useRef(null);
@@ -1423,7 +1881,7 @@ function AContent({settings}){
       <AH title="Website Content" sub="Sab content yahan se change karo"/>
       <ABtn onClick={save} style={{background:saved?"#16a34a":"#111",color:"#fff",transition:"background .3s"}}>{saving?"Saving...":saved?"✓ Saved":"Save All"}</ABtn>
     </div>
-    {[{t:"Announcement Bar",fields:[["announcement","Messages (pipe | separated)"]]},{t:"Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},{t:"Video Section",fields:[["video_label","Label"],["video_title","Title"],["video_url","YouTube or MP4 URL"]]},
+    {[{t:"Announcement Bar",fields:[["announcement","Messages (pipe | separated)"]]},{t:"Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},{t:"Video Section",fields:[["video_label","Label"],["video_title","Title"]],isVideo:true},
     {t:"Countdown Timer",fields:[["countdown_title","Sale Title (e.g. Eid Special Sale)"],["countdown_subtext","Sub Text (e.g. Up to 30% Off)"],["countdown_end","End Date & Time",false,true]]},
     {t:"Our Story Section",fields:[["about","Story Text (website pe dikhega)",true],["story_stat1","Stat 1 Number (e.g. 50+)"],["story_stat1_label","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_stat2_label","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_stat3_label","Stat 3 Label"]]},
     {t:"Our Features (6 Boxes in Dark Section)",fields:[
@@ -1438,7 +1896,29 @@ function AContent({settings}){
       <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>{sec.t}</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         {sec.fields.map(([k,lbl,full,isDate])=><div key={k} style={full?{gridColumn:"1/-1"}:{}}><ALbl c={lbl}/>{full?<textarea value={f[k]||""} onChange={e=>updateF(k,e.target.value)} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/>:isDate?<AI type="datetime-local" value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>:<AI value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>}</div>)}
-        {sec.t.includes("Video")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.video_show==="true"||f.video_show===true} onChange={e=>updateF("video_show",String(e.target.checked))} style={{accentColor:"#111"}}/>Show video section on website</label></div>}
+        {sec.t.includes("Video")&&<div style={{gridColumn:"1/-1"}}>
+          {/* Video upload from mobile gallery */}
+          <div style={{background:"#f4f5f7",borderRadius:8,padding:14,marginBottom:10}}>
+            <div style={{fontWeight:600,fontSize:13,color:"#111",marginBottom:8}}>📱 Upload Video (Mobile Gallery)</div>
+            <input type="file" accept="video/*" capture="environment" onChange={e=>uploadVideo(e.target.files[0])} style={{fontSize:12,marginBottom:8,display:"block"}}/>
+            {vidUploading&&<div style={{marginTop:6}}>
+              <div style={{background:"#e5e7eb",borderRadius:4,height:6,overflow:"hidden"}}>
+                <div style={{background:"#c9a84c",height:"100%",width:"60%",animation:"shimmer 1.5s infinite"}}/>
+              </div>
+              <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>Uploading to Supabase Storage...</div>
+            </div>}
+            {f.video_url&&!vidUploading&&<div style={{marginTop:8}}>
+              <div style={{fontSize:11,color:"#16a34a",marginBottom:4}}>✅ Video uploaded</div>
+              <video src={f.video_url} controls style={{width:"100%",maxHeight:160,borderRadius:6,background:"#000"}}/>
+            </div>}
+            <div style={{fontSize:11,color:"#9ca3af",marginTop:6}}>Or paste YouTube/MP4 URL below:</div>
+            <AI value={f.video_url||""} onChange={e=>updateF("video_url",e.target.value)} placeholder="https://youtube.com/... or https://...mp4"/>
+          </div>
+          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}>
+            <input type="checkbox" checked={f.video_show==="true"||f.video_show===true} onChange={e=>updateF("video_show",String(e.target.checked))} style={{accentColor:"#111"}}/>
+            Show video section on website
+          </label>
+        </div>}
         {sec.t.includes("Countdown")&&<div style={{gridColumn:"1/-1"}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:"#111"}}><input type="checkbox" checked={f.countdown_active==="true"||f.countdown_active===true} onChange={e=>updateF("countdown_active",String(e.target.checked))} style={{accentColor:"#b91c1c"}}/>Show countdown banner on website</label></div>}
       </div>
     </ACard>)}
@@ -1503,6 +1983,44 @@ function ASettings({settings}){
           <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Backup</div>
           <ABtn onClick={backup} style={{background:"#fef3c7",color:"#92400e"}}>Download Backup</ABtn>
         </ACard>
+
+      <div>
+        <ACard style={{padding:20,marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>🚚 Free Shipping</div>
+          <div style={{display:"grid",gap:10}}>
+            <div><ALbl c="Minimum Amount (Rs.)"/><AI type="number" value={f.free_shipping_min||"2000"} onChange={e=>updateF("free_shipping_min",e.target.value)}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={f.free_shipping_active!=="false"} onChange={e=>updateF("free_shipping_active",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/> Enable Free Shipping Bar</label>
+          </div>
+        </ACard>
+        <ACard style={{padding:20,marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>💬 WhatsApp Message</div>
+          <ALbl c="Greeting Message (customers see this when they tap WA)"/>
+          <textarea value={f.wa_greeting||""} onChange={e=>updateF("wa_greeting",e.target.value)} rows={3} placeholder="Assalam! I'm interested in your fabrics..." style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
+        </ACard>
+        <ACard style={{padding:20,marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>🎂 Birthday Discount</div>
+          <div style={{display:"grid",gap:10}}>
+            <div><ALbl c="Discount % (default 10)"/><AI type="number" value={f.birthday_discount||"10"} onChange={e=>updateF("birthday_discount",e.target.value)}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={f.birthday_active!=="false"} onChange={e=>updateF("birthday_active",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/> Enable Birthday Discount</label>
+          </div>
+        </ACard>
+        <ACard style={{padding:20,marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>🌙 Eid Countdown</div>
+          <div style={{display:"grid",gap:10}}>
+            <div><ALbl c="Eid Date"/><AI type="date" value={f.eid_date||""} onChange={e=>updateF("eid_date",e.target.value)}/></div>
+            <div><ALbl c="Title"/><AI value={f.eid_title||"Eid Collection"} onChange={e=>updateF("eid_title",e.target.value)}/></div>
+            <div><ALbl c="Subtitle"/><AI value={f.eid_subtitle||"Exclusive Arrivals Coming Soon"} onChange={e=>updateF("eid_subtitle",e.target.value)}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={f.eid_show==="true"} onChange={e=>updateF("eid_show",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/> Show Eid Countdown</label>
+          </div>
+        </ACard>
+        <ACard style={{padding:20}}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>📦 Subscription Box</div>
+          <div style={{display:"grid",gap:10}}>
+            <div><ALbl c="Monthly Price (Rs.)"/><AI type="number" value={f.sub_price||"2500"} onChange={e=>updateF("sub_price",e.target.value)}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={f.sub_active!=="false"} onChange={e=>updateF("sub_active",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/> Show Subscription Box Section</label>
+          </div>
+        </ACard>
+      </div>
       </div>
     </div>
   </div>);
@@ -1529,7 +2047,7 @@ function AReviews({onRefresh}){
     <ACard style={{padding:20,marginBottom:20}}>
       <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Add Review Manually</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-        <div><ALbl c="Customer Name *"/><AI value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Ayesha Tariq"/></div>
+        <div><ALbl c="Customer Name *"/><AI value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Hamza Muhammadi"/></div>
         <div><ALbl c="Product Name"/><AI value={form.product_name} onChange={e=>setForm({...form,product_name:e.target.value})} placeholder="Embroidered Dress"/></div>
         <div><ALbl c="Rating"/>
           <select value={form.rating} onChange={e=>setForm({...form,rating:parseInt(e.target.value)})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,fontFamily:"inherit",outline:"none"}}>
@@ -1717,18 +2235,18 @@ function AdminPanel({onExit}){
   const TITLES={dashboard:"Dashboard",pending:"Pending Approval",alerts:"Stock Alerts",products:"Products",orders:"Orders",coupons:"Coupons",reviews:"Reviews",sold:"Sold Counter",analytics:"Analytics",content:"Website Content",subscribers:"Subscribers",settings:"Settings"};
 
   const PAGES={
-    dashboard:<ADash prods={allProds} orders={orders} alerts={alerts} pending={pending} todayOrders={todayOrders} todayRev={todayRev} onNav={setPage}/>,
-    pending:<APending pending={pending||[]} onRefresh={refresh}/>,
-    alerts:<AAlerts alerts={alerts||[]} onRefresh={refresh}/>,
-    products:<AProducts products={allProds||[]} onRefresh={refresh}/>,
-    orders:<AOrders orders={orders||[]} wa={settings.wa_number||WA_NUM}/>,
-    coupons:<ACoupons coupons={coupons||[]} onRefresh={refresh}/>,
-    reviews:<AReviews onRefresh={refresh}/>,
-    sold:<ASoldCounter onRefresh={refresh}/>,
-    analytics:<AAnalytics/>,
-    content:<AContent settings={settings}/>,
-    subscribers:<ASubs subs={subs||[]}/>,
-    settings:<ASettings settings={settings}/>,
+    dashboard:()=><ADash prods={allProds||[]} orders={orders||[]} alerts={alerts||[]} pending={pending||[]} todayOrders={todayOrders||[]} todayRev={todayRev||0} onNav={setPage}/>,
+    pending:()=><APending pending={pending||[]} onRefresh={refresh}/>,
+    alerts:()=><AAlerts alerts={alerts||[]} onRefresh={refresh}/>,
+    products:()=><AProducts products={allProds||[]} onRefresh={refresh}/>,
+    orders:()=><AOrders orders={orders||[]} wa={settings.wa_number||WA_NUM}/>,
+    coupons:()=><ACoupons coupons={coupons||[]} onRefresh={refresh}/>,
+    reviews:()=><AReviews onRefresh={refresh}/>,
+    sold:()=><ASoldCounter onRefresh={refresh}/>,
+    analytics:()=><AAnalytics settings={settings||{}}/>,
+    content:()=><AContent settings={settings||{}}/>,
+    subscribers:()=><ASubs subs={subs||[]}/>,
+    settings:()=><ASettings settings={settings||{}}/>,
   };
 
   return(
@@ -1795,7 +2313,7 @@ function AdminPanel({onExit}){
 
         {/* Content */}
         <div style={{flex:1,overflowY:"auto",padding:"clamp(16px,2vw,24px)",background:"#f4f5f7"}}>
-          {sb?PAGES[page]:(
+          {sb?(PAGES[page]?.()||<div style={{padding:40,textAlign:"center",color:"#9ca3af"}}>Loading...</div>):(
             <div style={{textAlign:"center",padding:60,color:"#9ca3af"}}>
               <div style={{fontSize:40,marginBottom:12}}>⚙️</div>
               <div style={{fontWeight:600,fontSize:16,color:"#374151"}}>Supabase Not Connected</div>
