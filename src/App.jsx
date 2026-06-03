@@ -1,4 +1,4 @@
-{onPriceDrop&&<button onClick={e=>{e.stopPropagation();onPriceDrop(prod);}} title="Price Drop Alert" style={{position:"absolute",bottom:12,left:12,zIndex:2,width:28,height:28,borderRadius:"50%",background:"rgba(255,255,255,.9)",border:"1px solid #e0d8cc",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🔔</button>}import{useState,useEffect,useRef,useCallback}from"react";
+import{useState,useEffect,useRef,useCallback}from"react";
 import{createClient}from"@supabase/supabase-js";
 const SURL=process.env.REACT_APP_SUPABASE_URL||"";
 const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
