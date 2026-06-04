@@ -1551,6 +1551,133 @@ function AccountPage({user,onBack}){
   </div>);
 }
 // ── Error Boundary ────────────────────────────────────────────
+// ── Brand Dropdown (uses saved brands per category) ──────────
+function BrandDropdown({cat,value,onChange}){
+  const[brands,setBrands]=useState({});
+  useEffect(()=>{
+    if(!sb)return;
+    sb.from("website_settings").select("value").eq("key","brands_by_cat").single()
+      .then(({data})=>{if(data?.value){try{setBrands(JSON.parse(data.value));}catch{}}});
+  },[]);
+  const list=brands[cat]||[];
+  if(list.length===0)return<AI value={value} onChange={e=>onChange(e.target.value)} placeholder="Brand naam likho..."/>;
+  return(
+    <div style={{display:"flex",gap:6}}>
+      <AS value={value} onChange={e=>onChange(e.target.value)} style={{flex:1}}>
+        <option value="">— Brand Select karo —</option>
+        {list.map(b=><option key={b} value={b}>{b}</option>)}
+        <option value="Others">Others / Mix</option>
+      </AS>
+    </div>
+  );
+}
+
+
+// ── Admin Brands Manager ──────────────────────────────────────
+function ABrands(){
+  const BRAND_CATS=[
+    {k:"MP", l:"Mens Unstitch Plain",        max:16},
+    {k:"ME", l:"Mens Unstitch Embroidery",   max:6},
+    {k:"WU", l:"Women Unstitch",             max:20},
+    {k:"WS", l:"Women Stitch",               max:15},
+    {k:"RS", l:"Reshmi Suiting",             max:15},
+    {k:"AB", l:"Abayas",                     max:1},
+    {k:"KU", l:"Kids Unstitch",              max:1},
+    {k:"BS", l:"Bedsheets",                  max:5},
+    {k:"BL", l:"Blankets",                   max:5},
+    {k:"OT", l:"Others",                     max:10},
+  ];
+  const[brands,setBrands]=useState({});
+  const[saving,setSaving]=useState(false);
+  const[saved,setSaved]=useState(false);
+  const[newB,setNewB]=useState({});
+
+  useEffect(()=>{
+    if(!sb)return;
+    sb.from("website_settings").select("value").eq("key","brands_by_cat").single()
+      .then(({data})=>{if(data?.value){try{setBrands(JSON.parse(data.value));}catch{}}});
+  },[]);
+
+  async function save(){
+    if(!sb)return;setSaving(true);
+    await sb.from("website_settings").upsert({key:"brands_by_cat",value:JSON.stringify(brands)},{onConflict:"key"});
+    setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2000);
+  }
+
+  function addBrand(cat){
+    const val=(newB[cat]||"").trim();
+    if(!val)return;
+    const list=brands[cat]||[];
+    const max=BRAND_CATS.find(c=>c.k===cat)?.max||20;
+    if(list.length>=max)return alert(`Max ${max} brands for this category!`);
+    if(list.includes(val))return alert("Already exists!");
+    setBrands(b=>({...b,[cat]:[...list,val]}));
+    setNewB(n=>({...n,[cat]:""}));
+  }
+
+  function removeBrand(cat,brand){
+    setBrands(b=>({...b,[cat]:(b[cat]||[]).filter(x=>x!==brand)}));
+  }
+
+  function moveUp(cat,i){
+    const list=[...(brands[cat]||[])];
+    if(i===0)return;
+    [list[i-1],list[i]]=[list[i],list[i-1]];
+    setBrands(b=>({...b,[cat]:list}));
+  }
+
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
+        <AH title="Brands by Category" sub="Har category ke brands manage karo"/>
+        <ABtn onClick={save} style={{background:saved?"#16a34a":"#111",color:"#fff",transition:"background .3s"}}>
+          {saving?"Saving...":saved?"✓ Saved":"Save All"}
+        </ABtn>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:16}}>
+        {BRAND_CATS.map(({k,l,max})=>{
+          const list=brands[k]||[];
+          return(
+            <ACard key={k} style={{padding:18}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:"#111"}}>{l}</div>
+                  <div style={{fontSize:11,color:"#9ca3af"}}>{list.length}/{max} brands</div>
+                </div>
+                <div style={{width:36,height:36,borderRadius:"50%",background:list.length>=max?"#fee2e2":"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:list.length>=max?"#dc2626":"#16a34a"}}>
+                  {list.length}
+                </div>
+              </div>
+              <div style={{display:"flex",gap:6,marginBottom:10}}>
+                <input
+                  value={newB[k]||""}
+                  onChange={e=>setNewB(n=>({...n,[k]:e.target.value}))}
+                  onKeyDown={e=>e.key==="Enter"&&addBrand(k)}
+                  placeholder="Brand naam likho..."
+                  disabled={list.length>=max}
+                  style={{flex:1,padding:"7px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",opacity:list.length>=max?0.5:1}}
+                />
+                <ABtn onClick={()=>addBrand(k)} style={{padding:"7px 14px",fontSize:12,opacity:list.length>=max?0.5:1}}>+ Add</ABtn>
+              </div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {list.map((b,i)=>(
+                  <div key={b} style={{display:"flex",alignItems:"center",gap:4,background:"#f4f5f7",borderRadius:20,padding:"4px 10px",fontSize:11}}>
+                    <span style={{color:"#374151",fontWeight:500}}>{b}</span>
+                    <button onClick={()=>moveUp(k,i)} title="Move up" style={{background:"none",border:"none",cursor:"pointer",color:"#9ca3af",fontSize:10,padding:"0 2px"}}>↑</button>
+                    <button onClick={()=>removeBrand(k,b)} style={{background:"none",border:"none",cursor:"pointer",color:"#ef4444",fontSize:13,padding:"0 2px",lineHeight:1}}>×</button>
+                  </div>
+                ))}
+                {list.length===0&&<div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>Koi brand nahi — upar se add karo</div>}
+              </div>
+            </ACard>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 class ErrorBoundary extends React.Component{
   constructor(props){super(props);this.state={err:null};}
   static getDerivedStateFromError(e){return{err:e};}
@@ -1756,7 +1883,8 @@ function AProducts({products,onRefresh}){
               <div style={{gridColumn:"1/-1"}}><ALbl c="Display Stock Text"/><AI value={form.display_stock_text||""} onChange={e=>setForm({...form,display_stock_text:e.target.value})} placeholder="e.g. Last 5 Pieces!"/></div>
               <div><ALbl c="Badge"/><AS value={form.badge||""} onChange={e=>setForm({...form,badge:e.target.value})}><option value="">None</option><option>NEW</option><option>SALE</option><option>HOT</option></AS></div>
               <div><ALbl c="Sizes (comma)"/><AI value={form.sizes||""} onChange={e=>setForm({...form,sizes:e.target.value})} placeholder="S,M,L,XL"/></div>
-              <div><ALbl c="Brand Name"/><AI value={form.brand||""} onChange={e=>setForm({...form,brand:e.target.value})} placeholder="e.g. Gul Ahmed"/></div>
+              <div><ALbl c="Brand Name"/>
+                <BrandDropdown cat={form.cat||form.category||""} value={form.brand||""} onChange={v=>setForm({...form,brand:v})}/></div>
               <div><ALbl c="Fabric Feel"/><AS value={form.feel||""} onChange={e=>setForm({...form,feel:e.target.value})}><option value="">Not specified</option>{FEEL_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
               <div><ALbl c="Season"/><AS value={form.season||""} onChange={e=>setForm({...form,season:e.target.value})}><option value="">Not specified</option>{SEASON_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
               <div><ALbl c="Care Instructions"/><AS value={form.care||""} onChange={e=>setForm({...form,care:e.target.value})}><option value="">Not specified</option>{CARE_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</AS></div>
@@ -2263,6 +2391,7 @@ function AdminPanel({onExit}){
     {id:"analytics",ic:<AnalyticIc/>,lbl:"Analytics"},
     {id:"content",ic:<EditIc/>,lbl:"Website Content"},
     {id:"subscribers",ic:<MailIc/>,lbl:"Subscribers"},
+    {id:"brands",ic:<BrandIc/>,lbl:"Brands"},
     {id:"settings",ic:<SettIc/>,lbl:"Settings"},
   ];
 
@@ -2281,6 +2410,7 @@ function AdminPanel({onExit}){
     content:()=><AContent settings={settings||{}}/>,
     subscribers:()=><ASubs subs={subs||[]}/>,
     settings:()=><ASettings settings={settings||{}}/>,
+    brands:()=><ABrands/>,
   };
 
   return(
@@ -2372,6 +2502,7 @@ const ChartIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" st
 const AnalyticIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>;
 const EditIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
 const MailIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const BrandIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>;
 const SettIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 
 export default function App(){
