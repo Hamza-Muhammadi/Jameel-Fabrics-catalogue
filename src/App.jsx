@@ -1,4 +1,4 @@
-import{useState,useEffect,useRef,useCallback}from"react";
+import React,{useState,useEffect,useRef,useCallback}from"react";
 import{createClient}from"@supabase/supabase-js";
 const SURL=process.env.REACT_APP_SUPABASE_URL||"";
 const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
@@ -102,21 +102,6 @@ button{font-family:'Jost',sans-serif}
 }
 
 
-/* Custom Cursor */
-@media (pointer:fine){
-  body{cursor:none!important;}
-  .jf-cursor{pointer-events:none;position:fixed;z-index:99999;top:0;left:0;transform:translate(-50%,-50%);transition:opacity .2s;}
-  .jf-cursor-dot{width:8px;height:8px;background:#c9a84c;border-radius:50%;position:fixed;z-index:99998;pointer-events:none;transform:translate(-50%,-50%);}
-  a,button,[role=button]{cursor:none!important;}
-}
-/* Free Shipping Bar */
-.fs-bar{background:linear-gradient(90deg,#1a1612,#2c2416);color:#c9a84c;text-align:center;padding:8px 16px;font-size:12px;letter-spacing:.5px;position:relative;overflow:hidden;}
-.fs-bar .fs-prog{position:absolute;left:0;top:0;height:100%;background:#c9a84c22;transition:width .4s ease;}
-/* Fabric Feel */
-.feel-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid currentColor;}
-/* Voice search pulse */
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
-.voice-active{animation:pulse .6s infinite;background:#ef4444!important;}
 /* Price slider */
 input[type=range].price-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(to right,#c9a84c var(--val,50%),#e0d8cc var(--val,50%));outline:none;}
 input[type=range].price-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#c9a84c;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);}
@@ -472,7 +457,7 @@ function Intro({onEnter}){
     </div>
     <div style={{...fu(3),zIndex:1,display:"flex",alignItems:"center",gap:16,margin:"clamp(16px,2vw,24px) 0"}}>
       <div style={{width:32,height:1,background:"#c9a84c"}}/>
-      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.2vw,13px)",letterSpacing:"clamp(5px,1.5vw,12px)",color:"#9a8f83",fontStyle:"italic"}}>KUNJAH · SINCE 1985</div>
+      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.2vw,13px)",letterSpacing:"clamp(5px,1.5vw,12px)",color:"#9a8f83",fontStyle:"italic"}}>KUNJAH · SINCE 1975</div>
       <div style={{width:32,height:1,background:"#c9a84c"}}/>
     </div>
     <div style={{...fu(3),zIndex:1,fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.1vw,12px)",letterSpacing:"clamp(4px,1vw,8px)",color:"#b5aba2",fontStyle:"italic"}}>EXCLUSIVE · ELEGANT · PAKISTANI</div>
@@ -513,11 +498,12 @@ function CartPanel({cart,setCart,wa,onClose,user}){
   const[custName,setCustName]=useState("");const[custCity,setCustCity]=useState("");const[custAddr,setCustAddr]=useState("");
   const sub=cart.reduce((s,x)=>s+x.price*x.qty,0);
   const disc=coupon?(coupon.type==="percent"?Math.round(sub*coupon.value/100):coupon.value):0;
-  const total=Math.max(0,sub-disc);
+  const giftExtra=gift.enabled?(200+(['box','sheet','card'].filter(id=>gift.extras?.includes(id)).reduce((s,id)=>s+({box:200,sheet:100,card:50}[id]||0),0))):0;
+  const total=Math.max(0,sub-disc)+giftExtra;
   async function applyC(){if(!code.trim()||!sb)return;setCL(true);const{data}=await sb.from("coupons").select("*").eq("code",code.toUpperCase()).eq("active",true).single();setCL(false);if(!data){toast("Invalid coupon","error");return;}if(data.expires_at&&new Date(data.expires_at)<new Date()){toast("Coupon expired!","error");return;}if(sub<(data.min_order||0)){toast("Min order Rs."+Number(data.min_order).toLocaleString()+" chahiye","error");return;}setCoupon(data);toast("Coupon applied! "+String.fromCodePoint(10003),"success");}
   async function checkout(){
     if(!cart.length)return;
-    if(sb&&user){await sb.from("online_orders").insert({customer_id:user.id,customer_email:user.email,customer_name:user.user_metadata?.full_name||"",items:cart,total,coupon_code:coupon?.code||null,discount_amount:disc,status:"pending"});if(coupon)await sb.from("coupons").update({used_count:(coupon.used_count||0)+1}).eq("id",coupon.id);}
+    if(sb&&user){await sb.from("online_orders").insert({customer_id:user.id,customer_email:user.email,customer_name:user.user_metadata?.full_name||"",items:cart,total,coupon_code:coupon?.code||null,discount_amount:disc,gift_option:gift.enabled?gift:null,status:"pending"});if(coupon)await sb.from("coupons").update({used_count:(coupon.used_count||0)+1}).eq("id",coupon.id);}
     const sep="\u2501".repeat(20);
     let msg="Assalamualaikum! \n\nI would like to place an order from *JAMEEL FABRICS Kunjah*.\n\n";
     msg+=sep+"\n ORDER DETAILS\n"+sep+"\n\n";
@@ -591,6 +577,7 @@ function CartPanel({cart,setCart,wa,onClose,user}){
           <div style={{background:"#fef9c3",border:"1px solid #fde68a",padding:"8px 12px",fontSize:10,color:"#92400e",marginBottom:12,lineHeight:1.6}}>
             💰 <strong>Advance Payment:</strong> Product price advance. Delivery (Pak Post) charges alag.
           </div>
+          <GiftOption value={gift} onChange={setGift}/>
           <button onClick={checkout} style={{width:"100%",padding:15,background:"#111",color:"#fff",border:"none",fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:12}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
             <WaSvg/> Order via WhatsApp
           </button>
@@ -1021,6 +1008,34 @@ function BrowsingBadge(){
 }
 
 
+
+// ── Brand Section per Category ───────────────────────────────
+function BrandBar({prods,cat,brandFilter,setBrandFilter}){
+  if(cat==="All"||cat==="HOT"||cat==="NEW")return null;
+  const catProds=prods.filter(p=>p.cat===cat||p.category===cat);
+  const brands=["All",...new Set(catProds.map(p=>p.brand).filter(Boolean))];
+  const limits=CAT_BRAND_LIMITS[cat]||{};
+  if(brands.length<=2)return null;
+  return(
+    <div style={{padding:"10px clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #f0ece0",overflowX:"auto"}}>
+      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:10,color:"#9a8f83",letterSpacing:2,textTransform:"uppercase",flexShrink:0}}>Brand:</span>
+        {brands.map(b=>(
+          <button key={b} onClick={()=>setBrandFilter(b)} style={{
+            padding:"5px 14px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+            border:`1px solid ${brandFilter===b?"#1a1612":"#e0d8cc"}`,
+            background:brandFilter===b?"#1a1612":"transparent",
+            color:brandFilter===b?"#fff":"#6b5f52",
+            whiteSpace:"nowrap",transition:"all .15s"
+          }}>{b==="All"?"All Brands":b}</button>
+        ))}
+        {limits.max&&<span style={{fontSize:10,color:"#c9a84c",marginLeft:"auto",flexShrink:0}}>{catProds.filter(p=>brandFilter==="All"||p.brand===brandFilter).length} products</span>}
+      </div>
+    </div>
+  );
+}
+
+
 function Store({user,onLogout,onAccount,onAdmin}){
   const settings=useSettings();
   const[prods,setProds]=useState([]);
@@ -1127,7 +1142,6 @@ function Store({user,onLogout,onAccount,onAdmin}){
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
   return(<div style={{background:"#faf9f7",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
-    <CustomCursor/>
     <FreeShippingBar cartTotal={cart.reduce((s,i)=>s+(i.price*i.qty),0)} settings={settings}/>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
     <AIOutfitSuggester prods={prods} onFilter={setCat}/>
@@ -1333,10 +1347,11 @@ function Store({user,onLogout,onAccount,onAdmin}){
         </div>
         {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"#9a8f83",textAlign:"center",marginTop:8,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
       </div>
+      {/* ── BRAND BAR ─────────────────────────────── */}
+      <BrandBar prods={prods} cat={cat} brandFilter={brandFilter} setBrandFilter={setBrandFilter}/>
       {/* ── ADVANCED FILTERS ─────────────────────────── */}
       <div style={{padding:"12px clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #f0ece0"}}>
         <div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",marginBottom:10}}>
-          <VoiceSearchBtn onResult={t=>setSearch(t)}/>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"#fff",color:"#4a4035",cursor:"pointer"}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
@@ -1423,7 +1438,7 @@ function Store({user,onLogout,onAccount,onAdmin}){
     <section style={{background:"#fdfcf8",padding:"56px clamp(16px,4vw,60px)",borderTop:"1px solid #f0ece0",borderBottom:"1px solid #f0ece0"}}>
       <div style={{maxWidth:960,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(28px,4vw,60px)",alignItems:"center"}}>
         <div>
-          <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Est. 1985</div>
+          <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Est. 1975</div>
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(26px,3.5vw,40px)",fontWeight:600,color:"#1a1612",lineHeight:1.2,margin:"0 0 16px"}}>Jameel Fabrics<br/><em style={{fontWeight:300}}>Kunjah</em></h2>
           <p style={{fontSize:14,color:"#6b5f52",lineHeight:1.8,margin:"0 0 20px"}}>{settings?.about||"For nearly four decades, Jameel Fabrics has been Kunjah's most trusted name in premium Pakistani clothing. From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality."}</p>
           <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
@@ -1457,7 +1472,7 @@ function Store({user,onLogout,onAccount,onAdmin}){
         <div>
           <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
-          <p style={{fontSize:11,color:"rgba(255,255,255,.35)",lineHeight:2,marginBottom:20}}>Premium Pakistani fabrics. Exclusive designs, exceptional quality, trusted by families since 1985.</p>
+          <p style={{fontSize:11,color:"rgba(255,255,255,.35)",lineHeight:2,marginBottom:20}}>Premium Pakistani fabrics. Exclusive designs, exceptional quality, trusted by families since 1975.</p>
           <div style={{display:"flex",gap:10}}>
             {[{url:settings.insta||"#",bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",ic:<IgSvg/>},{url:"https://wa.me/"+wa,bg:"#25D366",ic:<WaSvg/>},{url:settings.tiktok||"#",bg:"#010101",ic:<TkSvg/>,border:"1px solid rgba(255,255,255,.15)"},{url:settings.fb||"#",bg:"#1877F2",ic:<FbSvg/>}].map((s,i)=>(
               <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{width:36,height:36,borderRadius:4,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"transform .2s,opacity .2s",textDecoration:"none",color:"#fff",border:s.border||"none"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.opacity=".85";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.opacity="1";}}>{s.ic}</a>
@@ -1535,6 +1550,25 @@ function AccountPage({user,onBack}){
     </div>
   </div>);
 }
+// ── Error Boundary ────────────────────────────────────────────
+class ErrorBoundary extends React.Component{
+  constructor(props){super(props);this.state={err:null};}
+  static getDerivedStateFromError(e){return{err:e};}
+  componentDidCatch(e,info){console.error("AdminPanel error:",e,info);}
+  render(){
+    if(this.state.err)return(
+      <div style={{padding:40,textAlign:"center",fontFamily:"'Inter',sans-serif"}}>
+        <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
+        <div style={{fontWeight:600,fontSize:16,color:"#111",marginBottom:8}}>Something went wrong</div>
+        <div style={{fontSize:12,color:"#9ca3af",marginBottom:20,maxWidth:400,margin:"0 auto 20px"}}>{this.state.err.message}</div>
+        <button onClick={()=>this.setState({err:null})} style={{background:"#111",color:"#fff",border:"none",padding:"10px 24px",borderRadius:6,cursor:"pointer",fontSize:13}}>Try Again</button>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
+
 function AdminLogin({onSuccess,onCancel}){
   const[pass,setPass]=useState("");const[loading,setLoading]=useState(false);
   async function check(){setLoading(true);let ok=false;if(sb){const{data}=await sb.from("website_settings").select("value").eq("key","admin_pass").single();ok=data?.value===pass;}else ok=pass==="jameel@admin2026";setLoading(false);if(ok)onSuccess();else{setPass("");toast("Wrong password!","error");}}
@@ -1841,6 +1875,7 @@ function AContent({settings}){
   const[f,setF]=useState({});
   const[vidUploading,setVidUploading]=useState(false);
   const[vidProgress,setVidProgress]=useState(0);
+  useEffect(()=>setF({...settings}),[settings]);
   async function uploadVideo(file){
     if(!sb)return alert("Supabase not connected");
     if(!file)return;
@@ -1860,7 +1895,6 @@ function AContent({settings}){
   const[saving,setSaving]=useState(false);
   const[saved,setSaved]=useState(false);
   const debRef=useRef(null);
-  useEffect(()=>setF({...settings}),[settings]);
   function updateF(key,val){
     const nf={...f,[key]:val};
     setF(nf);
@@ -1925,18 +1959,18 @@ function AContent({settings}){
   </div>);
 }
 function ASubs({subs}){
-  function exp(){const csv="Email,Date\n"+subs.map(s=>s.email+","+new Date(s.subscribed_at).toLocaleDateString()).join("\n");const a=document.createElement("a");a.href="data:text/csv,"+encodeURIComponent(csv);a.download="subscribers.csv";a.click();}
+  function exp(){const csv="Email,Date\n"+safeSubs.map(s=>s.email+","+new Date(s.subscribed_at).toLocaleDateString()).join("\n");const a=document.createElement("a");a.href="data:text/csv,"+encodeURIComponent(csv);a.download="subscribers.csv";a.click();}
   return(<div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
-      <AH title="Subscribers" sub={subs.length+" email subscribers"}/>
+      <AH title="Subscribers" sub={safeSubs.length+" email subscribers"}/>
       <ABtn onClick={exp} style={{background:"transparent",color:"#374151",border:"1px solid #e5e7eb"}}>Export CSV</ABtn>
     </div>
     <ACard><div style={{overflowX:"auto"}}>
       <table style={{width:"100%",borderCollapse:"collapse"}}>
         <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Email","Subscribed","Status"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
         <tbody>
-          {subs.map(s=><tr key={s.id} style={{borderBottom:"1px solid #f3f4f6"}}><td style={{padding:"12px 16px",fontWeight:500,fontSize:13,color:"#111"}}>{s.email}</td><td style={{padding:"12px 16px",fontSize:12,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</td><td style={{padding:"12px 16px"}}><Bdg c={s.active?"g":""}>{s.active?"Active":"Unsubscribed"}</Bdg></td></tr>)}
-          {!subs.length&&<tr><td colSpan={3} style={{padding:44,textAlign:"center",color:"#9ca3af"}}>No subscribers yet</td></tr>}
+          {safeSubs.map(s=><tr key={s.id} style={{borderBottom:"1px solid #f3f4f6"}}><td style={{padding:"12px 16px",fontWeight:500,fontSize:13,color:"#111"}}>{s.email}</td><td style={{padding:"12px 16px",fontSize:12,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</td><td style={{padding:"12px 16px"}}><Bdg c={s.active?"g":""}>{s.active?"Active":"Unsubscribed"}</Bdg></td></tr>)}
+          {!safeSubs.length&&<tr><td colSpan={3} style={{padding:44,textAlign:"center",color:"#9ca3af"}}>No subscribers yet</td></tr>}
         </tbody>
       </table>
     </div></ACard>
@@ -2313,7 +2347,7 @@ function AdminPanel({onExit}){
 
         {/* Content */}
         <div style={{flex:1,overflowY:"auto",padding:"clamp(16px,2vw,24px)",background:"#f4f5f7"}}>
-          {sb?(PAGES[page]?.()||<div style={{padding:40,textAlign:"center",color:"#9ca3af"}}>Loading...</div>):(
+          {sb?(()=>{try{return PAGES[page]?.()||<div style={{padding:40,textAlign:"center",color:"#9ca3af"}}>Loading...</div>;}catch(e){return<div style={{padding:40,textAlign:"center"}}><div style={{fontSize:30}}>⚠️</div><div style={{color:"#ef4444",marginTop:8,fontSize:13}}>{e.message}</div></div>;}})():(
             <div style={{textAlign:"center",padding:60,color:"#9ca3af"}}>
               <div style={{fontSize:40,marginBottom:12}}>⚙️</div>
               <div style={{fontWeight:600,fontSize:16,color:"#374151"}}>Supabase Not Connected</div>
@@ -2364,7 +2398,7 @@ export default function App(){
     {view==="intro"&&<Intro onEnter={()=>setView("store")}/>}
     {view==="store"&&<Store user={user} onLogout={logout} onAccount={()=>user?setView("account"):null} onAdmin={()=>setShowAdminLogin(true)}/>}
     {view==="account"&&user&&<AccountPage user={user} onBack={()=>setView("store")}/>}
-    {view==="admin"&&<AdminPanel onExit={()=>setView("store")}/>}
+    {view==="admin"&&<ErrorBoundary><AdminPanel onExit={()=>setView("store")}/></ErrorBoundary>}
     {showAdminLogin&&<AdminLogin onSuccess={()=>{setShowAdminLogin(false);setView("admin");}} onCancel={()=>setShowAdminLogin(false)}/>}
     <Toasts list={toasts}/>
   </>);
