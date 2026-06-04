@@ -1640,7 +1640,7 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
       <div className="adm-card">
         <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{fontSize:15,fontWeight:600,color:"#111827"}}>Alerts</div>
-          {aC>0&&<span style={{background:"#fee2e2",color:"#dc2626",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{aC} urgent</span>}
+          {alerts?.length||0>0&&<span style={{background:"#fee2e2",color:"#dc2626",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{alerts?.length||0} urgent</span>}
         </div>
         <div>
           {!alerts?.length?<div style={{padding:32,textAlign:"center",color:"#9ca3af",fontSize:13}}>All clear ✓</div>:
@@ -1649,9 +1649,9 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
               <div><div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{a.product_name}</div><div style={{fontSize:11,color:"#6b7280",marginTop:2}}>{a.message}</div></div>
             </div>)
           }
-          {(pC>0)&&<div style={{padding:"14px 16px",display:"flex",gap:10,alignItems:"flex-start"}}>
+          {(pending?.length||0>0)&&<div style={{padding:"14px 16px",display:"flex",gap:10,alignItems:"flex-start"}}>
             <div style={{width:8,height:8,borderRadius:"50%",background:"#c9a84c",marginTop:4,flexShrink:0}}/>
-            <div><div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{pC} Products Pending</div><div style={{fontSize:11,color:"#6b7280",marginTop:2}}>ERP se aaye — approval chahiye</div></div>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#111827"}}>{pending?.length||0} Products Pending</div><div style={{fontSize:11,color:"#6b7280",marginTop:2}}>ERP se aaye — approval chahiye</div></div>
           </div>}
         </div>
       </div>
