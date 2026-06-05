@@ -809,7 +809,7 @@ function AuthModal({mode,onClose,onSuccess}){
   </div>);
 }
 
-function CartPanel({cart,setCart,wa,onClose,user}){
+function CartPanel({cart,setCart,wa,onClose,user,settings}){
   const[code,setCode]=useState("");const[coupon,setCoupon]=useState(null);const[cL,setCL]=useState(false);
   const[showForm,setShowForm]=useState(false);
   const[custName,setCustName]=useState("");const[custCity,setCustCity]=useState("");const[custAddr,setCustAddr]=useState("");
@@ -834,6 +834,7 @@ function CartPanel({cart,setCart,wa,onClose,user}){
   return(<>
     <div style={{position:"fixed",inset:0,zIndex:9990,background:"rgba(0,0,0,.45)",backdropFilter:"blur(4px)"}} onClick={onClose}/>
     <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(420px,95vw)",background:"#faf9f7",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.12)",animation:"slideR .3s ease"}}>
+      <FreeShippingBar cartTotal={total} settings={{free_shipping_min:settings?.free_shipping_min,free_shipping_active:"true"}}/>
       <div style={{padding:"20px 24px",borderBottom:"1px solid #e8e4df",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
         <div style={{fontFamily:"'Playfair Display',serif",fontSize:19,fontWeight:700}}>Cart <span style={{color:"#7a6e65",fontSize:14,fontWeight:400}}>({cart.reduce((s,x)=>s+x.qty,0)} items)</span></div>
         <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#7a6e65"}}>X</button>
@@ -1353,6 +1354,192 @@ function BrandBar({prods,cat,brandFilter,setBrandFilter}){
 }
 
 
+
+// ══════════════════════════════════════════════════════════════
+// MYSTERY BOX + GIFT SENDER — Premium All Collection Section
+// ══════════════════════════════════════════════════════════════
+function MysteryGiftSection({settings,user,onAuth,products}){
+  const[subOpen,setSubOpen]=useState(false);
+  const[giftOpen,setGiftOpen]=useState(false);
+  const[selectedTier,setSelectedTier]=useState("Gold");
+  const[gender,setGender]=useState("Women");
+  const[subDone,setSubDone]=useState(false);
+  const[giftDone,setGiftDone]=useState(false);
+  const[subForm,setSubForm]=useState({name:"",phone:"",address:"",notes:""});
+  const[giftForm,setGiftForm]=useState({product_id:"",product_name:"",to_name:"",to_phone:"",to_address:"",message:"",extras:[]});
+
+  const boxDate1=settings?.sub_date1||"12";
+  const boxDate2=settings?.sub_date2||"28";
+
+  const TIERS=[
+    {id:"Silver",icon:"🥈",color:"#94a3b8",price:Number(settings?.sub_silver_price||1500),items:settings?.sub_silver_items||"1-2 Fabrics",benefit:settings?.sub_silver_benefit||"Starter Selection"},
+    {id:"Gold",icon:"🥇",color:"#c9a84c",price:Number(settings?.sub_gold_price||2500),items:settings?.sub_gold_items||"2-3 Fabrics",benefit:settings?.sub_gold_benefit||"Premium Brands",popular:true},
+    {id:"Platinum",icon:"💠",color:"#818cf8",price:Number(settings?.sub_platinum_price||4000),items:settings?.sub_platinum_items||"3-4 Fabrics",benefit:settings?.sub_platinum_benefit||"Exclusive Selection"},
+    {id:"Diamond",icon:"💎",color:"#38bdf8",price:Number(settings?.sub_diamond_price||6000),items:settings?.sub_diamond_items||"4-5 Fabrics",benefit:settings?.sub_diamond_benefit||"Ultra Luxury"},
+  ];
+  const tier=TIERS.find(t=>t.id===selectedTier)||TIERS[1];
+
+  const GIFT_EXTRAS=[{id:"box",l:"Gift Box",p:200},{id:"sheet",l:"Wrapping Sheet",p:100},{id:"card",l:"Greeting Card",p:50}];
+  const giftExtra=GIFT_EXTRAS.filter(e=>giftForm.extras.includes(e.id)).reduce((s,e)=>s+e.p,0)+200;
+
+  async function subscribeTier(){
+    if(!subForm.name||!subForm.phone)return alert("Name and phone required");
+    if(sb&&user)await sb.from("subscriptions").insert({user_id:user.id,name:subForm.name,phone:subForm.phone,address:subForm.address,tier:selectedTier,gender,notes:subForm.notes,status:"pending",created_at:new Date().toISOString()});
+    setSubDone(true);
+  }
+
+  async function sendGift(){
+    if(!giftForm.to_name||!giftForm.to_address)return alert("Recipient name and address required");
+    if(sb)await sb.from("online_orders").insert({customer_id:user?.id||null,customer_name:user?.user_metadata?.full_name||"Gift Sender",items:[{name:giftForm.product_name||"Gift",qty:1,price:0}],gift_option:giftForm,total:giftExtra,status:"pending",created_at:new Date().toISOString()});
+    setGiftDone(true);
+  }
+
+  return(
+    <section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,60px)",background:"linear-gradient(180deg,#faf9f7 0%,#f5f0e8 100%)"}}>
+      <div style={{textAlign:"center",marginBottom:"clamp(32px,5vw,56px)"}}>
+        <div style={{fontSize:10,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:8}}>All Collection</div>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,44px)",fontWeight:600,color:"#1a1612",lineHeight:1.2}}>Mystery Box & Gift Sender</h2>
+        <p style={{fontSize:13,color:"#9a8f83",marginTop:8,maxWidth:480,margin:"8px auto 0"}}>Surprise monthly fabrics or send a beautiful gift to someone special</p>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0,maxWidth:960,margin:"0 auto",borderRadius:16,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,.08)",border:"1px solid rgba(201,168,76,.12)"}}>
+
+        {/* ── LEFT: Mystery Box ──────────────────────── */}
+        <div style={{background:"linear-gradient(160deg,#1a1612 0%,#2c1f0a 100%)",padding:"clamp(28px,4vw,44px)",position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle,rgba(201,168,76,.12) 1px,transparent 1px)",backgroundSize:"22px 22px",opacity:.5,pointerEvents:"none"}}/>
+          <div style={{position:"absolute",top:14,right:14,background:"#c9a84c",color:"#000",fontSize:8,fontWeight:800,letterSpacing:2,padding:"3px 10px",textTransform:"uppercase"}}>Mystery</div>
+
+          <div style={{position:"relative",zIndex:1}}>
+            <div style={{fontSize:"clamp(2.5rem,5vw,3.5rem)",marginBottom:10}}>🎁</div>
+            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(20px,3vw,30px)",fontWeight:600,color:"#f5efe0",lineHeight:1.2,marginBottom:10}}>Monthly<br/>Fabric Box</h3>
+            <p style={{fontSize:12,color:"rgba(201,168,76,.65)",lineHeight:1.7,marginBottom:20}}>Curated surprise fabrics — dispatched every <strong style={{color:"#c9a84c"}}>{boxDate1}th & {boxDate2}th</strong></p>
+
+            {/* Tier cards compact */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:20}}>
+              {TIERS.map(t=>(
+                <div key={t.id} onClick={()=>setSelectedTier(t.id)} style={{padding:"8px 10px",border:`1px solid ${selectedTier===t.id?t.color:"rgba(255,255,255,.08)"}`,background:selectedTier===t.id?"rgba(255,255,255,.06)":"transparent",cursor:"pointer",borderRadius:6,transition:"all .2s"}}>
+                  {t.popular&&<div style={{fontSize:7,color:"#c9a84c",fontWeight:700,letterSpacing:1,marginBottom:2}}>POPULAR</div>}
+                  <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}><span style={{fontSize:14}}>{t.icon}</span><span style={{fontWeight:700,fontSize:10,color:"#fff"}}>{t.id}</span></div>
+                  <div style={{fontSize:11,fontWeight:800,color:t.color}}>Rs.{t.price.toLocaleString()}</div>
+                  <div style={{fontSize:8,color:"rgba(255,255,255,.3)",marginTop:1}}>{t.items}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Gender */}
+            <div style={{display:"flex",gap:4,marginBottom:16}}>
+              {["Women","Men","Kids","Mix"].map(g=>(
+                <button key={g} onClick={()=>setGender(g)} style={{flex:1,padding:"5px 2px",fontSize:8,fontWeight:700,letterSpacing:.5,textTransform:"uppercase",border:`1px solid ${gender===g?"#c9a84c":"rgba(255,255,255,.1)"}`,background:gender===g?"rgba(201,168,76,.15)":"transparent",color:gender===g?"#c9a84c":"rgba(255,255,255,.3)",cursor:"pointer",borderRadius:3,transition:"all .2s"}}>{g}</button>
+              ))}
+            </div>
+
+            <button onClick={()=>user?setSubOpen(true):onAuth("login")} style={{width:"100%",background:"#c9a84c",color:"#000",border:"none",padding:"12px",fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:4,transition:"all .2s"}}
+              onMouseEnter={e=>{e.currentTarget.style.background="#d4b555";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="#c9a84c";}}>
+              Subscribe — {tier.id} · Rs.{tier.price.toLocaleString()}
+            </button>
+          </div>
+        </div>
+
+        {/* ── RIGHT: Gift Sender ─────────────────────── */}
+        <div style={{background:"#fdfcf8",padding:"clamp(28px,4vw,44px)",position:"relative",borderLeft:"1px solid rgba(201,168,76,.1)"}}>
+          <div style={{position:"absolute",top:14,right:14,background:"#f5f0e8",color:"#c9a84c",fontSize:8,fontWeight:800,letterSpacing:2,padding:"3px 10px",textTransform:"uppercase",border:"1px solid rgba(201,168,76,.2)"}}>Gift</div>
+
+          <div style={{fontSize:"clamp(2.5rem,5vw,3.5rem)",marginBottom:10}}>💝</div>
+          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(20px,3vw,30px)",fontWeight:600,color:"#1a1612",lineHeight:1.2,marginBottom:10}}>Gift a Suit<br/>to Someone Special</h3>
+          <p style={{fontSize:12,color:"#9a8f83",lineHeight:1.7,marginBottom:20}}>Select a fabric, add gift extras, and we'll deliver it beautifully wrapped with your personal message.</p>
+
+          {/* What's included */}
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
+            {[["🎁","Gift Box","+ Rs. 200",200],["🎀","Wrapping Sheet","+ Rs. 100",100],["💌","Greeting Card","+ Rs. 50",50]].map(([icon,name,price,val])=>(
+              <label key={name} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",border:`1px solid ${giftForm.extras.includes(name.toLowerCase().split(" ")[0])?"#c9a84c":"#e0d8cc"}`,borderRadius:6,cursor:"pointer",background:giftForm.extras.includes(name.toLowerCase().split(" ")[0])?"rgba(201,168,76,.04)":"transparent",transition:"all .15s"}}>
+                <input type="checkbox" checked={giftForm.extras.includes(name.toLowerCase().split(" ")[0])} onChange={e=>{const k=name.toLowerCase().split(" ")[0];setGiftForm(f=>({...f,extras:e.target.checked?[...f.extras,k]:f.extras.filter(x=>x!==k)}));}} style={{accentColor:"#c9a84c",width:15,height:15}}/>
+                <span style={{fontSize:16}}>{icon}</span>
+                <span style={{flex:1,fontSize:12,fontWeight:500,color:"#1a1612"}}>{name}</span>
+                <span style={{fontSize:11,color:"#c9a84c",fontWeight:700}}>{price}</span>
+              </label>
+            ))}
+          </div>
+
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,color:"#9a8f83",marginBottom:4}}>Gift Extra Total</div>
+            <div style={{fontSize:20,fontWeight:800,color:"#c9a84c",fontFamily:"'Cormorant Garamond',serif"}}>Rs. {giftExtra.toLocaleString()}</div>
+            <div style={{fontSize:10,color:"#b5aba2"}}>+ product price</div>
+          </div>
+
+          <button onClick={()=>user?setGiftOpen(true):onAuth("login")} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:4,transition:"all .2s"}}
+            onMouseEnter={e=>{e.currentTarget.style.background="#c9a84c";e.currentTarget.style.color="#000";}}
+            onMouseLeave={e=>{e.currentTarget.style.background="#1a1612";e.currentTarget.style.color="#c9a84c";}}>
+            Send a Gift →
+          </button>
+        </div>
+      </div>
+
+      {/* ── Subscribe Modal ──────────────────────────── */}
+      {subOpen&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setSubOpen(false)}>
+        <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:400,maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+          {subDone?(<div style={{textAlign:"center",padding:"24px 0"}}>
+            <div style={{fontSize:48,marginBottom:12}}>📦</div>
+            <div style={{fontWeight:700,fontSize:16,marginBottom:6}}>Subscribed!</div>
+            <div style={{fontSize:12,color:"#9a8f83",lineHeight:1.6}}>We'll contact you on WhatsApp. Next dispatch: {boxDate1}th or {boxDate2}th.</div>
+            <button onClick={()=>{setSubOpen(false);setSubDone(false);}} style={{marginTop:16,background:"#1a1612",color:"#c9a84c",border:"none",padding:"10px 24px",borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700}}>Done</button>
+          </div>):(
+            <>
+              <div style={{fontWeight:700,fontSize:15,color:"#1a1612",marginBottom:4}}>📦 {selectedTier} Box — Rs.{tier.price.toLocaleString()}</div>
+              <div style={{fontSize:11,color:"#9a8f83",marginBottom:16}}>{tier.items} · {gender} · {boxDate1}th & {boxDate2}th</div>
+              {[["name","Your Name"],["phone","WhatsApp Number"],["address","Delivery Address"]].map(([k,l])=>(
+                <div key={k} style={{marginBottom:10}}>
+                  <label style={{fontSize:11,color:"#9a8f83",display:"block",marginBottom:3}}>{l}</label>
+                  <input value={subForm[k]} onChange={e=>setSubForm({...subForm,[k]:e.target.value})} style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+                </div>
+              ))}
+              <button onClick={subscribeTier} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",borderRadius:6,fontSize:13,fontWeight:700,cursor:"pointer"}}>Confirm</button>
+              <button onClick={()=>setSubOpen(false)} style={{width:"100%",background:"none",border:"1px solid #e0d8cc",padding:"10px",borderRadius:6,cursor:"pointer",marginTop:8,color:"#9a8f83",fontSize:12}}>Cancel</button>
+            </>
+          )}
+        </div>
+      </div>}
+
+      {/* ── Gift Modal ───────────────────────────────── */}
+      {giftOpen&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setGiftOpen(false)}>
+        <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:420,maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+          {giftDone?(<div style={{textAlign:"center",padding:"24px 0"}}>
+            <div style={{fontSize:48,marginBottom:12}}>💝</div>
+            <div style={{fontWeight:700,fontSize:16,marginBottom:6}}>Gift Order Placed!</div>
+            <div style={{fontSize:12,color:"#9a8f83"}}>We'll contact you on WhatsApp to confirm product & payment.</div>
+            <button onClick={()=>{setGiftOpen(false);setGiftDone(false);}} style={{marginTop:16,background:"#1a1612",color:"#c9a84c",border:"none",padding:"10px 24px",borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:700}}>Done</button>
+          </div>):(
+            <>
+              <div style={{fontWeight:700,fontSize:15,color:"#1a1612",marginBottom:16}}>💝 Send a Gift</div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:"#9a8f83",display:"block",marginBottom:3}}>Select Product</label>
+                <select value={giftForm.product_id} onChange={e=>{const o=e.target.options[e.target.selectedIndex];setGiftForm({...giftForm,product_id:e.target.value,product_name:o.text});}} style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",background:"#fff"}}>
+                  <option value="">— Choose product —</option>
+                  {(products||[]).slice(0,50).map(p=><option key={p.id} value={p.id}>{p.name} — Rs.{Number(p.sale_price||p.price||0).toLocaleString()}</option>)}
+                </select>
+              </div>
+              {[["to_name","Recipient Name *"],["to_phone","Recipient Phone"],["to_address","Recipient Address *"]].map(([k,l])=>(
+                <div key={k} style={{marginBottom:10}}>
+                  <label style={{fontSize:11,color:"#9a8f83",display:"block",marginBottom:3}}>{l}</label>
+                  <input value={giftForm[k]||""} onChange={e=>setGiftForm({...giftForm,[k]:e.target.value})} style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+                </div>
+              ))}
+              <div style={{marginBottom:14}}>
+                <label style={{fontSize:11,color:"#9a8f83",display:"block",marginBottom:3}}>Gift Card Message</label>
+                <textarea value={giftForm.message||""} onChange={e=>setGiftForm({...giftForm,message:e.target.value})} rows={2} placeholder="Write a personal message..." style={{width:"100%",padding:"9px 12px",border:"1px solid #e0d8cc",borderRadius:6,fontSize:12,outline:"none",resize:"none",boxSizing:"border-box"}}/>
+              </div>
+              <div style={{fontSize:12,color:"#c9a84c",fontWeight:700,marginBottom:12}}>Gift Total: Rs.{giftExtra.toLocaleString()} + product price</div>
+              <button onClick={sendGift} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",borderRadius:6,fontSize:13,fontWeight:700,cursor:"pointer"}}>Place Gift Order</button>
+              <button onClick={()=>setGiftOpen(false)} style={{width:"100%",background:"none",border:"1px solid #e0d8cc",padding:"10px",borderRadius:6,cursor:"pointer",marginTop:8,color:"#9a8f83",fontSize:12}}>Cancel</button>
+            </>
+          )}
+        </div>
+      </div>}
+    </section>
+  );
+}
+
+
 function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const TH=siteTheme||SITE_THEMES["Black Gold"];
   // Apply theme CSS variables
@@ -1385,7 +1572,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const heroImgs=["👗","✨","🌸","🧵","💎"];
   const[modalProd,setModalProd]=useState(null);
   const[recentlyViewed,setRecentlyViewed]=useState(()=>{try{return JSON.parse(localStorage.getItem("jf_rv")||"[]");}catch{return [];}});
-  const[showTop,setShowTop]=useState(false);
+  
   const searchRef=useRef(null);
   useReveal();
   const heroLines=["Exclusive Collections","Premium Pakistani Fabric","Handpicked Quality","Timeless Elegance","Limited Edition Pieces"];
@@ -1468,7 +1655,6 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
   return(<div style={{background:"#faf9f7",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
-    <FreeShippingBar cartTotal={cart.reduce((s,i)=>s+(i.price*i.qty),0)} settings={settings}/>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
     <AIOutfitSuggester prods={prods} onFilter={setCat}/>
     {/* Countdown Banner - above announcement */}
@@ -1711,34 +1897,12 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         </div>
       )}
     </section>
-    {/* REVIEWS */}
-    <section id="reviews" style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
-      <div className="rv" style={{textAlign:"center",marginBottom:36}}>
-        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Customer Reviews</div>
-      </div>
-      <SubscriptionBox settings={settings} user={user} onAuth={setAuthModal}/>
-      <ReviewsSection/>
-    </section>
-    {/* POLICIES */}
-    <section id="policies" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
-      <div className="rv" style={{textAlign:"center",marginBottom:44}}>
-        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Promise</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Our Policies</div>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16,maxWidth:1200,margin:"0 auto"}}>
-        {[
-          {ic:"🔄",title:"Easy Exchange",desc:"Not satisfied? Exchange within 3 days. Your satisfaction is our priority.",color:"#fef9f0"},
-          {ic:"✓",title:"Quality Assured",desc:"Every piece is personally inspected. We only sell what we would wear ourselves.",color:"#f0faf5"},
-          {ic:"📦",title:"Careful Packaging",desc:"Your order is packed with care to arrive in perfect condition.",color:"#f0f5ff"},
-          {ic:"💬",title:"WhatsApp Support",desc:"Direct access to the owner. Real human support, anytime.",color:"#fdf0ff"},
-          {ic:"🔒",title:"Secure Ordering",desc:"Your personal information is never shared. Complete privacy guaranteed.",color:"#fff5f0"},
-          {ic:"⚡",title:"Fast Delivery",desc:"Nationwide delivery in 3-5 working days.",color:"#f5fff0"},
-        ].map(p=><PolicyCard key={p.title} {...p}/>)}
-      </div>
-    </section>
-    {/* STORE MAP */}
-    <section id="store-map" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#faf9f7",borderBottom:"1px solid #e8e4df"}}>
+    
+    {/* ALL COLLECTION — Mystery Box + Gift Sender */}
+    <MysteryGiftSection settings={settings} user={user} onAuth={setAuthModal} products={prods}/>
+
+    {/* VISIT OUR STORE */}
+<section id="store-map" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#faf9f7",borderBottom:"1px solid #e8e4df"}}>
       <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"start",maxWidth:1200,margin:"0 auto"}}>
         <div className="rv">
           <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Find Us</div>
@@ -1769,7 +1933,33 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         </div>
       </div>
     </section>
-    {/* ABOUT */}
+
+    <section id="policies" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
+      <div className="rv" style={{textAlign:"center",marginBottom:44}}>
+        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Promise</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Our Policies</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16,maxWidth:1200,margin:"0 auto"}}>
+        {[
+          {ic:"🔄",title:"Easy Exchange",desc:"Not satisfied? Exchange within 3 days. Your satisfaction is our priority.",color:"#fef9f0"},
+          {ic:"✓",title:"Quality Assured",desc:"Every piece is personally inspected. We only sell what we would wear ourselves.",color:"#f0faf5"},
+          {ic:"📦",title:"Careful Packaging",desc:"Your order is packed with care to arrive in perfect condition.",color:"#f0f5ff"},
+          {ic:"💬",title:"WhatsApp Support",desc:"Direct access to the owner. Real human support, anytime.",color:"#fdf0ff"},
+          {ic:"🔒",title:"Secure Ordering",desc:"Your personal information is never shared. Complete privacy guaranteed.",color:"#fff5f0"},
+          {ic:"⚡",title:"Fast Delivery",desc:"Nationwide delivery in 3-5 working days.",color:"#f5fff0"},
+        ].map(p=><PolicyCard key={p.title} {...p}/>)}
+      </div>
+    </section>
+
+    {/* REVIEWS */}
+    <section id="reviews" style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
+      <div className="rv" style={{textAlign:"center",marginBottom:36}}>
+        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Customer Reviews</div>
+      </div>
+      <ReviewsSection/>
+    </section>
+
     <section style={{background:"#fdfcf8",padding:"56px clamp(16px,4vw,60px)",borderTop:"1px solid #f0ece0",borderBottom:"1px solid #f0ece0"}}>
       <div style={{maxWidth:960,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(28px,4vw,60px)",alignItems:"center"}}>
         <div>
@@ -1800,7 +1990,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         </div>
       </div>
     </section>
-    <SubscriptionBox settings={settings} user={user} onAuth={setAuthModal}/>
+<SubscriptionBox settings={settings} user={user} onAuth={setAuthModal}/>
     {/* FOOTER */}
     <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 28px"}}>
       <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"1.8fr 1fr 1fr 1fr",gap:"clamp(24px,3.5vw,52px)",marginBottom:52,maxWidth:1200,margin:"0 auto 52px"}}>
@@ -1827,6 +2017,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       </div>
     </footer>
     {/* Browsing counter */}
+      <ScrollUpBtn/>
     <BrowsingBadge/>
     <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:28,right:28,width:54,height:54,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 28px rgba(37,211,102,.4)",cursor:"pointer",textDecoration:"none",zIndex:700,transition:"transform .3s,box-shadow .3s",color:"#fff"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.14)";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";}}><WaSvg/></a>
     {/* Recently Viewed */}
@@ -1836,15 +2027,9 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     )}
     {/* PWA Install prompt */}
     <PWAInstallBtn/>
-    {/* Back to Top */}
-    {showTop&&(
-      <button onClick={()=>window.scrollTo({top:0,behavior:"smooth"})} style={{position:"fixed",bottom:90,right:28,width:44,height:44,background:"#111",color:"#fff",border:"none",borderRadius:"50%",cursor:"pointer",zIndex:700,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 16px rgba(0,0,0,.25)",transition:"all .3s"}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18,15 12,9 6,15"/></svg>
-      </button>
-    )}
-    {/* Product Modal */}
+        {/* Product Modal */}
     {modalProd&&<ProductModal prod={modalProd} onClose={()=>setModalProd(null)} onAdd={addToCart} onWish={toggleWish} wished={wish.has(modalProd.id)}/>}
-    {cartOpen&&<CartPanel cart={cart} setCart={setCart} wa={wa} onClose={()=>setCartOpen(false)} user={user}/>}
+    {cartOpen&&<CartPanel cart={cart} setCart={setCart} wa={wa} onClose={()=>setCartOpen(false)} user={user} settings={settings}/>}
     {authModal&&<AuthModal mode={authModal} onClose={()=>setAuthModal(null)} onSuccess={()=>setAuthModal(null)}/>}
   </div>);
 }
@@ -2373,12 +2558,10 @@ function AContent({settings}){
     },1500);
   }
   async function save(){if(!sb)return;setSaving(true);
-    // Apply theme
-    if(f.site_theme&&SITE_THEMES[f.site_theme]){
-      try{localStorage.setItem("jf_theme",f.site_theme);}catch{}
-      // Reload to apply theme
-      const reload=f.site_theme!==localStorage.getItem("jf_theme_prev");
-      localStorage.setItem("jf_theme_prev",f.site_theme);
+    // Save theme to localStorage immediately
+    if(f.site_theme&&typeof localStorage!=="undefined"){
+      localStorage.setItem("jf_theme",f.site_theme);
+      window.dispatchEvent(new CustomEvent("jf-theme-change",{detail:f.site_theme}));
     }await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2000);toast("Saved!","success");}
   return(<div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
@@ -2441,25 +2624,110 @@ function AContent({settings}){
   </div>);
 }
 function ASubs({subs}){
-  function exp(){const csv="Email,Date\n"+safeSubs.map(s=>s.email+","+new Date(s.subscribed_at).toLocaleDateString()).join("\n");const a=document.createElement("a");a.href="data:text/csv,"+encodeURIComponent(csv);a.download="subscribers.csv";a.click();}
-  return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
-      <AH title="Subscribers" sub={safeSubs.length+" email subscribers"}/>
-      <ABtn onClick={exp} style={{background:"transparent",color:"#374151",border:"1px solid #e5e7eb"}}>Export CSV</ABtn>
+  const safeSubs=subs||[];
+  const[tab,setTab]=useState("subscribers");
+  const[subOrders,setSubOrders]=useState([]);
+  const[users,setUsers]=useState([]);
+  const[loading,setLoading]=useState(false);
+
+  useEffect(()=>{
+    if(!sb)return;
+    setLoading(true);
+    Promise.all([
+      sb.from("subscriptions").select("*").order("created_at",{ascending:false}),
+      sb.auth.admin?sb.auth.admin.listUsers():Promise.resolve({data:{users:[]}}),
+    ]).then(([ordRes,userRes])=>{
+      setSubOrders(ordRes.data||[]);
+      setUsers(userRes.data?.users||[]);
+      setLoading(false);
+    });
+  },[]);
+
+  function expSubs(){
+    const csv="Email,Date\n"+safeSubs.map(s=>s.email+","+new Date(s.subscribed_at).toLocaleDateString()).join("\n");
+    const a=document.createElement("a");a.href="data:text/csv,"+encodeURIComponent(csv);a.download="subscribers.csv";a.click();
+  }
+
+  const tabs=[["subscribers","📧 Newsletter ("+safeSubs.length+")"],["boxes","📦 Box Orders ("+subOrders.length+")"],["users","👤 Registered Users ("+users.length+")"]];
+
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:10}}>
+        <AH title="Subscribers & Users"/>
+        <ABtn onClick={expSubs} style={{background:"#111",color:"#fff",fontSize:10}}>⬇️ Export CSV</ABtn>
+      </div>
+      {/* Tabs */}
+      <div style={{display:"flex",gap:4,marginBottom:16,borderBottom:"1px solid #e5e7eb",paddingBottom:10}}>
+        {tabs.map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 14px",fontSize:11,fontWeight:600,border:`1px solid ${tab===t?"#111":"#e5e7eb"}`,background:tab===t?"#111":"transparent",color:tab===t?"#fff":"#6b7280",borderRadius:4,cursor:"pointer"}}>{l}</button>
+        ))}
+      </div>
+
+      {loading&&<div style={{textAlign:"center",padding:32,color:"#9ca3af"}}>🔄 Loading...</div>}
+
+      {/* Newsletter Subscribers */}
+      {tab==="subscribers"&&!loading&&<>
+        {safeSubs.length===0?<div style={{textAlign:"center",padding:40,color:"#9ca3af"}}>No subscribers yet</div>:(
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {safeSubs.map((s,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
+                <span style={{fontSize:13,color:"#111"}}>{s.email}</span>
+                <span style={{fontSize:11,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </>}
+
+      {/* Mystery Box Orders */}
+      {tab==="boxes"&&!loading&&<>
+        {subOrders.length===0?<div style={{textAlign:"center",padding:40,color:"#9ca3af"}}>No box orders yet</div>:(
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {subOrders.map((o,i)=>(
+              <div key={i} style={{padding:"12px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
+                <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{o.name}</div>
+                    <div style={{fontSize:11,color:"#6b7280"}}>📞 {o.phone} · {o.address}</div>
+                    <div style={{display:"flex",gap:8,marginTop:4}}>
+                      <span style={{fontSize:10,background:"#fef3c7",color:"#92400e",padding:"2px 8px",borderRadius:10,fontWeight:600}}>{o.tier||"—"}</span>
+                      <span style={{fontSize:10,background:"#ede9fe",color:"#4c1d95",padding:"2px 8px",borderRadius:10,fontWeight:600}}>{o.gender||"—"}</span>
+                      <span style={{fontSize:10,background:o.status==="pending"?"#fee2e2":"#d1fae5",color:o.status==="pending"?"#991b1b":"#065f46",padding:"2px 8px",borderRadius:10,fontWeight:600}}>{o.status}</span>
+                    </div>
+                  </div>
+                  <div style={{fontSize:10,color:"#9ca3af"}}>{o.created_at?new Date(o.created_at).toLocaleDateString():""}</div>
+                </div>
+                {o.notes&&<div style={{fontSize:11,color:"#6b7280",marginTop:6,padding:"6px 10px",background:"#fff",borderRadius:4,border:"1px solid #e5e7eb"}}>"{o.notes}"</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </>}
+
+      {/* Registered Users */}
+      {tab==="users"&&!loading&&<>
+        {users.length===0?<div style={{textAlign:"center",padding:40,color:"#9ca3af"}}>No registered users yet</div>:(
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {users.map((u,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
+                <div>
+                  <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{u.user_metadata?.full_name||"User"}</div>
+                  <div style={{fontSize:11,color:"#6b7280"}}>{u.email}</div>
+                </div>
+                <div style={{fontSize:11,color:"#9ca3af"}}>{u.created_at?new Date(u.created_at).toLocaleDateString():""}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>}
     </div>
-    <ACard><div style={{overflowX:"auto"}}>
-      <table style={{width:"100%",borderCollapse:"collapse"}}>
-        <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Email","Subscribed","Status"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
-        <tbody>
-          {safeSubs.map(s=><tr key={s.id} style={{borderBottom:"1px solid #f3f4f6"}}><td style={{padding:"12px 16px",fontWeight:500,fontSize:13,color:"#111"}}>{s.email}</td><td style={{padding:"12px 16px",fontSize:12,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</td><td style={{padding:"12px 16px"}}><Bdg c={s.active?"g":""}>{s.active?"Active":"Unsubscribed"}</Bdg></td></tr>)}
-          {!safeSubs.length&&<tr><td colSpan={3} style={{padding:44,textAlign:"center",color:"#9ca3af"}}>No subscribers yet</td></tr>}
-        </tbody>
-      </table>
-    </div></ACard>
-  </div>);
+  );
 }
+
+
 function ASettings({settings}){
   const[f,setF]=useState({});const[np,setNp]=useState("");const[cp,setCp]=useState("");
+  const[settTab,setSettTab]=useState("theme");
   useEffect(()=>setF({...settings}),[settings]);
   const[saving,setSaving]=useState(false);
   const[saved,setSaved]=useState(false);
@@ -2467,8 +2735,17 @@ function ASettings({settings}){
   async function chgPass(){if(!np||np.length<6){toast("Min 6 chars","error");return;}if(np!==cp){toast("Passwords don't match","error");return;}if(sb)await sb.from("website_settings").upsert({key:"admin_pass",value:np},{onConflict:"key"});toast("Password changed!","success");setNp("");setCp("");}
   async function backup(){const{data:p}=sb?await sb.from("products").select("*"):{data:[]};const{data:s}=sb?await sb.from("website_settings").select("*"):{data:[]};const d=JSON.stringify({v:1,ts:new Date().toISOString(),products:p,settings:s},null,2);const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(d);a.download="jf-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("Downloaded!","success");}
   return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
-      <AH title="Settings"/><ABtn onClick={save} style={{background:"#111",color:"#fff"}}>Save</ABtn>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:12}}>
+      <AH title="Settings"/>
+      <ABtn onClick={save} style={{background:saving?"#6b7280":saved?"#16a34a":"#111",color:"#fff",minWidth:80}}>
+        {saving?"Saving...":saved?"✓ Saved":"💾 Save All"}
+      </ABtn>
+    </div>
+    {/* Tabs */}
+    <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:20,borderBottom:"1px solid #e5e7eb",paddingBottom:12}}>
+      {[["theme","🎨 Theme"],["content","📝 Content"],["shop","🏪 Shop"],["subscription","📦 Subscription"],["whatsapp","💬 WhatsApp"],["delivery","🚚 Delivery"],["other","⚙️ Other"]].map(([t,l])=>(
+        <button key={t} onClick={()=>setSettTab(t)} style={{padding:"6px 14px",fontSize:11,fontWeight:600,border:`1px solid ${settTab===t?"#111":"#e5e7eb"}`,background:settTab===t?"#111":"transparent",color:settTab===t?"#fff":"#6b7280",borderRadius:4,cursor:"pointer",transition:"all .15s"}}>{l}</button>
+      ))}
     </div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,alignItems:"start"}}>
       <div>
@@ -2971,7 +3248,7 @@ function ScrollUpBtn(){
   return(
     <button
       onClick={()=>window.scrollTo({top:0,behavior:"smooth"})}
-      style={{position:"fixed",bottom:28,right:16,zIndex:800,
+      style={{position:"fixed",bottom:28,left:16,zIndex:800,
         width:40,height:40,borderRadius:"50%",
         background:"#1a1612",color:"#c9a84c",border:"1px solid rgba(201,168,76,.3)",
         fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",
@@ -3036,6 +3313,5 @@ export default function App(){
     {view==="admin"&&<ErrorBoundary><AdminPanel onExit={()=>setView("store")}/></ErrorBoundary>}
     {showAdminLogin&&<AdminLogin onSuccess={()=>{setShowAdminLogin(false);setView("admin");}} onCancel={()=>setShowAdminLogin(false)}/>}
     <Toasts list={toasts}/>
-    <ScrollUpBtn/>
   </>);
 }
