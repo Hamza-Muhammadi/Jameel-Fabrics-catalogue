@@ -7,79 +7,94 @@ const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
 // 7 THEME SYSTEM
 // ══════════════════════════════════════════════════════════
 const SITE_THEMES = {
-  "Black Gold": {
-    id:"black-gold",
-    // Website
-    bg:"#faf9f7", card:"#fff", surface:"#f5f0e8", text:"#1a1612",
-    muted:"#9a8f83", border:"#e8dfc0", accent:"#c9a84c",
-    success:"#4a7c59", danger:"#c0392b", info:"#2980b9",
-    dark:"#1a1612", darkText:"#f5f0e8",
-    // Intro (Design 1 - current)
-    introDesign:"split-gold",
-    introLeft:"#1a1612", introRight:"#faf9f7",
-    introBrand:"#c9a84c", introBtn:"#c9a84c",
-  },
   "Blue Beige": {
     id:"blue-beige",
-    bg:"#eee8dc", card:"#fff", surface:"#e8e2d4", text:"#1a2c6b",
-    muted:"#7a8aaa", border:"#c8d4e8", accent:"#1a2c6b",
-    success:"#2e7d32", danger:"#c62828", info:"#1565c0",
+    // Intro (user's original design)
+    iLeft:"#1a2c6b", iRight:"#eee8dc",
+    iBrand:"#fff", iAccent:"rgba(180,210,255,.55)",
+    iBtn:"#1a2c6b", iBtnText:"#eee8dc",
+    iTicker:"rgba(26,44,107,.4)", iTag:"rgba(26,44,107,.1)",
+    iEnter:"#1a2c6b", iStore:"rgba(26,44,107,.15)",
+    iEyebrow:"rgba(26,44,107,.3)", iBg:"#eee8dc",
+    // Website
+    bg:"#eee8dc", card:"#fff", surface:"#e5dfd4", text:"#1a2c6b",
+    muted:"#6a7a9a", border:"#c8d4e8", accent:"#1a2c6b",
     dark:"#1a2c6b", darkText:"#eee8dc",
-    introDesign:"split-blue",
-    introLeft:"#1a2c6b", introRight:"#eee8dc",
-    introBrand:"#fff", introBtn:"#1a2c6b",
+  },
+  "Black Gold": {
+    id:"black-gold",
+    iLeft:"#1a1612", iRight:"#faf9f7",
+    iBrand:"#c9a84c", iAccent:"rgba(201,168,76,.55)",
+    iBtn:"#c9a84c", iBtnText:"#0a0806",
+    iTicker:"rgba(201,168,76,.4)", iTag:"rgba(201,168,76,.1)",
+    iEnter:"#1a1612", iStore:"rgba(26,22,18,.12)",
+    iEyebrow:"rgba(26,22,18,.3)", iBg:"#faf9f7",
+    bg:"#faf9f7", card:"#fff", surface:"#f5f0e8", text:"#1a1612",
+    muted:"#9a8f83", border:"#e8dfc0", accent:"#c9a84c",
+    dark:"#1a1612", darkText:"#f5efe0",
   },
   "Charcoal Sand": {
     id:"charcoal-sand",
-    bg:"#e8e2d8", card:"#fff", surface:"#e0d9cc", text:"#1c1a17",
+    iLeft:"#1c1a17", iRight:"#e8e2d8",
+    iBrand:"#e8e2d8", iAccent:"rgba(232,226,216,.55)",
+    iBtn:"#1c1a17", iBtnText:"#e8e2d8",
+    iTicker:"rgba(28,26,23,.4)", iTag:"rgba(28,26,23,.1)",
+    iEnter:"#1c1a17", iStore:"rgba(28,26,23,.12)",
+    iEyebrow:"rgba(28,26,23,.3)", iBg:"#e8e2d8",
+    bg:"#e8e2d8", card:"#fff", surface:"#ddd7cc", text:"#1c1a17",
     muted:"#7a7165", border:"#c8c0b0", accent:"#1c1a17",
-    success:"#388e3c", danger:"#d32f2f", info:"#0277bd",
     dark:"#1c1a17", darkText:"#e8e2d8",
-    introDesign:"split-charcoal",
-    introLeft:"#1c1a17", introRight:"#e8e2d8",
-    introBrand:"#e8e2d8", introBtn:"#1c1a17",
-  },
-  "Rose Gold": {
-    id:"rose-gold",
-    bg:"#0c0a0f", card:"#16121a", surface:"#1a1520", text:"#f5efe8",
-    muted:"#8a7a6a", border:"rgba(214,176,136,.15)", accent:"#d6b088",
-    success:"#4a7c59", danger:"#c0392b", info:"#2980b9",
-    dark:"#0c0a0f", darkText:"#d6b088",
-    introDesign:"split-rosegold",
-    introLeft:"#0c0a0f", introRight:"#0c0a0f",
-    introBrand:"linear-gradient(135deg,#d6b088,#f5dfc0)", introBtn:"transparent",
   },
   "Blue Gold": {
     id:"blue-gold",
+    iLeft:"#1a3060", iRight:"#f0f4fa",
+    iBrand:"#c9a84c", iAccent:"rgba(201,168,76,.6)",
+    iBtn:"#c9a84c", iBtnText:"#1a3060",
+    iTicker:"rgba(26,48,96,.4)", iTag:"rgba(26,48,96,.1)",
+    iEnter:"#1a3060", iStore:"rgba(26,48,96,.12)",
+    iEyebrow:"rgba(26,48,96,.3)", iBg:"#f0f4fa",
     bg:"#f0f4fa", card:"#fff", surface:"#e8eef8", text:"#1a3060",
     muted:"#6a7a9a", border:"#c0cce0", accent:"#c9a84c",
-    success:"#2e7d32", danger:"#c62828", info:"#1a3060",
     dark:"#1a3060", darkText:"#f0f4fa",
-    introDesign:"split-bluegold",
-    introLeft:"#1a3060", introRight:"#f0f4fa",
-    introBrand:"#c9a84c", introBtn:"#c9a84c",
   },
   "Hot Pink": {
     id:"hot-pink",
+    iLeft:"#1a0a12", iRight:"#fff0f5",
+    iBrand:"#e91e8c", iAccent:"rgba(233,30,140,.6)",
+    iBtn:"#e91e8c", iBtnText:"#fff",
+    iTicker:"rgba(233,30,140,.4)", iTag:"rgba(233,30,140,.1)",
+    iEnter:"#1a0a12", iStore:"rgba(26,10,18,.1)",
+    iEyebrow:"rgba(26,10,18,.3)", iBg:"#fff0f5",
     bg:"#fff0f5", card:"#fff", surface:"#ffe0ec", text:"#1a0a12",
     muted:"#8a4a66", border:"#f0a0c0", accent:"#e91e8c",
-    success:"#2e7d32", danger:"#c62828", info:"#1565c0",
     dark:"#1a0a12", darkText:"#fff",
-    introDesign:"split-hotpink",
-    introLeft:"#1a0a12", introRight:"#fff0f5",
-    introBrand:"#e91e8c", introBtn:"#e91e8c",
+  },
+  "Rose Gold": {
+    id:"rose-gold",
+    iLeft:"#0c0a0f", iRight:"#0c0a0f",
+    iBrand:"#d6b088", iAccent:"rgba(214,176,136,.6)",
+    iBtn:"transparent", iBtnText:"rgba(214,176,136,.9)",
+    iTicker:"rgba(214,176,136,.25)", iTag:"rgba(214,176,136,.06)",
+    iEnter:"#d6b088", iStore:"rgba(214,176,136,.1)",
+    iEyebrow:"rgba(214,176,136,.2)", iBg:"#0c0a0f",
+    bg:"#0c0a0f", card:"#16121a", surface:"#1a1520", text:"#f5efe8",
+    muted:"#8a7a6a", border:"rgba(214,176,136,.15)", accent:"#d6b088",
+    dark:"#0c0a0f", darkText:"#d6b088",
   },
   "Forest Green": {
     id:"forest-green",
+    iLeft:"#0d2b1e", iRight:"#f0f7f0",
+    iBrand:"#86efac", iAccent:"rgba(134,239,172,.55)",
+    iBtn:"#0d2b1e", iBtnText:"#f0f7f0",
+    iTicker:"rgba(13,43,30,.4)", iTag:"rgba(13,43,30,.1)",
+    iEnter:"#0d2b1e", iStore:"rgba(13,43,30,.1)",
+    iEyebrow:"rgba(13,43,30,.3)", iBg:"#f0f7f0",
     bg:"#f0f7f0", card:"#fff", surface:"#e0f0e0", text:"#0d2b1e",
     muted:"#5a7a6a", border:"#a0c8b0", accent:"#16a34a",
-    success:"#16a34a", danger:"#c0392b", info:"#2980b9",
     dark:"#0d2b1e", darkText:"#f0f7f0",
-    introDesign:"split-forest",
-    introLeft:"#0d2b1e", introRight:"#f0f7f0",
-    introBrand:"#86efac", introBtn:"#16a34a",
   },
 };
+
 
 const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
 const WA_NUM="923228722232";
@@ -656,126 +671,132 @@ function SubscriptionBox({settings,user,onAuth}){
 }
 
 
-function Intro({onEnter, siteTheme, themeName}){
-  const TH = siteTheme || SITE_THEMES["Black Gold"];
-  const design = TH.introDesign || "split-gold";
-  const[step,setStep]=useState(0);
+function Intro({onEnter,siteTheme,themeName}){
+  const TH=siteTheme||SITE_THEMES["Blue Beige"];
   const[tickerText,setTickerText]=useState("Gul Ahmed · Alkaram · Sana Safinaz · Khaadi · Bonanza · Sapphire · Nishat · Orient");
+  const[step,setStep]=useState(0);
   useEffect(()=>{
-    const ts=[300,900,1500,2200].map((d,i)=>setTimeout(()=>setStep(i+1),d));
+    const ts=[100,400,800,1200,1800,2400,3000].map((d,i)=>setTimeout(()=>setStep(i+1),d));
     if(sb)sb.from("website_settings").select("value").eq("key","ticker_brands").single().then(({data})=>{if(data?.value)setTickerText(data.value);});
     return()=>ts.forEach(clearTimeout);
   },[]);
-  const fu=s=>({opacity:step>=s?1:0,transform:step>=s?"translateY(0)":"translateY(20px)",transition:"all .8s cubic-bezier(.16,1,.3,1)"});
-  const fl=s=>({opacity:step>=s?1:0,transform:step>=s?"translateX(0)":"translateX(-20px)",transition:"all .8s cubic-bezier(.16,1,.3,1)"});
-  const fr=s=>({opacity:step>=s?1:0,transform:step>=s?"translateX(0)":"translateX(20px)",transition:"all .8s cubic-bezier(.16,1,.3,1)"});
-  const brands=tickerText.split("·").map(b=>b.trim()).filter(Boolean);
-  const ticker=[...brands,...brands].map((b,i)=>(
-    <span key={i} style={{display:"inline-flex",gap:"1.5rem",alignItems:"center"}}>
-      <span style={{fontFamily:"'Syne',sans-serif",fontSize:"0.62rem",fontWeight:800,letterSpacing:"2px",textTransform:"uppercase",color:TH.id==="black-gold"?"rgba(201,168,76,.4)":TH.id==="rose-gold"?"rgba(214,176,136,.3)":TH.id==="hot-pink"?"rgba(233,30,140,.4)":TH.id==="forest-green"?"rgba(22,163,74,.4)":"rgba(26,44,107,.35)"}}>{b}</span>
-      {i<brands.length*2-1&&<span style={{opacity:.3,fontSize:"0.5rem"}}>·</span>}
-    </span>
-  ));
 
-  // ── SHARED LAYOUT: Diagonal Split ──────────────────
-  const leftBg = TH.introLeft;
-  const rightBg = TH.introRight;
-  const accentColor = design==="split-rosegold"?"#d6b088":design==="split-hotpink"?"#e91e8c":design==="split-forest"?"#86efac":design==="split-blue"||design==="split-bluegold"?"rgba(255,255,255,0.9)":design==="split-charcoal"?"#e8e2d8":"#c9a84c";
-  const textColor = design==="split-rosegold"?"rgba(245,239,232,.85)":design==="split-hotpink"?"rgba(255,255,255,.85)":design==="split-forest"?"rgba(240,247,240,.85)":"rgba(255,255,255,.85)";
-  const subColor = design==="split-rosegold"?"rgba(245,239,232,.2)":design==="split-charcoal"||design==="split-blue"?"rgba(255,255,255,.25)":design==="split-hotpink"?"rgba(255,255,255,.25)":"rgba(255,255,255,.25)";
-  const rightTextColor = design==="split-gold"?"#1a1612":design==="split-blue"?"#1a2c6b":design==="split-charcoal"?"#1c1a17":design==="split-bluegold"?"#1a3060":design==="split-hotpink"?"#1a0a12":design==="split-forest"?"#0d2b1e":"rgba(214,176,136,.85)";
-  const btnBg = design==="split-rosegold"?"transparent":TH.introBtn||TH.accent;
-  const btnBorder = design==="split-rosegold"?"1px solid rgba(214,176,136,.4)":"none";
-  const btnTextColor = design==="split-rosegold"?"rgba(214,176,136,.9)":design==="split-charcoal"?"#e8e2d8":design==="split-blue"?"#eee8dc":design==="split-hotpink"?"#fff":design==="split-forest"?"#f0f7f0":"#0a0806";
+  const brands=tickerText.split("·").map(b=>b.trim()).filter(Boolean);
+  const ticker=[...brands,...brands];
+
+  const sl=(s,d=0)=>({opacity:step>=s?1:0,transform:step>=s?"translateX(0)":"translateX(-25px)",transition:`opacity .9s ${d}s ease,transform .9s ${d}s ease`});
+  const sr=(s,d=0)=>({opacity:step>=s?1:0,transform:step>=s?"translateX(0)":"translateX(25px)",transition:`opacity .9s ${d}s ease,transform .9s ${d}s ease`});
 
   return(
     <div style={{position:"fixed",inset:0,zIndex:9999,overflow:"hidden",fontFamily:"'Manrope',sans-serif"}}>
-      {/* LEFT PANEL */}
+
+      {/* ── LEFT PANEL ─────────────────────────── */}
       <div style={{
-        position:"absolute",inset:0,background:leftBg,
+        position:"absolute",inset:0,
+        background:TH.iLeft,
         clipPath:"polygon(0 0,58% 0,45% 100%,0 100%)",
         display:"flex",flexDirection:"column",justifyContent:"center",
-        padding:"clamp(2rem,5vw,4rem) clamp(2rem,4vw,3.5rem)",overflow:"hidden",
+        padding:"clamp(2rem,5vw,4rem) clamp(2rem,4vw,3.5rem)",
+        overflow:"hidden",
       }}>
-        {/* Subtle texture */}
-        <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(-45deg,transparent,transparent 40px,rgba(255,255,255,0.015) 40px,rgba(255,255,255,0.015) 41px)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",inset:0,backgroundImage:`repeating-linear-gradient(-45deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px)`,pointerEvents:"none"}}/>
         <div style={{position:"relative",zIndex:1,maxWidth:"360px"}}>
+
           {/* Tag */}
-          <div style={{...fl(1),fontSize:".55rem",letterSpacing:"5px",textTransform:"uppercase",color:accentColor,marginBottom:"2rem",opacity:.7,display:"flex",alignItems:"center",gap:"1rem"}}>
-            <span style={{width:"28px",height:"1px",background:accentColor,display:"inline-block",opacity:.5}}/>
-            Est. 1975 · Kunjah · Gujrat
+          <div style={{...sl(1,0),fontSize:".58rem",letterSpacing:"4px",textTransform:"uppercase",color:TH.iAccent,marginBottom:"2rem",display:"flex",alignItems:"center",gap:".8rem"}}>
+            <span style={{display:"inline-block",width:"30px",height:"1px",background:TH.iAccent,opacity:.5,flexShrink:0}}/>
+            Est. 1975 · Kunjah, Distt. Gujrat
           </div>
-          {/* Brand */}
-          <div style={{...fl(1),fontFamily:"'Syne',sans-serif",fontSize:"clamp(2.8rem,6.5vw,6rem)",fontWeight:800,lineHeight:.88,color:design==="split-rosegold"?"transparent":textColor,marginBottom:".4rem",letterSpacing:design==="split-rosegold"?0:-1,
-            ...(design==="split-rosegold"?{background:"linear-gradient(135deg,#d6b088 0%,#f5dfc0 40%,#d6b088 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}:{})
-          }}>
+
+          {/* Brand name */}
+          <h1 style={{...sl(2,.1),fontFamily:"'Syne',sans-serif",fontSize:"clamp(3rem,7vw,6.5rem)",fontWeight:800,lineHeight:.88,color:TH.iBrand,marginBottom:".4rem"}}>
             JAMEEL<br/>
-            <span style={{
-              color:"transparent",
-              WebkitTextStroke:`1.5px ${accentColor}`,
-              opacity:.4,letterSpacing:"4px"
-            }}>FABRICS</span>
-          </div>
-          {/* Subtext */}
-          <p style={{...fl(2),fontSize:".8rem",fontWeight:300,color:subColor,lineHeight:1.9,margin:"1.5rem 0 2.2rem",maxWidth:"270px"}}>
+            <span style={{color:"transparent",WebkitTextStroke:`2px ${TH.iAccent}`,opacity:.6}}>FABRICS</span>
+          </h1>
+
+          {/* Sub text */}
+          <p style={{...sl(3,.2),fontSize:".82rem",fontWeight:300,color:`${TH.iBrand}44`,lineHeight:1.8,margin:"1.5rem 0 2.5rem",maxWidth:"260px"}}>
             Premium branded clothing for Men, Women & Kids. Trusted by families since 1975.
           </p>
+
           {/* Stats */}
-          <div style={{...fl(2),display:"flex",gap:"1.5rem",marginBottom:"2rem"}}>
-            {[["50+","Years"],["500+","Products"],["Premium","Quality"]].map(([n,l])=>(
-              <div key={l} style={{borderLeft:`1px solid ${accentColor}44`,paddingLeft:".7rem"}}>
-                <div style={{fontFamily:"'Syne',sans-serif",fontSize:"1.2rem",fontWeight:800,color:accentColor}}>{n}</div>
-                <div style={{fontSize:".48rem",letterSpacing:"2px",textTransform:"uppercase",color:subColor}}>{l}</div>
+          <div style={{...sl(4,.3),display:"flex",gap:"1.5rem",marginBottom:"2.5rem"}}>
+            {[["50+","Yrs Trust"],["500+","Products"],["Premium","Quality"]].map(([n,l])=>(
+              <div key={l} style={{borderLeft:`2px solid ${TH.iAccent}`,paddingLeft:".8rem",opacity:.8}}>
+                <div style={{fontFamily:"'Syne',sans-serif",fontSize:"1.3rem",fontWeight:800,color:TH.iBrand,lineHeight:1}}>{n}</div>
+                <div style={{fontSize:".5rem",letterSpacing:"2px",textTransform:"uppercase",color:`${TH.iBrand}40`,marginTop:"2px"}}>{l}</div>
               </div>
             ))}
           </div>
-          <div style={{...fl(3),fontSize:".48rem",letterSpacing:"3px",textTransform:"uppercase",color:subColor,opacity:.6}}>
-            📍 Circular Road, Kunjah, Distt. Gujrat, Punjab
+
+          {/* Location */}
+          <div style={{...sl(5,.4),fontSize:".52rem",letterSpacing:"2px",textTransform:"uppercase",color:`${TH.iBrand}28`,display:"flex",alignItems:"center",gap:".5rem"}}>
+            📍 Kunjah, District Gujrat, Punjab
           </div>
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* ── RIGHT PANEL ────────────────────────── */}
       <div style={{
         position:"absolute",inset:0,
-        background:design==="split-rosegold"?leftBg:rightBg,
-        display:"flex",flexDirection:"column",justifyContent:"center",
+        background:TH.iBg,
+        display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"flex-end",
         padding:"clamp(2rem,5vw,4rem) clamp(2rem,4vw,4rem) clamp(2rem,5vw,4rem) 50%",
       }}>
         {/* BG watermark */}
-        <div style={{position:"absolute",fontFamily:"'Syne',sans-serif",fontSize:"18vw",fontWeight:800,color:design==="split-rosegold"?"rgba(214,176,136,.03)":design==="split-hotpink"?"rgba(233,30,140,.04)":"rgba(26,44,107,.04)",top:"50%",left:"42%",transform:"translateY(-50%)",whiteSpace:"nowrap",pointerEvents:"none",letterSpacing:"-3px",userSelect:"none"}}>JF</div>
-        <div style={{width:"100%",maxWidth:"360px",position:"relative",zIndex:1}}>
+        <div style={{position:"absolute",fontFamily:"'Syne',sans-serif",fontSize:"20vw",fontWeight:800,color:TH.iEnter,opacity:.04,top:"50%",left:"42%",transform:"translateY(-50%)",whiteSpace:"nowrap",pointerEvents:"none",letterSpacing:"-5px",userSelect:"none"}}>JF</div>
+
+        <div style={{width:"100%",maxWidth:"360px",position:"relative",zIndex:1,textAlign:"center"}}>
+
           {/* Eyebrow */}
-          <div style={{...fr(1),fontSize:".52rem",letterSpacing:"5px",textTransform:"uppercase",color:rightTextColor,opacity:.35,marginBottom:"1.8rem",textAlign:"center"}}>
+          <div style={{...sr(1,.2),fontSize:".58rem",letterSpacing:"4px",textTransform:"uppercase",color:TH.iEyebrow,marginBottom:"2rem"}}>
             Shop the full collection
           </div>
-          {/* Enter */}
-          <div style={{...fr(2),fontFamily:"'Syne',sans-serif",fontSize:"clamp(2.2rem,5vw,4.5rem)",fontWeight:800,color:rightTextColor,lineHeight:1,marginBottom:".15em",letterSpacing:"-2px",textAlign:"center"}}>Enter</div>
-          <div style={{...fr(2),fontFamily:"'Syne',sans-serif",fontSize:"clamp(2.2rem,5vw,4.5rem)",fontWeight:800,color:rightTextColor,opacity:.15,lineHeight:1,letterSpacing:"-2px",textAlign:"center",marginBottom:"2rem"}}>The Store</div>
-          {/* CTA */}
-          <button onClick={onEnter} style={{...fr(3),display:"block",width:"100%",background:btnBg,border:btnBorder,color:btnTextColor,padding:"1rem 2rem",fontFamily:"'Syne',sans-serif",fontSize:".82rem",fontWeight:800,letterSpacing:"3px",textTransform:"uppercase",cursor:"pointer",transition:"all .2s",position:"relative"}}>
+
+          {/* Enter text */}
+          <div style={{...sr(2,.3),fontFamily:"'Syne',sans-serif",fontSize:"clamp(2.2rem,5vw,4.5rem)",fontWeight:800,color:TH.iEnter,lineHeight:1,marginBottom:".3em",letterSpacing:"-2px"}}>
+            Enter
+          </div>
+          <div style={{...sr(3,.4),fontFamily:"'Syne',sans-serif",fontSize:"clamp(2.2rem,5vw,4.5rem)",fontWeight:800,color:TH.iStore,lineHeight:1,marginBottom:"2.5rem",letterSpacing:"-2px"}}>
+            The Store
+          </div>
+
+          {/* CTA Button */}
+          <button onClick={onEnter} style={{...sr(4,.5),display:"block",width:"100%",background:TH.iBtn,color:TH.iBtnText,border:`1px solid ${TH.iBtn==="transparent"?TH.iBrand+"66":TH.iBtn}`,padding:"1.1rem 3rem",fontFamily:"'Syne',sans-serif",fontSize:".85rem",fontWeight:800,letterSpacing:"3px",textTransform:"uppercase",cursor:"pointer",position:"relative",transition:"transform .2s,opacity .2s"}}>
             Shop Now →
           </button>
+
           {/* Divider */}
-          <div style={{...fu(3),width:"80%",height:"1px",background:rightTextColor,opacity:.08,margin:"1.4rem auto"}}/>
-          {/* Ticker */}
-          <div style={{...fu(4),overflow:"hidden",borderTop:`1px solid ${rightTextColor}10`,borderBottom:`1px solid ${rightTextColor}10`,padding:".6rem 0"}}>
-            <div style={{fontSize:".42rem",letterSpacing:"3px",textTransform:"uppercase",color:rightTextColor,opacity:.3,textAlign:"center",marginBottom:".4rem"}}>Brands we carry</div>
+          <div style={{...sr(5,.6),width:"80%",height:"1px",background:TH.iEnter,opacity:.1,margin:"1.5rem auto"}}/>
+
+          {/* Brand Ticker */}
+          <div style={{...sr(5,.7),border:`1px solid ${TH.iTag}`,background:TH.iTag,padding:".7rem 0",overflow:"hidden",width:"100%",position:"relative"}}>
+            <div style={{fontSize:".42rem",letterSpacing:"3px",textTransform:"uppercase",color:TH.iEyebrow,textAlign:"center",marginBottom:".5rem"}}>Brands we carry</div>
             <div style={{overflow:"hidden"}}>
-              <div style={{display:"flex",gap:"1.5rem",animation:"introTick 16s linear infinite",whiteSpace:"nowrap",width:"max-content"}}>
-                {ticker}
+              <div style={{display:"flex",gap:"1.5rem",animation:"jfTick 12s linear infinite",whiteSpace:"nowrap",width:"max-content"}}>
+                {ticker.map((b,i)=>(
+                  <span key={i} style={{display:"inline-flex",alignItems:"center",gap:"1.5rem"}}>
+                    <span style={{fontFamily:"'Syne',sans-serif",fontSize:".62rem",fontWeight:800,letterSpacing:"2px",textTransform:"uppercase",color:TH.iTicker}}>{b}</span>
+                    {i<ticker.length-1&&<span style={{color:TH.iTag,fontSize:".5rem",opacity:.6}}>·</span>}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
-          {/* Tags */}
-          <div style={{...fu(4),display:"flex",justifyContent:"center",gap:".5rem",flexWrap:"wrap",marginTop:"1rem"}}>
-            {["100% Authentic","50+ Brands","WA Orders","PK Delivery"].map(t=>(
-              <span key={t} style={{fontSize:".45rem",letterSpacing:"1.5px",textTransform:"uppercase",color:rightTextColor,opacity:.3,border:`1px solid ${rightTextColor}18`,padding:".2rem .6rem"}}>{t}</span>
-            ))}
-          </div>
         </div>
       </div>
-      <style>{`@keyframes introTick{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
+
+      {/* Bottom tags */}
+      <div style={{position:"absolute",bottom:"2rem",right:0,width:"55%",display:"flex",justifyContent:"center",gap:".6rem",flexWrap:"wrap",padding:"0 2rem",zIndex:1,...sr(6,.8)}}>
+        {["100% Authentic","50+ Brands","WhatsApp Orders","Nationwide Delivery"].map(t=>(
+          <span key={t} style={{fontSize:".48rem",letterSpacing:"2px",textTransform:"uppercase",color:TH.iEyebrow,border:`1px solid ${TH.iTag}`,padding:".25rem .7rem"}}>{t}</span>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes jfTick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500&display=swap');
+      `}</style>
     </div>
   );
 }
@@ -1571,15 +1592,21 @@ function BrandGroupedGrid({filtered,cat,brandFilter,addToCart,toggleWish,wish,op
 
 
 function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
-  const TH=siteTheme||SITE_THEMES["Black Gold"];
-  // Apply theme CSS variables
-  if(typeof document!=="undefined"){
+  const TH=siteTheme||SITE_THEMES["Blue Beige"];
+  // Apply ALL theme CSS variables on every render
+  useEffect(()=>{
     const r=document.documentElement.style;
-    r.setProperty("--jf-bg",TH.bg);r.setProperty("--jf-accent",TH.accent);
-    r.setProperty("--jf-text",TH.text);r.setProperty("--jf-muted",TH.muted);
-    r.setProperty("--jf-border",TH.border);r.setProperty("--jf-dark",TH.dark);
-    r.setProperty("--jf-card",TH.card);r.setProperty("--jf-surface",TH.surface);
-  }
+    r.setProperty("--jf-bg",TH.bg);
+    r.setProperty("--jf-accent",TH.accent);
+    r.setProperty("--jf-text",TH.text);
+    r.setProperty("--jf-muted",TH.muted);
+    r.setProperty("--jf-border",TH.border);
+    r.setProperty("--jf-dark",TH.dark);
+    r.setProperty("--jf-card",TH.card);
+    r.setProperty("--jf-surface",TH.surface);
+    r.setProperty("--jf-dark-text",TH.darkText);
+    document.body.style.background=TH.bg;
+  },[TH]);
   const settings=useSettings();
   const[prods,setProds]=useState([]);
   const[cat,setCat]=useState("All");
@@ -1684,7 +1711,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   }
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
-  return(<div style={{background:"#faf9f7",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
+  return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
     <AIOutfitSuggester prods={prods} onFilter={setCat}/>
     {/* Countdown Banner - above announcement */}
@@ -2721,8 +2748,16 @@ function AProducts({products,onRefresh}){
       const res=await sb.from("products").insert({...data,website_status:"approved",active:true,created_at:new Date().toISOString()});
       err=res.error;
     }
-    if(err){toast("Error: "+err.message,"error");return;}
-    toast("Saved!","success");setEditP(null);onRefresh();
+    if(err){
+      if(err.message?.includes("RLS")||err.message?.includes("policy")||err.code==="42501"){
+        toast("⚠️ Permission error — run SQL fix in Supabase","error");
+        console.error("RLS Error:",err);
+      }else{
+        toast("Error: "+err.message,"error");
+      }
+      return;
+    }
+    toast("✅ Saved!","success");setEditP(null);onRefresh();
   }
   async function toggle(p){if(!sb)return;await sb.from("products").update({active:!p.active}).eq("id",p.id);onRefresh();}
   async function del(p){if(!sb||!window.confirm("Delete "+p.name+"?"))return;await sb.from("products").delete().eq("id",p.id);toast("Deleted");onRefresh();}
@@ -2903,12 +2938,17 @@ function AContent({settings}){
       setTimeout(()=>setSaved(false),2000);
     },1500);
   }
-  async function save(){if(!sb)return;setSaving(true);
-    // Save theme to localStorage immediately
-    if(f.site_theme&&typeof localStorage!=="undefined"){
-      localStorage.setItem("jf_theme",f.site_theme);
-      window.dispatchEvent(new CustomEvent("jf-theme-change",{detail:f.site_theme}));
-    }await Promise.all(Object.entries(f).map(([k,v])=>sb.from("website_settings").upsert({key:k,value:String(v)},{onConflict:"key"})));setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2000);toast("Saved!","success");}
+  async function save(){
+    if(!sb){toast("Supabase not connected","error");return;}
+    setSaving(true);
+    try{
+      await Promise.all(Object.entries(f).map(([k,v])=>
+        sb.from("website_settings").upsert({key:k,value:String(v||"")},{onConflict:"key"})
+      ));
+      setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2500);
+      toast("Saved! ✅","success");
+    }catch(e){setSaving(false);toast("Error: "+e.message,"error");}
+  }
   return(<div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
       <AH title="Website Content" sub="Sab content yahan se change karo"/>
@@ -3158,67 +3198,8 @@ function ASettings({settings}){
 
 /ACard>
 
-      {/* ── HERO BANNER ── */}
-      <ACard style={{padding:20,marginBottom:16}}>
-        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>📸 Hero Banner / Post</div>
-        <ALbl c="Upload Image (Mobile Gallery)"/>
-        <input type="file" accept="image/*" onChange={e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=async ev=>{const url=ev.target.result;updateF("hero_banner_url",url);if(sb)await sb.from("website_settings").upsert({key:"hero_banner_url",value:url},{onConflict:"key"});};r.readAsDataURL(file);}} style={{fontSize:12,width:"100%",marginBottom:8}}/>
-        {f.hero_banner_url&&<img src={f.hero_banner_url} alt="" style={{width:"100%",maxHeight:120,objectFit:"cover",borderRadius:6,marginBottom:8}}/>}
-        <ALbl c="Caption (shown over image)"/>
-        <AI value={f.hero_banner_caption||""} onChange={e=>updateF("hero_banner_caption",e.target.value)} placeholder="e.g. Eid Special — Up to 30% Off"/>
-        <label style={{display:"flex",alignItems:"center",gap:8,marginTop:10,cursor:"pointer",fontSize:13}}>
-          <input type="checkbox" checked={f.hero_banner_show==="true"} onChange={e=>updateF("hero_banner_show",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
-          Show banner on website
-        </label>
-      </ACard>
 
-      {/* ── SUBSCRIPTION BOX TIERS ── */}
-      <ACard style={{padding:20,marginBottom:16}}>
-        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>📦 Subscription Box Tiers</div>
-        <div style={{display:"grid",gap:10}}>
-          {[
-            ["Silver","sub_silver_price","sub_silver_items","sub_silver_benefit","1500","1-2 Fabrics","Basic Selection"],
-            ["Gold","sub_gold_price","sub_gold_items","sub_gold_benefit","2500","2-3 Fabrics","Premium Selection"],
-            ["Platinum","sub_platinum_price","sub_platinum_items","sub_platinum_benefit","4000","3-4 Fabrics","Exclusive Selection"],
-            ["Diamond","sub_diamond_price","sub_diamond_items","sub_diamond_benefit","6000","4-5 Fabrics","Ultra Luxury"],
-          ].map(([tier,pk,ik,bk,dp,di,db])=>(
-            <div key={tier} style={{border:"1px solid #e5e7eb",borderRadius:8,padding:12}}>
-              <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>{tier}</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
-                <div><ALbl c="Price (Rs.)"/><AI type="number" value={f[pk]||dp} onChange={e=>updateF(pk,e.target.value)}/></div>
-                <div><ALbl c="Items/Box"/><AI value={f[ik]||di} onChange={e=>updateF(ik,e.target.value)}/></div>
-                <div><ALbl c="Benefit Text"/><AI value={f[bk]||db} onChange={e=>updateF(bk,e.target.value)}/></div>
-              </div>
-            </div>
-          ))}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-            <div><ALbl c="Box Date 1 (day of month)"/><AI type="number" value={f.sub_date1||"12"} onChange={e=>updateF("sub_date1",e.target.value)}/></div>
-            <div><ALbl c="Box Date 2 (day of month)"/><AI type="number" value={f.sub_date2||"28"} onChange={e=>updateF("sub_date2",e.target.value)}/></div>
-          </div>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
-            <input type="checkbox" checked={f.sub_active!=="false"} onChange={e=>updateF("sub_active",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
-            Show Subscription Box on website
-          </label>
-        </div>
-      </ACard>
 
-      {/* ── WA TEMPLATES ── */}
-      <ACard style={{padding:20,marginBottom:16}}>
-        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>💬 WhatsApp Messages</div>
-        <div style={{display:"grid",gap:10}}>
-          {[
-            ["wa_greeting","WA Button Greeting","Assalam! I'm interested in your fabrics at Jameel Fabrics Kunjah."],
-            ["wa_order_msg","Order Confirmation Message","Assalam! Your order has been confirmed. Total: {amount}. Delivery: 3-5 days."],
-            ["wa_review_req","Review Request","Assalam! Thank you for shopping at Jameel Fabrics. We'd love your feedback!"],
-            ["wa_udhaar_reminder","Udhaar Reminder","Assalam! A gentle reminder about your balance at Jameel Fabrics."],
-          ].map(([key,label,placeholder])=>(
-            <div key={key}>
-              <ALbl c={label}/>
-              <textarea value={f[key]||""} onChange={e=>updateF(key,e.target.value)} rows={2} placeholder={placeholder} style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
-            </div>
-          ))}
-        </div>
-      </ACard>
 
       {/* ── TICKER TEXT ── */}
       <ACard style={{padding:20,marginBottom:16}}>
