@@ -1176,13 +1176,13 @@ function CountdownBanner({settings}){
           <div key={k} style={{display:"flex",alignItems:"center",gap:"clamp(5px,1vw,8px)"}}>
             {i>0&&<span style={{color:"rgba(255,255,255,.5)",fontSize:20,fontWeight:300,marginBottom:14}}>:</span>}
             <div style={{textAlign:"center"}}>
-              <div style={{background:"rgba(0,0,0,.3)",color:"#fff",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"5px clamp(8px,1.5vw,12px)",minWidth:"clamp(38px,5vw,48px)",textAlign:"center",letterSpacing:1,border:"1px solid rgba(255,255,255,.15)"}}>{pad(time[k])}</div>
+              <div style={{background:"rgba(0,0,0,.3)",color:"#fff",fontFamily:"var(--t-bf,'Jost',sans-serif)",fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"5px clamp(8px,1.5vw,12px)",minWidth:"clamp(38px,5vw,48px)",textAlign:"center",letterSpacing:1,border:"1px solid rgba(255,255,255,.15)"}}>{pad(time[k])}</div>
               <div style={{fontSize:7,color:"rgba(255,255,255,.55)",textTransform:"uppercase",letterSpacing:1.5,marginTop:3}}>{lbl}</div>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#fff",color:"#b91c1c",border:"none",padding:"8px clamp(14px,2vw,20px)",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,transition:"all .2s",flexShrink:0}} onMouseEnter={e=>{e.currentTarget.style.background="#f5f5f5"}} onMouseLeave={e=>{e.currentTarget.style.background="#fff"}}>
+      <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#fff",color:"#b91c1c",border:"none",padding:"8px clamp(14px,2vw,20px)",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:"var(--t-bf,'Jost',sans-serif)",transition:"all .2s",flexShrink:0}} onMouseEnter={e=>{e.currentTarget.style.background="#f5f5f5"}} onMouseLeave={e=>{e.currentTarget.style.background="#fff"}}>
         Shop Now
       </button>
     </div>
@@ -1573,7 +1573,7 @@ function BrandGroupedGrid({filtered,cat,brandFilter,addToCart,toggleWish,wish,op
     <>
       {brands.map(brand=>(
         <React.Fragment key={brand}>
-          <div className="jf-brand-header" style={{gridColumn:"1/-1",paddingBottom:8,borderBottom:`2px solid ${TH?.border||"#e8dfc0"}`,marginBottom:4,marginTop:8,display:"flex",alignItems:"center",gap:12}}>
+          <div className="jf-brand-header" style={{gridColumn:"1/-1",paddingBottom:8,borderBottom:"2px solid var(--t-border,#e8dfc0)",marginBottom:4,marginTop:8,display:"flex",alignItems:"center",gap:12}}>
             <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,2vw,20px)",fontWeight:600,color:"var(--t-text,#1a1612)",letterSpacing:1}}>{brand}</span>
             <span style={{fontSize:9,color:"#c9a84c",letterSpacing:2,textTransform:"uppercase",background:"rgba(201,168,76,.08)",padding:"2px 8px",borderRadius:10}}>{filtered.filter(p=>p.brand===brand).length} items</span>
           </div>
@@ -1770,7 +1770,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   }
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
-  return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`}}>
+  return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:"var(--t-bf,'Jost',sans-serif)"}}>
     <ThemeStyle TH={TH}/>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
     <AIOutfitSuggester prods={prods} onFilter={setCat}/>
@@ -1779,15 +1779,15 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div style={{background:"linear-gradient(135deg,#b91c1c,#dc2626)",padding:"9px clamp(14px,3vw,32px)",display:"flex",alignItems:"center",justifyContent:"center",gap:"clamp(10px,2vw,24px)",flexWrap:"wrap",borderBottom:"1px solid rgba(0,0,0,.15)"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
           <span style={{fontSize:14}}>🔥</span>
-          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(11px,1.4vw,14px)",fontWeight:700,color:"#fff",letterSpacing:.5}}>{settings.sale_title||"Eid Special Sale"}</div>
-          <span style={{fontSize:10,color:"rgba(255,255,255,.7)",fontStyle:"italic",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(11px,1.3vw,14px)"}}>{settings.sale_text||"Up to 30% Off"}</span>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(11px,1.4vw,14px)",fontWeight:700,color:"#fff",letterSpacing:.5}}>{settings.sale_title||"Eid Special Sale"}</div>
+          <span style={{fontSize:10,color:"rgba(255,255,255,.7)",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(11px,1.3vw,14px)"}}>{settings.sale_text||"Up to 30% Off"}</span>
         </div>
         <div style={{display:"flex",gap:5,alignItems:"center",flexShrink:0}}>
           {["d","h","m","s"].map((u,i)=>(
             <div key={u} style={{display:"flex",alignItems:"center",gap:5}}>
               {i>0&&<span style={{color:"rgba(255,255,255,.5)",fontWeight:700,fontSize:16,lineHeight:1,marginBottom:12}}>:</span>}
               <div style={{textAlign:"center"}}>
-                <span style={{background:"rgba(0,0,0,.25)",color:"#fff",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"4px 8px",display:"block",minWidth:38,letterSpacing:1}}>{cdTime[u]}</span>
+                <span style={{background:"rgba(0,0,0,.25)",color:"#fff",fontFamily:"var(--t-bf,'Jost',sans-serif)",fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"4px 8px",display:"block",minWidth:38,letterSpacing:1}}>{cdTime[u]}</span>
                 <span style={{fontSize:7,color:"rgba(255,255,255,.5)",letterSpacing:1.5,textTransform:"uppercase",display:"block",marginTop:3}}>{["Days","Hrs","Mins","Secs"][i]}</span>
               </div>
             </div>
@@ -1809,8 +1809,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* NAV */}
     <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(250,249,247,.97)",backdropFilter:"blur(24px)",borderBottom:"1px solid #e8e4df",height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
       <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0}}>
-        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(13px,1.5vw,17px)",fontWeight:900,letterSpacing:"clamp(2px,1vw,6px)",color:`${TH.text}`,lineHeight:1.1}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-        <div style={{fontSize:7,letterSpacing:"clamp(2px,.8vw,5px)",color:`${TH.accent}`,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontStyle:"italic",lineHeight:1,fontWeight:500}}>KUNJAH · PUNJAB</div>
+        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(13px,1.5vw,17px)",fontWeight:900,letterSpacing:"clamp(2px,1vw,6px)",color:`${TH.text}`,lineHeight:1.1}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+        <div style={{fontSize:7,letterSpacing:"clamp(2px,.8vw,5px)",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500}}>KUNJAH · PUNJAB</div>
       </button>
       <div className="search-bar hide-mob" style={{display:"flex",alignItems:"center",gap:8,background:"var(--t-surface)",border:"1px solid var(--t-border)",padding:"7px 14px",flex:1,maxWidth:200}}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a8f83" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1836,7 +1836,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div style={{position:"fixed",inset:0,zIndex:998,background:"rgba(0,0,0,.5)",backdropFilter:"blur(4px)"}} onClick={()=>setMenuOpen(false)}/>
       <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(320px,88vw)",zIndex:999,background:"var(--t-bg)",display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.14)",animation:"slideR .3s cubic-bezier(.77,0,.18,1)"}}>
         <div style={{padding:"20px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e8e4df",flexShrink:0}}>
-          <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:15,fontWeight:700,color:"var(--t-text)"}}>JAMEEL FABRICS</div><div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:2,fontStyle:"italic",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`}}>Kunjah · Punjab</div></div>
+          <div><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:15,fontWeight:700,color:"var(--t-text)"}}>JAMEEL FABRICS</div><div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:2,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Kunjah · Punjab</div></div>
           <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"var(--t-muted)"}}>x</button>
         </div>
         <div style={{flex:1,overflowY:"auto",overscrollBehavior:"contain"}}>
@@ -1938,7 +1938,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       {settings?.hero_banner_url&&settings?.hero_banner_show==="true"&&(
         <div style={{maxWidth:"100%",overflow:"hidden",position:"relative"}}>
           <img src={settings.hero_banner_url} alt={settings.hero_banner_caption||"Special Offer"} style={{width:"100%",maxHeight:"420px",objectFit:"cover",display:"block"}}/>
-          {settings.hero_banner_caption&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(to top,rgba(0,0,0,.5),transparent)",padding:"20px 30px",color:"#fff",fontSize:"clamp(16px,2.5vw,24px)",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontWeight:600}}>{settings.hero_banner_caption}</div>}
+          {settings.hero_banner_caption&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(to top,rgba(0,0,0,.5),transparent)",padding:"20px 30px",color:"#fff",fontSize:"clamp(16px,2.5vw,24px)",fontFamily:"'Cormorant Garamond',serif",fontWeight:600}}>{settings.hero_banner_caption}</div>}
         </div>
       )}
       {/* HERO */}
@@ -1958,15 +1958,15 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           <div style={{width:28,height:1,background:"#c9a84c"}}/>
           <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
         </div>
-        <h1 style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(40px,6.5vw,84px)",fontWeight:900,lineHeight:.88,color:"var(--t-text)",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:14}}>
+        <h1 style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(40px,6.5vw,84px)",fontWeight:900,lineHeight:.88,color:"var(--t-text)",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:14}}>
           JAMEEL<br/>
-          <span style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontWeight:300,fontStyle:"italic",color:"#6b6358",fontSize:"clamp(30px,5vw,64px)",letterSpacing:"clamp(6px,2vw,16px)"}}>Fabrics</span>
+          <span style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:300,fontStyle:"italic",color:"#6b6358",fontSize:"clamp(30px,5vw,64px)",letterSpacing:"clamp(6px,2vw,16px)"}}>Fabrics</span>
         </h1>
         <div style={{height:"clamp(20px,2.2vw,28px)",overflow:"hidden",marginBottom:22,animation:"fadeUp .8s ease .35s both"}}>
-          <div key={heroIdx} style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(13px,1.5vw,18px)",color:"var(--t-muted)",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
+          <div key={heroIdx} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.5vw,18px)",color:"var(--t-muted)",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
         </div>
         <div style={{width:44,height:1,background:"#c9a84c",marginBottom:22,animation:"fadeUp .6s ease .5s both"}}/>
-        <p style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(13px,1.4vw,17px)",color:"var(--t-muted)",lineHeight:2,marginBottom:32,animation:"fadeUp .8s ease .55s both"}}>{settings.about||"Premium Pakistani fabrics — each piece handpicked for quality, exclusivity and timeless elegance."}</p>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.4vw,17px)",color:"var(--t-muted)",lineHeight:2,marginBottom:32,animation:"fadeUp .8s ease .55s both"}}>{settings.about||"Premium Pakistani fabrics — each piece handpicked for quality, exclusivity and timeless elegance."}</p>
         <div className="hero-btns" style={{display:"flex",gap:12,flexWrap:"wrap",animation:"fadeUp .8s ease .65s both"}}>
           <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#111",color:"#fff",border:"none",padding:"13px 36px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s"}} onMouseEnter={e=>{e.currentTarget.style.background="#2a2520";e.currentTarget.style.letterSpacing="5px";}} onMouseLeave={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.letterSpacing="4px";}}>View Collection</button>
           <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
@@ -1980,14 +1980,14 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div style={{background:"var(--t-surface)",border:"1px solid var(--t-border)",aspectRatio:"3/4",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
           <div style={{position:"absolute",top:16,right:16,background:"#111",color:"#fff",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge1 3s ease-in-out infinite",boxShadow:"0 4px 16px rgba(0,0,0,.3)"}}>NEW ARRIVAL</div>
           <div style={{position:"absolute",bottom:20,left:16,background:"#c9a84c",color:"var(--t-text)",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge2 3.5s ease-in-out infinite",boxShadow:"0 4px 16px rgba(201,168,76,.4)"}}>LIMITED EDITION</div>
-          <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontWeight:900,color:"var(--t-text)",lineHeight:1,userSelect:"none"}}>JF</div>
+          <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:"var(--t-hf,'Playfair Display',serif)",fontWeight:900,color:"var(--t-text)",lineHeight:1,userSelect:"none"}}>JF</div>
           <div style={{textAlign:"center",padding:"20px 14px",zIndex:2}}>
             {settings?.hero_box_img
               ?<img src={settings.hero_box_img} alt={settings.hero_box_title||"Featured"} style={{width:"100%",height:"clamp(80px,10vw,120px)",objectFit:"cover",borderRadius:6,marginBottom:10}}/>
               :<div style={{fontSize:"clamp(36px,6vw,56px)",marginBottom:10}}>👗</div>
             }
-            <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(12px,1.4vw,16px)",fontWeight:700,color:`${TH.text}`,marginBottom:5}}>{settings?.hero_box_title||"Exclusive Designs"}</div>
-            <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(10px,1.1vw,13px)",color:`${TH.muted}`,fontStyle:"italic",lineHeight:1.7}}>{settings?.hero_box_sub||"Once sold, never repeated"}<br/>{settings?.hero_box_sub2||"Crafted for the discerning"}</div>
+            <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(12px,1.4vw,16px)",fontWeight:700,color:`${TH.text}`,marginBottom:5}}>{settings?.hero_box_title||"Exclusive Designs"}</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.1vw,13px)",color:`${TH.muted}`,fontStyle:"italic",lineHeight:1.7}}>{settings?.hero_box_sub||"Once sold, never repeated"}<br/>{settings?.hero_box_sub2||"Crafted for the discerning"}</div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginTop:18}}>
               <div style={{width:20,height:1,background:"#c9a84c"}}/>
               <div style={{fontSize:9,color:"var(--t-accent)",letterSpacing:3,textTransform:"uppercase",fontWeight:600}}>Kunjah</div>
@@ -1998,7 +1998,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
           {[["500+","Happy Customers"],["100%","Exclusive Designs"],["4.9★","Customer Rating"],["5+","Years Trusted"]].map(([n,l])=>(
             <div key={l} style={{background:"var(--t-card)",border:"1px solid var(--t-border)",padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:700,color:"var(--t-text)"}}>{n}</div>
+              <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:700,color:"var(--t-text)"}}>{n}</div>
               <div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:1,marginTop:2}}>{l}</div>
             </div>
           ))}
@@ -2021,7 +2021,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <section style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",borderBottom:"1px solid #e8e4df",background:"var(--t-card)"}}>
         <div className="rv" style={{textAlign:"center",marginBottom:32}}>
           <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>{settings.video_label||"Featured"}</div>
-          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>{settings.video_title||"Watch Our Collection"}</div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>{settings.video_title||"Watch Our Collection"}</div>
         </div>
         <div className="rv" style={{maxWidth:920,margin:"0 auto",border:"1px solid var(--t-border)"}}>
           {(settings.video_url.includes("youtube")||settings.video_url.includes("youtu.be"))?
@@ -2035,13 +2035,13 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <section id="prods" className="jf-prods-section" style={{background:`${TH.bg}`,borderBottom:`1px solid ${TH.border}`}}>
       <div style={{textAlign:"center",padding:"clamp(48px,6vw,68px) clamp(16px,4vw,60px) 28px"}}>
         <div className="rv" style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Collection</div>
-        <div className="rv" style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:8}}>{cat==="All"?"All Collections":CAT_L[cat]||cat}</div>
+        <div className="rv" style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:8}}>{cat==="All"?"All Collections":CAT_L[cat]||cat}</div>
         <div className="rv" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
           <div style={{width:40,height:1,background:"#c9a84c"}}/>
           <div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:2}}>{filtered.length} pieces</div>
           <div style={{width:40,height:1,background:"#c9a84c"}}/>
         </div>
-        {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"var(--t-muted)",textAlign:"center",marginTop:8,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
+        {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"var(--t-muted)",textAlign:"center",marginTop:8,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
       </div>
       {/* ── BRAND BAR ─────────────────────────────── */}
       <BrandBar prods={prods} cat={cat} brandFilter={brandFilter} setBrandFilter={setBrandFilter}/>
@@ -2064,7 +2064,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
 
       {/* Brand grouping handled by BrandBar above */}
       {filtered.length===0?(
-        <div style={{textAlign:"center",padding:64,color:"#8a7f76"}}><div style={{fontSize:40,marginBottom:12,opacity:.4}}>📦</div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,color:"var(--t-muted)"}}>No products found</div></div>
+        <div style={{textAlign:"center",padding:64,color:"#8a7f76"}}><div style={{fontSize:40,marginBottom:12,opacity:.4}}>📦</div><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,color:"var(--t-muted)"}}>No products found</div></div>
       ):(
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"clamp(12px,1.5vw,18px)",padding:"0 clamp(16px,4vw,60px) clamp(56px,7vw,80px)",maxWidth:1500,margin:"0 auto"}}>
           {prods.length===0&&!filtered.length
@@ -2083,7 +2083,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"start",maxWidth:1200,margin:"0 auto"}}>
         <div className="rv">
           <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Find Us</div>
-          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:20}}>Visit Our Store</div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:20}}>Visit Our Store</div>
           <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:28}}>
             {[["📍","Address",(settings.addr1||"Circular Road, Kunjah")+", "+(settings.addr2||"Distt Gujrat, Punjab")],["📞","Phone",settings.phone||"03228722232"],["💬","WhatsApp",settings.wa_number?"0"+settings.wa_number.slice(-10):"03228722232"],["⏰","Hours",settings.hours||"Mon-Sat: 10am-8pm"]].map(([ic,lbl,val])=>(
               <div key={lbl} style={{display:"flex",gap:14,alignItems:"flex-start"}}>
@@ -2104,7 +2104,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div className="rv" style={{border:"1px solid var(--t-border)",overflow:"hidden"}}>
           <iframe title="Jameel Fabrics Location" src="https://maps.google.com/maps?q=Kunjah,+Gujrat,+Punjab,+Pakistan&output=embed&z=14" style={{width:"100%",height:"clamp(260px,40vw,420px)",border:"none",display:"block"}} loading="lazy"/>
           <div style={{padding:"14px 16px",background:"var(--t-surface)",borderTop:"1px solid #e0dbd3",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-            <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:700,color:"var(--t-text)"}}>Circular Road, Kunjah</div>
+            <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:13,fontWeight:700,color:"var(--t-text)"}}>Circular Road, Kunjah</div>
             <a href="https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan" target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--t-accent)",textDecoration:"none",fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Get Directions</a>
           </div>
         </div>
@@ -2114,7 +2114,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <section id="policies" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #e8e4df"}}>
       <div className="rv" style={{textAlign:"center",marginBottom:44}}>
         <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Promise</div>
-        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Our Policies</div>
+        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Our Policies</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16,maxWidth:1200,margin:"0 auto"}}>
         {[
@@ -2132,7 +2132,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <section id="reviews" style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #e8e4df"}}>
       <div className="rv" style={{textAlign:"center",marginBottom:36}}>
         <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
-        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Customer Reviews</div>
+        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Customer Reviews</div>
       </div>
       <ReviewsSection/>
     </section>
@@ -2145,12 +2145,12 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           {settings?.story_show!=="false"&&(
             <div style={{background:`${TH.card}`,borderRadius:12,padding:"clamp(24px,4vw,36px)",border:`1px solid ${TH.border}`}}>
               <div style={{fontSize:9,letterSpacing:4,color:TH.accent,textTransform:"uppercase",marginBottom:8}}>Since 1975</div>
-              <h2 style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.text,lineHeight:1.2,marginBottom:16}}>{settings?.story_title||"Our Story"}</h2>
+              <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.text,lineHeight:1.2,marginBottom:16}}>{settings?.story_title||"Our Story"}</h2>
               <p style={{fontSize:13,color:TH.muted,lineHeight:1.8,marginBottom:24}}>{settings?.story_text||"From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality."}</p>
               <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
                 {[[settings?.story_stat1||"50+",settings?.story_label1||"Years of Trust"],[settings?.story_stat2||"10K+",settings?.story_label2||"Happy Customers"],[settings?.story_stat3||"500+",settings?.story_label3||"Products"]].map(([n,l],i)=>(
                   <div key={i} style={{textAlign:"center",padding:"10px 14px",background:TH.surface,borderRadius:8}}>
-                    <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:22,fontWeight:700,color:TH.accent,lineHeight:1}}>{n}</div>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:TH.accent,lineHeight:1}}>{n}</div>
                     <div style={{fontSize:9,letterSpacing:1.5,textTransform:"uppercase",color:TH.muted,marginTop:3}}>{l}</div>
                   </div>
                 ))}
@@ -2162,7 +2162,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           {settings?.features_show!=="false"&&(
             <div style={{background:`${TH.dark}`,borderRadius:12,padding:"clamp(24px,4vw,36px)"}}>
               <div style={{fontSize:9,letterSpacing:4,color:TH.accent,textTransform:"uppercase",marginBottom:8,opacity:.7}}>Why Choose Us</div>
-              <h2 style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.darkText,lineHeight:1.2,marginBottom:20}}>{settings?.features_title||"Our Commitment to Excellence"}</h2>
+              <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.darkText,lineHeight:1.2,marginBottom:20}}>{settings?.features_title||"Our Commitment to Excellence"}</h2>
               <div style={{display:"flex",flexDirection:"column",gap:14}}>
                 {[
                   [settings?.feat1_title||"Premium Brands",settings?.feat1_desc||"Gul Ahmed, Alkaram, Sapphire & all top brands — 100% genuine.","🧵"],
@@ -2194,8 +2194,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 28px"}}>
       <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"1.8fr 1fr 1fr 1fr",gap:"clamp(24px,3.5vw,52px)",marginBottom:52,maxWidth:1200,margin:"0 auto 52px"}}>
         <div>
-          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-          <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
           <p style={{fontSize:11,color:"rgba(255,255,255,.6)",lineHeight:2,marginBottom:20}}>Premium Pakistani fabrics. Exclusive designs, exceptional quality, trusted by families since 1975.</p>
           <div style={{display:"flex",gap:10}}>
             {[{url:settings.insta||"#",bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",ic:<IgSvg/>},{url:"https://wa.me/"+wa,bg:"#25D366",ic:<WaSvg/>},{url:settings.tiktok||"#",bg:"#010101",ic:<TkSvg/>,border:"1px solid rgba(255,255,255,.15)"},{url:settings.fb||"#",bg:"#1877F2",ic:<FbSvg/>}].map((s,i)=>(
@@ -2237,31 +2237,31 @@ function AccountPage({user,onBack}){
   const[orders,setOrders]=useState([]);const[wl,setWl]=useState([]);
   useEffect(()=>{if(!sb||!user)return;sb.from("online_orders").select("*").eq("customer_id",user.id).order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWl(data||[]));},[user]);
   const C={background:"var(--t-card)",border:"1px solid var(--t-border)",padding:24,marginBottom:16};
-  return(<div style={{background:"var(--t-bg)",minHeight:"100vh",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`}}>
+  return(<div style={{background:"var(--t-bg)",minHeight:"100vh",fontFamily:"var(--t-bf,'Jost',sans-serif)"}}>
     <div style={{background:"var(--t-card)",borderBottom:"1px solid #e8e4df",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16,position:"sticky",top:0,zIndex:100}}>
       <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"var(--t-muted)",fontSize:13,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6"/></svg> Back
       </button>
-      <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:700}}>My Account</div>
+      <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:700}}>My Account</div>
     </div>
     <div style={{maxWidth:820,margin:"0 auto",padding:"28px clamp(16px,4vw,40px)"}}>
       <div style={C}><div style={{fontSize:15,fontWeight:600,marginBottom:12}}>Account Info</div><div style={{fontSize:14,color:"#6b6358",marginBottom:5}}><strong>Email:</strong> {user.email}</div><div style={{fontSize:14,color:"#6b6358"}}><strong>Name:</strong> {user.user_metadata?.full_name||"Not set"}</div></div>
       <div style={C}>
         <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>My Orders ({orders.length})</div>
-        {!orders.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:16}}>No orders yet</div></div>:
+        {!orders.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:16}}>No orders yet</div></div>:
           orders.map(o=><div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:"1px solid #f0ede8",flexWrap:"wrap",gap:10}}>
             <div><div style={{fontWeight:600,fontSize:13}}>#{o.id.slice(-6).toUpperCase()}</div><div style={{fontSize:11,color:"#8a7f76",marginTop:2}}>{(o.items||[]).length} items - {new Date(o.created_at).toLocaleDateString()}</div></div>
-            <div style={{display:"flex",gap:12,alignItems:"center"}}><div style={{fontWeight:700,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:18}}>Rs.{Number(o.total).toLocaleString()}</div><span style={{padding:"3px 10px",fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span></div>
+            <div style={{display:"flex",gap:12,alignItems:"center"}}><div style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:18}}>Rs.{Number(o.total).toLocaleString()}</div><span style={{padding:"3px 10px",fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span></div>
           </div>)
         }
       </div>
       <div style={C}>
         <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>Wishlist ({wl.length})</div>
-        {!wl.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:16}}>No saved items</div></div>:
+        {!wl.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:16}}>No saved items</div></div>:
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:14}}>
             {wl.map(w=><div key={w.id} style={{border:"1px solid var(--t-border)",overflow:"hidden"}}>
               <div style={{aspectRatio:"3/4",background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:36}}>{w.products?.icon||"👗"}</div>
-              <div style={{padding:"10px 12px"}}><div style={{fontWeight:600,fontSize:13}}>{w.products?.name||""}</div><div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.sale_price||w.products?.price||0).toLocaleString()}</div></div>
+              <div style={{padding:"10px 12px"}}><div style={{fontWeight:600,fontSize:13}}>{w.products?.name||""}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.sale_price||w.products?.price||0).toLocaleString()}</div></div>
             </div>)}
           </div>
         }
@@ -2728,8 +2728,8 @@ function AdminLogin({onSuccess,onCancel}){
   async function check(){setLoading(true);let ok=false;if(sb){const{data}=await sb.from("website_settings").select("value").eq("key","admin_pass").single();ok=data?.value===pass;}else ok=pass==="jameel@admin2026";setLoading(false);if(ok)onSuccess();else{setPass("");toast("Wrong password!","error");}}
   return(<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(0,0,0,.88)",display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(10px)"}}>
     <div style={{background:"var(--t-bg)",padding:"44px 40px",width:"100%",maxWidth:360,textAlign:"center"}}>
-      <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:24,fontWeight:700,color:"var(--t-text)",marginBottom:4}}>Admin Panel</div>
-      <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:13,color:"var(--t-muted)",fontStyle:"italic",marginBottom:32}}>Jameel Fabrics</div>
+      <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:24,fontWeight:700,color:"var(--t-text)",marginBottom:4}}>Admin Panel</div>
+      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,color:"var(--t-muted)",fontStyle:"italic",marginBottom:32}}>Jameel Fabrics</div>
       <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&check()} style={{width:"100%",border:"none",borderBottom:"1px solid #d0ccc5",padding:"12px 0",fontSize:17,color:"var(--t-text)",outline:"none",textAlign:"center",letterSpacing:5,marginBottom:24,fontFamily:"inherit",background:"transparent"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/>
       <button onClick={check} disabled={loading} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:14,fontSize:10,fontWeight:700,letterSpacing:3.5,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",textTransform:"uppercase",marginBottom:12,opacity:loading?.6:1}} onMouseEnter={e=>!loading&&(e.currentTarget.style.background="#2a2520")} onMouseLeave={e=>e.currentTarget.style.background="#111"}>{loading?"Verifying...":"Unlock"}</button>
       <button onClick={onCancel} style={{background:"none",border:"none",color:"#8a7f76",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
@@ -2742,7 +2742,7 @@ const ABtn=({sm,children,...p})=><button {...p} style={{display:"inline-flex",al
 function AI({...p}){return<input {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",...p.style}} onFocus={e=>{e.target.style.borderColor="#111";p.onFocus&&p.onFocus(e);}} onBlur={e=>{e.target.style.borderColor="#e5e7eb";p.onBlur&&p.onBlur(e);}}/>;}
 function AS({children,...p}){return<select {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",cursor:"pointer",...p.style}}>{children}</select>;}
 const Bdg=({c,children})=><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:c==="g"?"#dcfce7":c==="y"?"#fef9c3":c==="r"?"#fee2e2":c==="b"?"#dbeafe":"#f3f4f6",color:c==="g"?"#16a34a":c==="y"?"#ca8a04":c==="r"?"#dc2626":c==="b"?"#2563eb":"#6b7280"}}>{children}</span>;
-const AH=({title,sub})=><div style={{marginBottom:22}}><div style={{fontSize:22,fontWeight:700,fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,marginBottom:4,color:"var(--t-text)"}}>{title}</div>{sub&&<div style={{fontSize:13,color:"#6b7280"}}>{sub}</div>}</div>;
+const AH=({title,sub})=><div style={{marginBottom:22}}><div style={{fontSize:22,fontWeight:700,fontFamily:"var(--t-hf,'Playfair Display',serif)",marginBottom:4,color:"var(--t-text)"}}>{title}</div>{sub&&<div style={{fontSize:13,color:"#6b7280"}}>{sub}</div>}</div>;
 const ALbl=({c})=><div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>{c}</div>;
 
 function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
@@ -2757,7 +2757,7 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
   return(<div>
     {/* Header */}
     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:12,flexWrap:"wrap"}}>
-      <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:22,fontWeight:700,color:"#111827"}}>Good Morning 👋</div><div style={{fontSize:13,color:"#6b7280",marginTop:3}}>Here's what's happening with your store today</div></div>
+      <div><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:22,fontWeight:700,color:"#111827"}}>Good Morning 👋</div><div style={{fontSize:13,color:"#6b7280",marginTop:3}}>Here's what's happening with your store today</div></div>
       <button onClick={()=>onNav("products")} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"9px 18px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#0f0d0a"}>+ Add Product</button>
     </div>
     {/* Stats */}
@@ -2767,7 +2767,7 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
           <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
           <div style={{width:36,height:36,borderRadius:8,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",color:s.ibc}}>{s.ic}</div>
         </div>
-        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:26,fontWeight:700,color:"#111827",marginBottom:4}}>{s.v}</div>
+        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:26,fontWeight:700,color:"#111827",marginBottom:4}}>{s.v}</div>
         <div style={{fontSize:12,color:"#9ca3af"}}>{s.change}</div>
       </div>)}
     </div>
@@ -3037,7 +3037,7 @@ function ACoupons({coupons,onRefresh}){
       <ABtn onClick={save} style={{background:"#111",color:"#fff",marginTop:14}}>+ Create Coupon</ABtn>
     </ACard>
     {coupons.map(c=><ACard key={c.id} style={{padding:"16px 20px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-      <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:20,fontWeight:700,letterSpacing:2,color:"var(--t-text)"}}>{c.code}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>{c.type==="percent"?c.value+"%":"Rs."+c.value} off{c.min_order?" - Min Rs."+c.min_order:""}{c.expires_at?" - Expires "+new Date(c.expires_at).toLocaleDateString():""}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c={c.active?"g":""}>{c.active?"Active":"Inactive"}</Bdg><Bdg c="">{c.used_count||0} used</Bdg></div></div>
+      <div><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:20,fontWeight:700,letterSpacing:2,color:"var(--t-text)"}}>{c.code}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>{c.type==="percent"?c.value+"%":"Rs."+c.value} off{c.min_order?" - Min Rs."+c.min_order:""}{c.expires_at?" - Expires "+new Date(c.expires_at).toLocaleDateString():""}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c={c.active?"g":""}>{c.active?"Active":"Inactive"}</Bdg><Bdg c="">{c.used_count||0} used</Bdg></div></div>
       <ABtn onClick={()=>del(c.id)} style={{background:"#fee2e2",color:"#dc2626"}}>Delete</ABtn>
     </ACard>)}
   </div>);
@@ -3498,7 +3498,7 @@ function ASoldCounter({onRefresh}){
         <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Preview</div>
         <div style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:8,padding:20,textAlign:"center"}}>
           <div style={{fontSize:32,marginBottom:8}}>✅</div>
-          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:28,fontWeight:700,color:"var(--t-text)"}}>{displayNum}+</div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:28,fontWeight:700,color:"var(--t-text)"}}>{displayNum}+</div>
           <div style={{fontSize:12,color:"#6b7280",marginTop:4}}>{f.sold_text||"pieces sold this month"}</div>
         </div>
         <div style={{fontSize:11,color:"#9ca3af",marginTop:12,lineHeight:1.8}}>
@@ -3533,7 +3533,7 @@ function AAnalytics({settings={}}){
           <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
           <div style={{fontSize:22}}>{s.ic}</div>
         </div>
-        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:24,fontWeight:700,color:"#9ca3af"}}>{s.v}</div>
+        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:24,fontWeight:700,color:"#9ca3af"}}>{s.v}</div>
         <div style={{fontSize:10,color:"#9ca3af",marginTop:4}}>{s.sub}</div>
       </ACard>)}
     </div>
@@ -3646,8 +3646,8 @@ function AdminPanel({onExit}){
       <aside className={`adm-sb${col?" col":""}${mobOpen?" mob-open":""}`}>
         {/* Logo */}
         <div style={{padding:"18px 14px",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:900,color:"#0a0907"}}>JF</div>
-          {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
+          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:13,fontWeight:900,color:"#0a0907"}}>JF</div>
+          {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
         </div>
 
         {/* Nav items */}
@@ -3800,8 +3800,8 @@ export default function App(){
   async function logout(){if(sb)await sb.auth.signOut();setUser(null);toast("Logged out");setView("store");}
   return(<>
     <style>{G}</style>
-    {view==="intro"&&<Intro onEnter={()=>setView("store")} siteTheme={TH} themeName={siteTheme}/>}
-    {view==="store"&&<Store user={user} onLogout={logout} onAccount={()=>user?setView("account"):null} onAdmin={()=>setShowAdminLogin(true)} siteTheme={TH} themeName={siteTheme}/>}
+    {view==="intro"&&<ErrorBoundary><Intro onEnter={()=>setView("store")} siteTheme={TH} themeName={siteTheme}/></ErrorBoundary>}
+    {view==="store"&&<ErrorBoundary><Store user={user} onLogout={logout} onAccount={()=>user?setView("account"):null} onAdmin={()=>setShowAdminLogin(true)} siteTheme={TH} themeName={siteTheme}/></ErrorBoundary>}
     {view==="account"&&user&&<AccountPage user={user} onBack={()=>setView("store")}/>}
     {view==="admin"&&<ErrorBoundary><AdminPanel onExit={()=>setView("store")}/></ErrorBoundary>}
     {showAdminLogin&&<AdminLogin onSuccess={()=>{setShowAdminLogin(false);setView("admin");}} onCancel={()=>setShowAdminLogin(false)}/>}
