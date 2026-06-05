@@ -10,26 +10,25 @@ const SITE_THEMES = {
   "Blue Beige": {
     id:"blue-beige",
     iLeft:"#1a2c6b", iRight:"#eee8dc", iBrand:"#fff",
-    iAccent:"rgba(180,210,255,.6)", iBtn:"#1a2c6b", iBtnText:"#eee8dc",
-    iTicker:"rgba(26,44,107,.45)", iTag:"rgba(26,44,107,.08)",
-    iEnter:"#1a2c6b", iStore:"rgba(26,44,107,.13)",
-    iEyebrow:"rgba(26,44,107,.35)", iBg:"#eee8dc",
-    bg:"#eee8dc", card:"#fff", surface:"#e0d9cc",
-    text:"#1a2c6b", muted:"#5a6a8a", border:"#c0ccdc",
-    accent:"#1a2c6b", dark:"#1a2c6b", darkText:"#eee8dc",
-    // Fonts
+    iAccent:"rgba(180,210,255,.7)", iBtn:"#1a2c6b", iBtnText:"#eee8dc",
+    iTicker:"rgba(26,44,107,.5)", iTag:"rgba(26,44,107,.1)",
+    iEnter:"#1a2c6b", iStore:"rgba(26,44,107,.15)",
+    iEyebrow:"rgba(26,44,107,.4)", iBg:"#eee8dc",
+    bg:"#eee8dc", card:"#ffffff", surface:"#ddd6c8",
+    text:"#0f1f55", muted:"#4a5a8a", border:"#b0bcdc",
+    accent:"#1a2c6b", dark:"#0f1f55", darkText:"#eee8dc",
     headingFont:"'Syne',sans-serif", bodyFont:"'Manrope',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500&display=swap",
   },
   "Black Gold": {
     id:"black-gold",
-    iLeft:"#1a1612", iRight:"#faf9f7", iBrand:"#c9a84c",
-    iAccent:"rgba(201,168,76,.6)", iBtn:"#c9a84c", iBtnText:"#0a0806",
-    iTicker:"rgba(201,168,76,.45)", iTag:"rgba(201,168,76,.06)",
-    iEnter:"#1a1612", iStore:"rgba(26,22,18,.1)",
-    iEyebrow:"rgba(26,22,18,.3)", iBg:"#faf9f7",
-    bg:"#faf9f7", card:"#fff", surface:"#f5f0e8",
-    text:"#1a1612", muted:"#7a6e65", border:"#e0d8c0",
+    iLeft:"#1a1612", iRight:"#faf9f7", iBrand:"#d4aa50",
+    iAccent:"rgba(212,170,80,.8)", iBtn:"#c9a84c", iBtnText:"#0a0806",
+    iTicker:"rgba(201,168,76,.55)", iTag:"rgba(201,168,76,.08)",
+    iEnter:"#1a1612", iStore:"rgba(26,22,18,.12)",
+    iEyebrow:"rgba(26,22,18,.4)", iBg:"#faf9f7",
+    bg:"#faf9f7", card:"#ffffff", surface:"#f0ead8",
+    text:"#1a1612", muted:"#6a5e55", border:"#d8ce9a",
     accent:"#c9a84c", dark:"#1a1612", darkText:"#f5efe0",
     headingFont:"'Cormorant Garamond',serif", bodyFont:"'Jost',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,500&family=Jost:wght@300;400;500&display=swap",
@@ -37,56 +36,57 @@ const SITE_THEMES = {
   "Charcoal Sand": {
     id:"charcoal-sand",
     iLeft:"#1c1a17", iRight:"#ede8e0", iBrand:"#ede8e0",
-    iAccent:"rgba(232,226,216,.6)", iBtn:"#1c1a17", iBtnText:"#ede8e0",
-    iTicker:"rgba(28,26,23,.4)", iTag:"rgba(28,26,23,.07)",
-    iEnter:"#1c1a17", iStore:"rgba(28,26,23,.1)",
-    iEyebrow:"rgba(28,26,23,.3)", iBg:"#ede8e0",
-    bg:"#ede8e0", card:"#fff", surface:"#e4dfd6",
-    text:"#1c1a17", muted:"#6b6560", border:"#c8c0b0",
-    accent:"#3d3a35", dark:"#1c1a17", darkText:"#ede8e0",
-    headingFont:"'Unbounded',sans-serif", bodyFont:"'Manrope',sans-serif",
-    fontImport:"https://fonts.googleapis.com/css2?family=Unbounded:wght@300;700&family=Manrope:wght@300;400;500&display=swap",
+    iAccent:"rgba(232,226,216,.7)", iBtn:"#1c1a17", iBtnText:"#ede8e0",
+    iTicker:"rgba(28,26,23,.5)", iTag:"rgba(28,26,23,.08)",
+    iEnter:"#1c1a17", iStore:"rgba(28,26,23,.12)",
+    iEyebrow:"rgba(28,26,23,.4)", iBg:"#ede8e0",
+    bg:"#ede8e0", card:"#ffffff", surface:"#ddd8cf",
+    text:"#1c1a17", muted:"#5a5550", border:"#b8b0a0",
+    accent:"#2d2a25", dark:"#1c1a17", darkText:"#ede8e0",
+    headingFont:"'Syne',sans-serif", bodyFont:"'Manrope',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500&display=swap",
   },
   "Blue Gold": {
     id:"blue-gold",
-    iLeft:"#1a3060", iRight:"#f0f4fa", iBrand:"#c9a84c",
-    iAccent:"rgba(201,168,76,.65)", iBtn:"#c9a84c", iBtnText:"#1a3060",
-    iTicker:"rgba(26,48,96,.4)", iTag:"rgba(26,48,96,.07)",
-    iEnter:"#1a3060", iStore:"rgba(26,48,96,.1)",
-    iEyebrow:"rgba(26,48,96,.3)", iBg:"#f0f4fa",
-    bg:"#f0f4fa", card:"#fff", surface:"#e4ecf8",
-    text:"#1a3060", muted:"#5a6a9a", border:"#b8cce8",
-    accent:"#c9a84c", dark:"#1a3060", darkText:"#f0f4fa",
+    iLeft:"#1a3060", iRight:"#eef3fc", iBrand:"#e8b84b",
+    iAccent:"rgba(232,184,75,.8)", iBtn:"#d4a830", iBtnText:"#0a1530",
+    iTicker:"rgba(26,48,96,.5)", iTag:"rgba(26,48,96,.08)",
+    iEnter:"#1a3060", iStore:"rgba(26,48,96,.12)",
+    iEyebrow:"rgba(26,48,96,.4)", iBg:"#eef3fc",
+    bg:"#eef3fc", card:"#ffffff", surface:"#dde6f8",
+    text:"#0d2050", muted:"#4a5a8a", border:"#a0b8e0",
+    accent:"#c9a830", dark:"#1a3060", darkText:"#eef3fc",
     headingFont:"'Playfair Display',serif", bodyFont:"'Lato',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap",
   },
   "Rose Gold": {
     id:"rose-gold",
-    iLeft:"#2d1515", iRight:"#fdf6f0", iBrand:"#f5d5c5",
-    iAccent:"rgba(245,213,197,.65)", iBtn:"#b87461", iBtnText:"#fff",
-    iTicker:"rgba(184,116,97,.45)", iTag:"rgba(184,116,97,.07)",
-    iEnter:"#2d1515", iStore:"rgba(45,21,21,.1)",
-    iEyebrow:"rgba(45,21,21,.3)", iBg:"#fdf6f0",
-    bg:"#fdf6f0", card:"#fff", surface:"#f5ece6",
-    text:"#2d1515", muted:"#8a5f55", border:"#e8ccc4",
-    accent:"#b87461", dark:"#2d1515", darkText:"#fdf6f0",
+    iLeft:"#2d1515", iRight:"#fdf6f0", iBrand:"#f5c5b0",
+    iAccent:"rgba(245,197,176,.75)", iBtn:"#c06848", iBtnText:"#fff",
+    iTicker:"rgba(192,104,72,.5)", iTag:"rgba(192,104,72,.08)",
+    iEnter:"#2d1515", iStore:"rgba(45,21,21,.12)",
+    iEyebrow:"rgba(45,21,21,.4)", iBg:"#fdf6f0",
+    bg:"#fdf6f0", card:"#ffffff", surface:"#f0e0d8",
+    text:"#2d1515", muted:"#7a4a40", border:"#e0b0a0",
+    accent:"#c06848", dark:"#2d1515", darkText:"#fdf6f0",
     headingFont:"'Fraunces',serif", bodyFont:"'Libre Baskerville',serif",
-    fontImport:"https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap",
+    fontImport:"https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,500&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap",
   },
   "Forest Green": {
     id:"forest-green",
-    iLeft:"#0d2b1e", iRight:"#f0f7f0", iBrand:"#b6f0c8",
-    iAccent:"rgba(182,240,200,.6)", iBtn:"#0d2b1e", iBtnText:"#f0f7f0",
-    iTicker:"rgba(13,43,30,.4)", iTag:"rgba(13,43,30,.07)",
-    iEnter:"#0d2b1e", iStore:"rgba(13,43,30,.1)",
-    iEyebrow:"rgba(13,43,30,.3)", iBg:"#f0f7f0",
-    bg:"#f0f7f0", card:"#fff", surface:"#dff0e4",
-    text:"#0d2b1e", muted:"#4a7060", border:"#9acfac",
-    accent:"#16a34a", dark:"#0d2b1e", darkText:"#f0f7f0",
+    iLeft:"#0d2b1e", iRight:"#edf7ee", iBrand:"#a0f0bc",
+    iAccent:"rgba(160,240,188,.75)", iBtn:"#0d6b3a", iBtnText:"#ffffff",
+    iTicker:"rgba(13,43,30,.5)", iTag:"rgba(13,43,30,.08)",
+    iEnter:"#0d2b1e", iStore:"rgba(13,43,30,.12)",
+    iEyebrow:"rgba(13,43,30,.4)", iBg:"#edf7ee",
+    bg:"#edf7ee", card:"#ffffff", surface:"#d0ecd8",
+    text:"#0d2b1e", muted:"#3a6050", border:"#80c898",
+    accent:"#0d6b3a", dark:"#0d2b1e", darkText:"#edf7ee",
     headingFont:"'DM Serif Display',serif", bodyFont:"'DM Sans',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap",
   },
 };
+
 
 
 
@@ -971,7 +971,7 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
       </div>
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{padding:"14px 16px 18px"}}>
         <div style={{fontSize:8,color:"var(--t-muted,#7a6e65)",letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>{CAT_L[prod.cat]||prod.category||""}</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"var(--t-text,#111)",marginBottom:4,lineHeight:1.3}}>{prod.name}</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"var(--t-text,#111)",marginBottom:4,lineHeight:1.3}} className="pname">{prod.name}</div>
         {prod.color&&<div style={{fontSize:11,color:"var(--t-muted,#7a6e65)",marginBottom:6}}>{prod.color}</div>}
         {prod.display_stock_text&&(
           <div style={{fontSize:10,marginBottom:7,fontWeight:lowStock?700:400,color:lowStock?"#b91c1c":"#b5aba2",fontStyle:lowStock?"normal":"italic",display:"flex",alignItems:"center",gap:4}}>
@@ -983,7 +983,7 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:8}}>
           <div>
             {old&&<div style={{fontSize:11,color:"#c9a49a",textDecoration:"line-through",fontFamily:"'Cormorant Garamond',serif"}}>Rs.{old.toLocaleString()}</div>}
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:old?"#b91c1c":"var(--t-accent,#c9a84c)",lineHeight:1}}>Rs.{price.toLocaleString()}</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:old?"#b91c1c":"var(--t-accent,#c9a84c)",lineHeight:1}} className="pprice">Rs.{price.toLocaleString()}</div>
           </div>
           <button onClick={handleAdd} style={{flexShrink:0,background:added?"#16a34a":"#111",color:"#fff",border:"none",width:40,height:40,cursor:"pointer",fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",transition:"background .25s"}}>{added?"✓":"+"}</button>
         </div>
@@ -1590,63 +1590,52 @@ function BrandGroupedGrid({filtered,cat,brandFilter,addToCart,toggleWish,wish,op
 
 function ThemeStyle({TH}){
   useEffect(()=>{
-    // Load theme font
-    if(TH.fontImport){
-      let fontLink=document.getElementById("jf-theme-font");
-      if(!fontLink){fontLink=document.createElement("link");fontLink.id="jf-theme-font";fontLink.rel="stylesheet";document.head.appendChild(fontLink);}
-      fontLink.href=TH.fontImport;
-    }
-    // Inject theme CSS
-    let el=document.getElementById("jf-theme-style");
-    if(!el){el=document.createElement("style");el.id="jf-theme-style";document.head.appendChild(el);}
-    const hf=TH.headingFont||"'Cormorant Garamond',serif";
-    const bf=TH.bodyFont||"'Jost',sans-serif";
-    el.textContent=[
-      `:root{`,
-        `--t-bg:${TH.bg};--t-card:${TH.card};--t-surface:${TH.surface};`,
-        `--t-text:${TH.text};--t-muted:${TH.muted};--t-border:${TH.border};`,
-        `--t-accent:${TH.accent};--t-dark:${TH.dark};--t-dt:${TH.darkText};`,
-        `--t-hf:${hf};--t-bf:${bf};`,
-      `}`,
-      // Body
-      `body{background:var(--t-bg)!important;color:var(--t-text)!important;font-family:var(--t-bf)!important;transition:background .4s,color .4s}`,
-      // Headings
-      `h1,h2,h3,h4,h5{font-family:var(--t-hf)!important;color:var(--t-text)!important}`,
-      // Nav / topbar
-      `.jf-nav-bar{background:var(--t-card)!important;border-bottom:1px solid var(--t-border)!important}`,
-      // Store name
-      `.jf-nav-bar .jf-store-name{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
-      // Category bar
-      `.jf-cat-bar{background:var(--t-card)!important;border-bottom:1px solid var(--t-border)!important}`,
-      `.jf-cat-btn{color:var(--t-muted)!important;font-family:var(--t-bf)!important}`,
-      // Products
-      `.jf-prods-section{background:var(--t-bg)!important}`,
-      `.rv{background:var(--t-card)!important;border:1px solid var(--t-border)!important}`,
-      `.rv *{font-family:var(--t-bf)!important}`,
-      `.rv h3,.rv .prod-name{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
-      `.rv .prod-brand{color:var(--t-muted)!important}`,
-      `.rv .prod-price{color:var(--t-accent)!important;font-family:var(--t-hf)!important}`,
-      // Sections
-      `section{background:var(--t-bg)}`,
-      // Filter bar
-      `.jf-filter-row{background:var(--t-card)!important}`,
-      // Brand bar
-      `.jf-brand-bar{background:var(--t-card)!important;border:1px solid var(--t-border)!important}`,
-      // Search
-      `.jf-search input{background:var(--t-surface)!important;border:1px solid var(--t-border)!important;color:var(--t-text)!important}`,
-      // Footer
-      `footer{background:var(--t-dark)!important}`,
-      `footer,footer *,footer a{color:var(--t-dt)!important}`,
-      // Side menu
-      `.jf-side-menu{background:var(--t-card)!important}`,
-      // Brand section headers
-      `.jf-brand-header{color:var(--t-text)!important;font-family:var(--t-hf)!important;border-bottom-color:var(--t-border)!important}`,
-      `.jf-brand-header span{color:var(--t-accent)!important}`,
-      // Policies, about sections
-      `#policies,#reviews,#store-map{background:var(--t-bg)!important}`,
-      // BrandGroupedGrid brand title
-      `[class*="brand-title"]{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
-    ].join("");
+    if(!TH)return;
+    try{
+      // Load font
+      if(TH.fontImport){
+        let lnk=document.getElementById("jf-font");
+        if(!lnk){lnk=document.createElement("link");lnk.id="jf-font";lnk.rel="stylesheet";document.head.appendChild(lnk);}
+        lnk.href=TH.fontImport;
+      }
+      // Build safe CSS (no quotes inside template)
+      const bg=TH.bg||"#faf9f7";
+      const card=TH.card||"#fff";
+      const surface=TH.surface||"#f5f0e8";
+      const text=TH.text||"#1a1612";
+      const muted=TH.muted||"#9a8f83";
+      const border=TH.border||"#e0d8c0";
+      const accent=TH.accent||"#c9a84c";
+      const dark=TH.dark||"#1a1612";
+      const dt=TH.darkText||"#f5efe0";
+      // Inject style
+      let el=document.getElementById("jf-ts");
+      if(!el){el=document.createElement("style");el.id="jf-ts";document.head.appendChild(el);}
+      el.textContent=`
+        :root{--t-bg:${bg};--t-card:${card};--t-surface:${surface};--t-text:${text};--t-muted:${muted};--t-border:${border};--t-accent:${accent};--t-dark:${dark};--t-dt:${dt}}
+        body{background:${bg}!important;color:${text}!important}
+        *{transition:background-color .3s,color .3s,border-color .3s}
+        .jf-nav-bar,.jf-cat-bar,.jf-filter-row,.jf-brand-bar{background:${card}!important;border-color:${border}!important}
+        .jf-prods-section{background:${bg}!important}
+        .rv{background:${card}!important;border-color:${border}!important}
+        .rv .pname{color:${text}!important}
+        .rv .pbrand{color:${muted}!important}
+        .rv .pprice{color:${accent}!important}
+        .rv .pmuted{color:${muted}!important}
+        footer,.jf-footer{background:${dark}!important}
+        footer *,.jf-footer *{color:${dt}!important}
+        .jf-side-menu{background:${card}!important}
+        .jf-section-alt{background:${surface}!important}
+        input,textarea,select{background:${surface}!important;color:${text}!important;border-color:${border}!important}
+        .jf-cat-active{color:${text}!important;border-bottom-color:${text}!important}
+        .jf-tag-pill{background:${surface}!important;color:${muted}!important;border-color:${border}!important}
+        .jf-hero-section{background:${bg}!important}
+        section{background:${bg}}
+      `;
+      // Also set body directly
+      document.body.style.background=bg;
+      document.body.style.color=text;
+    }catch(e){console.warn("ThemeStyle error:",e);}
   },[TH]);
   return null;
 }
@@ -1932,7 +1921,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
             {[
               {label:"Visit Our Store",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,fn:()=>{setMenuOpen(false);document.getElementById("store-map")?.scrollIntoView({behavior:"smooth"});}},
               {label:"Our Policies",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,fn:()=>{setMenuOpen(false);document.getElementById("policies")?.scrollIntoView({behavior:"smooth"});}},
-              {label:"WhatsApp Us",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>,fn:()=>{const msg=settings?.wa_greeting||"Assalam! I am interested in your fabrics.";window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(msg),"_blank");setMenuOpen(false);}},
+              {label:"WhatsApp Us",icon:<svg width="18" height="18" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L0 24l6.291-1.507A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.93 0-3.74-.516-5.29-1.41l-.38-.225-3.738.894.952-3.62-.248-.394A9.954 9.954 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" fill="#25D366"/></svg>,fn:()=>{const msg=settings?.wa_greeting||"Assalam! I am interested in your fabrics.";window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(msg),"_blank");setMenuOpen(false);}},
             ].map(({label,icon,fn})=>(
               <button key={label} onClick={fn} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderRadius:6}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
                 <span style={{color:"var(--t-accent)",flexShrink:0}}>{icon}</span>
@@ -2107,7 +2096,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
             <a href={"https://wa.me/"+(wa||WA_NUM)} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
               <button style={{background:"#111",color:"#fff",border:"none",padding:"12px 28px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}><WaSvg/> WhatsApp</button>
             </a>
-            <a href="https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+            <a href={settings?.map_url||"https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan"} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
               <button style={{background:"transparent",color:"var(--t-text)",border:"1px solid #111",padding:"12px 24px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .2s",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>📍 Open in Maps</button>
             </a>
           </div>
@@ -3123,7 +3112,7 @@ function AContent({settings}){
 
   // Sections config
   const sections=[
-    {t:"🏪 Store Info",fields:[["store_name","Store Name"],["addr1","Address Line 1"],["addr2","Address Line 2"],["hours","Working Hours"],["phone","Phone Number"]]},
+    {t:"🏪 Store Info",fields:[["store_name","Store Name"],["addr1","Address Line 1"],["addr2","Address Line 2"],["map_url","Google Map Link (paste from Google Maps)"],["hours","Working Hours"],["phone","Phone Number"]]},
     {t:"🔗 Social Links",fields:[["wa_number","WhatsApp Number"],["insta","Instagram URL"],["fb","Facebook URL"],["tiktok","TikTok URL"]]},
     {t:"📢 Announcement Bar",fields:[["announcement","Messages (pipe | se alag karo)",true]]},
     {t:"🏠 Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},
