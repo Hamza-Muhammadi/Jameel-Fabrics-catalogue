@@ -93,6 +93,14 @@ const SITE_THEMES = {
 
 const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
 const WA_NUM="923228722232";
+
+// ── Global toast (usable anywhere) ───────────────────────────
+let _toastListeners=[];
+function toast(msg,type="info"){
+  _toastListeners.forEach(fn=>fn(msg,type));
+}
+
+
 const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids Unstitch",HOT:"Hot Sale",NEW:"New Arrivals","2PC":"2-Piece Sets"};
 const CATS=[
   ["All","All"],
@@ -2705,6 +2713,38 @@ function ABrands(){
 }
 
 
+
+// ── Toast notification system ─────────────────────────────────
+function useToast(){
+  const[list,setList]=useState([]);
+  useEffect(()=>{
+    function handler(msg,type){
+      const id=Date.now();
+      setList(l=>[...l,{id,msg,type}]);
+      setTimeout(()=>setList(l=>l.filter(t=>t.id!==id)),3500);
+    }
+    _toastListeners.push(handler);
+    return()=>{_toastListeners=_toastListeners.filter(f=>f!==handler);};
+  },[]);
+  return{list};
+}
+function Toasts({list}){
+  if(!list||!list.length)return null;
+  return(
+    <div style={{position:"fixed",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:9999,display:"flex",flexDirection:"column",gap:8,alignItems:"center",pointerEvents:"none"}}>
+      {list.map(t=>(
+        <div key={t.id} style={{
+          background:t.type==="error"?"#dc2626":t.type==="success"?"#16a34a":"#1a1612",
+          color:"#fff",padding:"10px 20px",borderRadius:8,fontSize:13,fontWeight:500,
+          boxShadow:"0 4px 20px rgba(0,0,0,.25)",
+          animation:"toastIn .3s ease",whiteSpace:"nowrap",
+        }}>{t.msg}</div>
+      ))}
+    </div>
+  );
+}
+
+
 class ErrorBoundary extends React.Component{
   constructor(props){super(props);this.state={err:null};}
   static getDerivedStateFromError(e){return{err:e};}
@@ -3811,6 +3851,6 @@ export default function App(){
     {view==="account"&&user&&<AccountPage user={user} onBack={()=>setView("store")}/>}
     {view==="admin"&&<ErrorBoundary><AdminPanel onExit={()=>setView("store")}/></ErrorBoundary>}
     {showAdminLogin&&<AdminLogin onSuccess={()=>{setShowAdminLogin(false);setView("admin");}} onCancel={()=>setShowAdminLogin(false)}/>}
-    <Toasts list={toasts}/>
+    <Toasts list={toasts.list}/>
   </ErrorBoundary>);
 }
