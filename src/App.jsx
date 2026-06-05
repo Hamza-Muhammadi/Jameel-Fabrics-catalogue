@@ -9,91 +9,86 @@ const SKEY=process.env.REACT_APP_SUPABASE_ANON_KEY||"";
 const SITE_THEMES = {
   "Blue Beige": {
     id:"blue-beige",
-    // Intro (user's original design)
-    iLeft:"#1a2c6b", iRight:"#eee8dc",
-    iBrand:"#fff", iAccent:"rgba(180,210,255,.55)",
-    iBtn:"#1a2c6b", iBtnText:"#eee8dc",
-    iTicker:"rgba(26,44,107,.4)", iTag:"rgba(26,44,107,.1)",
-    iEnter:"#1a2c6b", iStore:"rgba(26,44,107,.15)",
-    iEyebrow:"rgba(26,44,107,.3)", iBg:"#eee8dc",
-    // Website
-    bg:"#eee8dc", card:"#fff", surface:"#e5dfd4", text:"#1a2c6b",
-    muted:"#6a7a9a", border:"#c8d4e8", accent:"#1a2c6b",
-    dark:"#1a2c6b", darkText:"#eee8dc",
+    iLeft:"#1a2c6b", iRight:"#eee8dc", iBrand:"#fff",
+    iAccent:"rgba(180,210,255,.6)", iBtn:"#1a2c6b", iBtnText:"#eee8dc",
+    iTicker:"rgba(26,44,107,.45)", iTag:"rgba(26,44,107,.08)",
+    iEnter:"#1a2c6b", iStore:"rgba(26,44,107,.13)",
+    iEyebrow:"rgba(26,44,107,.35)", iBg:"#eee8dc",
+    bg:"#eee8dc", card:"#fff", surface:"#e0d9cc",
+    text:"#1a2c6b", muted:"#5a6a8a", border:"#c0ccdc",
+    accent:"#1a2c6b", dark:"#1a2c6b", darkText:"#eee8dc",
+    // Fonts
+    headingFont:"'Syne',sans-serif", bodyFont:"'Manrope',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500&display=swap",
   },
   "Black Gold": {
     id:"black-gold",
-    iLeft:"#1a1612", iRight:"#faf9f7",
-    iBrand:"#c9a84c", iAccent:"rgba(201,168,76,.55)",
-    iBtn:"#c9a84c", iBtnText:"#0a0806",
-    iTicker:"rgba(201,168,76,.4)", iTag:"rgba(201,168,76,.1)",
-    iEnter:"#1a1612", iStore:"rgba(26,22,18,.12)",
+    iLeft:"#1a1612", iRight:"#faf9f7", iBrand:"#c9a84c",
+    iAccent:"rgba(201,168,76,.6)", iBtn:"#c9a84c", iBtnText:"#0a0806",
+    iTicker:"rgba(201,168,76,.45)", iTag:"rgba(201,168,76,.06)",
+    iEnter:"#1a1612", iStore:"rgba(26,22,18,.1)",
     iEyebrow:"rgba(26,22,18,.3)", iBg:"#faf9f7",
-    bg:"#faf9f7", card:"#fff", surface:"#f5f0e8", text:"#1a1612",
-    muted:"#9a8f83", border:"#e8dfc0", accent:"#c9a84c",
-    dark:"#1a1612", darkText:"#f5efe0",
+    bg:"#faf9f7", card:"#fff", surface:"#f5f0e8",
+    text:"#1a1612", muted:"#7a6e65", border:"#e0d8c0",
+    accent:"#c9a84c", dark:"#1a1612", darkText:"#f5efe0",
+    headingFont:"'Cormorant Garamond',serif", bodyFont:"'Jost',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,500&family=Jost:wght@300;400;500&display=swap",
   },
   "Charcoal Sand": {
     id:"charcoal-sand",
-    iLeft:"#1c1a17", iRight:"#e8e2d8",
-    iBrand:"#e8e2d8", iAccent:"rgba(232,226,216,.55)",
-    iBtn:"#1c1a17", iBtnText:"#e8e2d8",
-    iTicker:"rgba(28,26,23,.4)", iTag:"rgba(28,26,23,.1)",
-    iEnter:"#1c1a17", iStore:"rgba(28,26,23,.12)",
-    iEyebrow:"rgba(28,26,23,.3)", iBg:"#e8e2d8",
-    bg:"#e8e2d8", card:"#fff", surface:"#ddd7cc", text:"#1c1a17",
-    muted:"#7a7165", border:"#c8c0b0", accent:"#1c1a17",
-    dark:"#1c1a17", darkText:"#e8e2d8",
+    iLeft:"#1c1a17", iRight:"#ede8e0", iBrand:"#ede8e0",
+    iAccent:"rgba(232,226,216,.6)", iBtn:"#1c1a17", iBtnText:"#ede8e0",
+    iTicker:"rgba(28,26,23,.4)", iTag:"rgba(28,26,23,.07)",
+    iEnter:"#1c1a17", iStore:"rgba(28,26,23,.1)",
+    iEyebrow:"rgba(28,26,23,.3)", iBg:"#ede8e0",
+    bg:"#ede8e0", card:"#fff", surface:"#e4dfd6",
+    text:"#1c1a17", muted:"#6b6560", border:"#c8c0b0",
+    accent:"#3d3a35", dark:"#1c1a17", darkText:"#ede8e0",
+    headingFont:"'Unbounded',sans-serif", bodyFont:"'Manrope',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Unbounded:wght@300;700&family=Manrope:wght@300;400;500&display=swap",
   },
   "Blue Gold": {
     id:"blue-gold",
-    iLeft:"#1a3060", iRight:"#f0f4fa",
-    iBrand:"#c9a84c", iAccent:"rgba(201,168,76,.6)",
-    iBtn:"#c9a84c", iBtnText:"#1a3060",
-    iTicker:"rgba(26,48,96,.4)", iTag:"rgba(26,48,96,.1)",
-    iEnter:"#1a3060", iStore:"rgba(26,48,96,.12)",
+    iLeft:"#1a3060", iRight:"#f0f4fa", iBrand:"#c9a84c",
+    iAccent:"rgba(201,168,76,.65)", iBtn:"#c9a84c", iBtnText:"#1a3060",
+    iTicker:"rgba(26,48,96,.4)", iTag:"rgba(26,48,96,.07)",
+    iEnter:"#1a3060", iStore:"rgba(26,48,96,.1)",
     iEyebrow:"rgba(26,48,96,.3)", iBg:"#f0f4fa",
-    bg:"#f0f4fa", card:"#fff", surface:"#e8eef8", text:"#1a3060",
-    muted:"#6a7a9a", border:"#c0cce0", accent:"#c9a84c",
-    dark:"#1a3060", darkText:"#f0f4fa",
-  },
-  "Hot Pink": {
-    id:"hot-pink",
-    iLeft:"#1a0a12", iRight:"#fff0f5",
-    iBrand:"#e91e8c", iAccent:"rgba(233,30,140,.6)",
-    iBtn:"#e91e8c", iBtnText:"#fff",
-    iTicker:"rgba(233,30,140,.4)", iTag:"rgba(233,30,140,.1)",
-    iEnter:"#1a0a12", iStore:"rgba(26,10,18,.1)",
-    iEyebrow:"rgba(26,10,18,.3)", iBg:"#fff0f5",
-    bg:"#fff0f5", card:"#fff", surface:"#ffe0ec", text:"#1a0a12",
-    muted:"#8a4a66", border:"#f0a0c0", accent:"#e91e8c",
-    dark:"#1a0a12", darkText:"#fff",
+    bg:"#f0f4fa", card:"#fff", surface:"#e4ecf8",
+    text:"#1a3060", muted:"#5a6a9a", border:"#b8cce8",
+    accent:"#c9a84c", dark:"#1a3060", darkText:"#f0f4fa",
+    headingFont:"'Playfair Display',serif", bodyFont:"'Lato',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap",
   },
   "Rose Gold": {
     id:"rose-gold",
-    iLeft:"#0c0a0f", iRight:"#0c0a0f",
-    iBrand:"#d6b088", iAccent:"rgba(214,176,136,.6)",
-    iBtn:"transparent", iBtnText:"rgba(214,176,136,.9)",
-    iTicker:"rgba(214,176,136,.25)", iTag:"rgba(214,176,136,.06)",
-    iEnter:"#d6b088", iStore:"rgba(214,176,136,.1)",
-    iEyebrow:"rgba(214,176,136,.2)", iBg:"#0c0a0f",
-    bg:"#0c0a0f", card:"#16121a", surface:"#1a1520", text:"#f5efe8",
-    muted:"#8a7a6a", border:"rgba(214,176,136,.15)", accent:"#d6b088",
-    dark:"#0c0a0f", darkText:"#d6b088",
+    iLeft:"#2d1515", iRight:"#fdf6f0", iBrand:"#f5d5c5",
+    iAccent:"rgba(245,213,197,.65)", iBtn:"#b87461", iBtnText:"#fff",
+    iTicker:"rgba(184,116,97,.45)", iTag:"rgba(184,116,97,.07)",
+    iEnter:"#2d1515", iStore:"rgba(45,21,21,.1)",
+    iEyebrow:"rgba(45,21,21,.3)", iBg:"#fdf6f0",
+    bg:"#fdf6f0", card:"#fff", surface:"#f5ece6",
+    text:"#2d1515", muted:"#8a5f55", border:"#e8ccc4",
+    accent:"#b87461", dark:"#2d1515", darkText:"#fdf6f0",
+    headingFont:"'Fraunces',serif", bodyFont:"'Libre Baskerville',serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap",
   },
   "Forest Green": {
     id:"forest-green",
-    iLeft:"#0d2b1e", iRight:"#f0f7f0",
-    iBrand:"#86efac", iAccent:"rgba(134,239,172,.55)",
-    iBtn:"#0d2b1e", iBtnText:"#f0f7f0",
-    iTicker:"rgba(13,43,30,.4)", iTag:"rgba(13,43,30,.1)",
+    iLeft:"#0d2b1e", iRight:"#f0f7f0", iBrand:"#b6f0c8",
+    iAccent:"rgba(182,240,200,.6)", iBtn:"#0d2b1e", iBtnText:"#f0f7f0",
+    iTicker:"rgba(13,43,30,.4)", iTag:"rgba(13,43,30,.07)",
     iEnter:"#0d2b1e", iStore:"rgba(13,43,30,.1)",
     iEyebrow:"rgba(13,43,30,.3)", iBg:"#f0f7f0",
-    bg:"#f0f7f0", card:"#fff", surface:"#e0f0e0", text:"#0d2b1e",
-    muted:"#5a7a6a", border:"#a0c8b0", accent:"#16a34a",
-    dark:"#0d2b1e", darkText:"#f0f7f0",
+    bg:"#f0f7f0", card:"#fff", surface:"#dff0e4",
+    text:"#0d2b1e", muted:"#4a7060", border:"#9acfac",
+    accent:"#16a34a", dark:"#0d2b1e", darkText:"#f0f7f0",
+    headingFont:"'DM Serif Display',serif", bodyFont:"'DM Sans',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap",
   },
 };
+
+
 
 
 const sb=SURL&&SKEY?createClient(SURL,SKEY):null;
@@ -142,7 +137,6 @@ const G=`
   --jf-text:#1a1612;--jf-muted:#9a8f83;--jf-border:#e8dfc0;
   --jf-accent:#c9a84c;--jf-dark:#1a1612;--jf-dark-text:#f5efe0;
 }
-body{background:var(--jf-bg)!important;}
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Jost:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -211,35 +205,11 @@ input[type=range].price-slider::-webkit-slider-thumb{-webkit-appearance:none;wid
 /* AI suggester */
 .ai-typing::after{content:"▌";animation:blink .7s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-
-/* ── Full Website Theme System ─────────────────── */
-body{background:var(--jf-bg,#faf9f7);color:var(--jf-text,#1a1612)}
-.jf-nav-bar{background:var(--jf-card,#fff)!important;border-bottom:1px solid var(--jf-border,#e8dfc0)!important}
-.jf-topbar-store-name{color:var(--jf-text,#1a1612)!important}
-.jf-topbar-sub{color:var(--jf-accent,#c9a84c)!important}
-.jf-cat-bar{background:var(--jf-card,#fff)!important;border-bottom:1px solid var(--jf-border,#e8dfc0)!important}
-.jf-cat-btn{color:var(--jf-muted,#9a8f83)!important;font-family:'Jost',sans-serif}
-.jf-cat-btn.active{color:var(--jf-text,#1a1612)!important;border-bottom:2px solid var(--jf-text,#1a1612)!important}
-.jf-prods-section{background:var(--jf-bg,#faf9f7)!important}
-.jf-pcard{background:var(--jf-card,#fff)!important;border:1px solid var(--jf-border,#e8dfc0)!important}
-.jf-pcard-name{color:var(--jf-text,#1a1612)!important}
-.jf-price{color:var(--jf-accent,#c9a84c)!important}
-.jf-section-bg{background:var(--jf-bg,#faf9f7)!important}
-.jf-section-alt{background:var(--jf-surface,#f5f0e8)!important}
-.jf-footer{background:var(--jf-dark,#1a1612)!important;color:var(--jf-dark-text,#f5efe0)!important}
-.jf-btn-primary{background:var(--jf-dark,#1a1612)!important;color:var(--jf-dark-text,#f5efe0)!important}
-.jf-btn-accent{background:var(--jf-accent,#c9a84c)!important;color:var(--jf-dark,#1a1612)!important}
-.jf-search-bar{background:var(--jf-surface,#f5f0e8)!important;border:1px solid var(--jf-border,#e8dfc0)!important}
-.jf-filter-row{background:var(--jf-card,#fff)!important;border-bottom:1px solid var(--jf-surface,#f5f0e8)!important}
-.jf-brand-bar{background:var(--jf-card,#fff)!important;border-bottom:1px solid var(--jf-border,#e8dfc0)!important}
+body{background:var(--jf-bg)!important;color:var(--jf-text)!important}
+.rv{background:var(--jf-card)!important}
+footer{background:var(--jf-dark)!important;color:var(--jf-dark-text)!important}
 `;
-let _tf=null;
-function useToast(){const[list,setList]=useState([]);_tf=useCallback((msg,type="")=>{const id=Date.now();setList(t=>[...t,{id,msg,type}]);setTimeout(()=>setList(t=>t.filter(x=>x.id!==id)),3200);},[]);return list;}
-function toast(m,t=""){if(_tf)_tf(m,t);}
-function Toasts({list}){return(<div style={{position:"fixed",bottom:24,right:24,zIndex:99999,display:"flex",flexDirection:"column",gap:8,maxWidth:300,pointerEvents:"none"}}>{list.map(t=><div key={t.id} style={{background:t.type==="error"?"#1a0000":t.type==="success"?"#001a06":"#111",color:"#fff",padding:"11px 16px",borderRadius:8,fontSize:13,boxShadow:"0 8px 24px rgba(0,0,0,.3)",borderLeft:`3px solid ${t.type==="error"?"#ef4444":t.type==="success"?"#22c55e":"#c9a84c"}`,animation:"toastIn .25s ease"}}>{t.msg}</div>)}</div>);}
-function useDB(fn,deps=[]){const[data,setData]=useState(null);const[loading,setLoading]=useState(true);useEffect(()=>{if(!sb){setLoading(false);return;}setLoading(true);fn().then(({data,error})=>{if(!error)setData(data);setLoading(false);});},deps);return{data,loading};}
-function useSettings(){const{data}=useDB(()=>sb.from("website_settings").select("*"),[]);const s={};if(data)data.forEach(r=>s[r.key]=r.value);return s;}
+
 function useReveal(){
   useEffect(()=>{
     function run(){
@@ -420,7 +390,7 @@ function AIOutfitSuggester({prods,onFilter}){
     if(!q.trim())return;
     setLoading(true);setAns("");
     const safeProds=(prods||[]).filter(p=>p&&p.name);
-      const prodList=safeProds.length>0?safeProds.slice(0,30).map(p=>`${p.name}|${p.category||""}|Rs.${p.sale_price||p.price||0}|${p.feel||""}|${p.season||""}`).join("\n"):"No products available yet. Suggest general Pakistani fabric types.";
+    const prodList=safeProds.length>0?safeProds.slice(0,30).map(p=>`${p.name}|${p.category||""}|Rs.${p.sale_price||p.price||0}|${p.feel||""}|${p.season||""}`).join("\n"):"No products available yet. Suggest general Pakistani fabric types.";
     try{
       const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:`You are a Pakistani fabric store assistant for Jameel Fabrics Kunjah. Available products:\n${prodList}\n\nCustomer asks: "${q}"\n\nSuggest 2-3 specific products from the list above with reasons. Be brief, friendly, in simple English. Format: Product Name — Why it's perfect. Max 3 lines.`}]})});
       const d=await r.json();
@@ -732,10 +702,10 @@ function Intro({onEnter,siteTheme,themeName}){
     .jf-eyebrow{font-size:0.6rem;letter-spacing:4px;text-transform:uppercase;color:${TH.iEyebrow};margin-bottom:2rem;animation:jfSlideL 0.9s 0.2s ease both}
     .jf-enter{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,4.5rem);font-weight:800;color:${TH.iEnter};line-height:1;margin-bottom:0.3em;animation:jfSlideL 0.9s 0.3s ease both;letter-spacing:-2px}
     .jf-store{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,4.5rem);font-weight:800;color:${TH.iStore};line-height:1;margin-bottom:2.5rem;animation:jfSlideL 0.9s 0.4s ease both;letter-spacing:-2px}
-    .jf-btn{display:block;background:${TH.iBtn};color:${TH.iBtnText};border:${TH.iBtn==="transparent"?"1px solid "+TH.iBrand+"44":"none"};padding:1.1rem 3rem;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;position:relative;transition:transform 0.2s,opacity 0.2s;animation:jfSlideL 0.9s 0.5s ease both;width:100%}
-    .jf-btn::after{content:'→';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-size:1.2rem;transition:transform 0.2s}
-    .jf-btn:hover{transform:scale(1.02);opacity:0.9}
-    .jf-btn:hover::after{transform:translateY(-50%) translateX(5px)}
+    .jf-btn{display:block;background:${TH.iBtn};color:${TH.iBtnText};border:${TH.iBtn==="transparent"?"1px solid "+TH.iBrand+"44":"none"};padding:1.1rem 3rem;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;position:relative;transition:transform 0.2s,background 0.2s,box-shadow 0.2s;animation:jfSlideL 0.9s 0.5s ease both;width:100%}
+    .jf-btn::after{content:'→';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-size:1.2rem;transition:transform 0.2s;display:block}
+    .jf-btn:hover{transform:scale(1.02);box-shadow:0 8px 32px rgba(0,0,0,.15)}
+    .jf-btn:hover::after{transform:translateY(-50%) translateX(6px)}
     .jf-divider{width:80%;height:1px;background:${TH.iEnter};opacity:0.1;margin:1.5rem auto;animation:jfSlideL 0.9s 0.6s ease both}
     .jf-ticker-wrap{animation:jfSlideL 0.9s 0.7s ease both;border:1px solid ${TH.iTag};background:${TH.iTag};padding:0.7rem 0;overflow:hidden;width:100%}
     .jf-ticker-label{font-size:0.45rem;letter-spacing:3px;text-transform:uppercase;color:${TH.iEyebrow};text-align:center;margin-bottom:0.5rem}
@@ -843,25 +813,52 @@ function CartPanel({cart,setCart,wa,onClose,user,settings}){
     if(!cart.length)return;
     if(sb&&user){await sb.from("online_orders").insert({customer_id:user.id,customer_email:user.email,customer_name:user.user_metadata?.full_name||"",items:cart,total,coupon_code:coupon?.code||null,discount_amount:disc,gift_option:gift.enabled?gift:null,status:"pending"});if(coupon)await sb.from("coupons").update({used_count:(coupon.used_count||0)+1}).eq("id",coupon.id);}
     const sep="\u2501".repeat(20);
-    let msg="Assalamualaikum! \n\nI would like to place an order from *JAMEEL FABRICS Kunjah*.\n\n";
-    msg+=sep+"\n ORDER DETAILS\n"+sep+"\n\n";
-    msg+=cart.map(p=>{let l="* "+p.name+" *";l+="\n   Category: "+(CAT_L[p.cat]||p.cat||"");if(p.color)l+="\n   Color: "+p.color;l+="\n   Price: Rs."+Number(p.price).toLocaleString()+" x "+p.qty+" = Rs."+(p.price*p.qty).toLocaleString();const img=p.img1||p.photo_url||"";if(img)l+="\n   Image: "+img;return l;}).join("\n\n");
-    msg+="\n\n";
-    if(coupon)msg+="Coupon: "+coupon.code+" (-Rs."+disc.toLocaleString()+")\n\n";
-    msg+=sep+"\nTOTAL: *Rs."+total.toLocaleString()+"*\n"+sep+"\n\nPlease confirm availability and share delivery address.\n\nJazakAllah Khair!";
+    // Build bill using template if available
+    let msg="";
+    try{
+      const tplRes=settings?.bill_templates?JSON.parse(settings.bill_templates):null;
+      const tpl=Array.isArray(tplRes)&&tplRes.length>0?tplRes[0]:null;
+      if(tpl){
+        // Use admin template
+        const storeName=settings?.store_name||"JAMEEL FABRICS Kunjah";
+        const addr=(settings?.addr1||"Circular Road, Kunjah")+", "+(settings?.addr2||"Distt. Gujrat");
+        const ph=settings?.phone||settings?.wa_number||WA_NUM;
+        const now=new Date();
+        const dateStr=now.toLocaleDateString("en-PK",{day:"2-digit",month:"short",year:"numeric"});
+        const billNum="JF-"+now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+String(now.getHours()).padStart(2,"0")+String(now.getMinutes()).padStart(2,"0");
+        const itemLines=cart.map((p,i)=>`${i+1}. *${p.name}*\n   Category: ${CAT_L[p.cat]||p.cat||""}\n   Qty: ${p.qty} × Rs.${Number(p.price).toLocaleString()} = *Rs.${(p.price*p.qty).toLocaleString()}*`).join("\n\n");
+        const hdr=(tpl.header||"*{store}*\n{addr}")
+          .replace("{store}",storeName).replace("{addr}",addr)
+          .replace("{phone}",ph).replace("{date}",tpl.show_date?dateStr:"")
+          .replace("{bill_num}",billNum);
+        const ftr=(tpl.footer||"Jazakallah! Thank you for shopping 🙏");
+        const sep="━━━━━━━━━━━━━━━━";
+        msg=hdr+"\n\n"+sep+"\n📋 *ORDER BILL*\n"+sep+"\n🔖 Bill#: "+billNum+"\n📅 Date: "+dateStr+"\n"+sep+"\n\n"+itemLines+"\n\n"+sep;
+        if(coupon)msg+="\n🎟️ Coupon: "+coupon.code+" (-Rs."+disc.toLocaleString()+")";
+        msg+="\n💰 *TOTAL: Rs."+total.toLocaleString()+"*\n"+sep+"\n\n"+ftr;
+      }
+    }catch{}
+    // Fallback to default message if no template
+    if(!msg){
+      msg="Assalamualaikum!\n\nI would like to place an order from *JAMEEL FABRICS Kunjah*.\n\n"+"━━━━━━━━━━━━━━━━\n ORDER DETAILS\n━━━━━━━━━━━━━━━━\n\n";
+      msg+=cart.map(p=>{let l="* "+p.name+" *";l+="\n   Category: "+(CAT_L[p.cat]||p.cat||"");if(p.color)l+="\n   Color: "+p.color;l+="\n   Price: Rs."+Number(p.price).toLocaleString()+" x "+p.qty+" = Rs."+(p.price*p.qty).toLocaleString();return l;}).join("\n\n");
+      msg+="\n\n";
+      if(coupon)msg+="Coupon: "+coupon.code+" (-Rs."+disc.toLocaleString()+")\n\n";
+      msg+="━━━━━━━━━━━━━━━━\nTOTAL: *Rs."+total.toLocaleString()+"*\n━━━━━━━━━━━━━━━━\n\nPlease confirm availability and share delivery address.\n\nJazakAllah Khair!";
+    }
     window.open("https://wa.me/"+(wa||WA_NUM)+"?text="+encodeURIComponent(msg),"_blank");
     setCart([]);onClose();
   }
   return(<>
     <div style={{position:"fixed",inset:0,zIndex:9990,background:"rgba(0,0,0,.45)",backdropFilter:"blur(4px)"}} onClick={onClose}/>
-    <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(420px,95vw)",background:"#faf9f7",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.12)",animation:"slideR .3s ease"}}>
+    <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(420px,95vw)",background:"var(--t-card,#faf9f7)",zIndex:9991,display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.12)",animation:"slideR .3s ease"}}>
       <FreeShippingBar cartTotal={total} settings={{free_shipping_min:settings?.free_shipping_min,free_shipping_active:"true"}}/>
       <div style={{padding:"20px 24px",borderBottom:"1px solid #e8e4df",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:19,fontWeight:700}}>Cart <span style={{color:"#7a6e65",fontSize:14,fontWeight:400}}>({cart.reduce((s,x)=>s+x.qty,0)} items)</span></div>
-        <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#7a6e65"}}>X</button>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:19,fontWeight:700}}>Cart <span style={{color:"var(--t-muted,#7a6e65)",fontSize:14,fontWeight:400}}>({cart.reduce((s,x)=>s+x.qty,0)} items)</span></div>
+        <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"var(--t-muted,#7a6e65)"}}>X</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"16px 24px"}}>
-        {!cart.length?(<div style={{textAlign:"center",padding:"56px 20px",color:"#8a7f76"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:"#7a6e65",marginBottom:8}}>Cart is Empty</div><div style={{fontSize:13}}>Add beautiful pieces to your cart</div></div>):
+        {!cart.length?(<div style={{textAlign:"center",padding:"56px 20px",color:"#8a7f76"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:"var(--t-muted,#7a6e65)",marginBottom:8}}>Cart is Empty</div><div style={{fontSize:13}}>Add beautiful pieces to your cart</div></div>):
         cart.map(item=>(
           <div key={item.id} style={{display:"flex",gap:14,marginBottom:18,paddingBottom:18,borderBottom:"1px solid #e8e4df"}}>
             <div style={{width:60,height:72,background:"#f0ede8",flexShrink:0,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>
@@ -869,12 +866,12 @@ function CartPanel({cart,setCart,wa,onClose,user,settings}){
             </div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontWeight:600,fontSize:14,marginBottom:2}}>{item.name}</div>
-              <div style={{fontSize:11,color:"#7a6e65",marginBottom:8}}>{item.color||""}</div>
+              <div style={{fontSize:11,color:"var(--t-muted,#7a6e65)",marginBottom:8}}>{item.color||""}</div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
-                  <button onClick={()=>setCart(c=>item.qty===1?c.filter(x=>x.id!==item.id):c.map(x=>x.id===item.id?{...x,qty:x.qty-1}:x))} style={{width:28,height:28,border:"1px solid #d0ccc5",borderRadius:"50%",background:"#fff",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>-</button>
+                  <button onClick={()=>setCart(c=>item.qty===1?c.filter(x=>x.id!==item.id):c.map(x=>x.id===item.id?{...x,qty:x.qty-1}:x))} style={{width:28,height:28,border:"1px solid #d0ccc5",borderRadius:"50%",background:"var(--t-card,#fff)",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>-</button>
                   <span style={{fontSize:13,fontWeight:600,minWidth:18,textAlign:"center"}}>{item.qty}</span>
-                  <button onClick={()=>setCart(c=>c.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))} style={{width:28,height:28,border:"1px solid #d0ccc5",borderRadius:"50%",background:"#fff",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+                  <button onClick={()=>setCart(c=>c.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))} style={{width:28,height:28,border:"1px solid #d0ccc5",borderRadius:"50%",background:"var(--t-card,#fff)",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:10}}>
                   <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700}}>Rs.{(item.price*item.qty).toLocaleString()}</span>
@@ -888,26 +885,26 @@ function CartPanel({cart,setCart,wa,onClose,user,settings}){
       {cart.length>0&&(
         <div style={{padding:"18px 24px",borderTop:"1px solid #e8e4df",flexShrink:0}}>
           <div style={{display:"flex",gap:8,marginBottom:16}}>
-            <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Coupon code" style={{flex:1,border:"1px solid #d0ccc5",padding:"9px 14px",fontSize:13,outline:"none",fontFamily:"inherit",letterSpacing:1.5,fontWeight:600,background:"#fff"}}/>
+            <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Coupon code" style={{flex:1,border:"1px solid #d0ccc5",padding:"9px 14px",fontSize:13,outline:"none",fontFamily:"inherit",letterSpacing:1.5,fontWeight:600,background:"var(--t-card,#fff)"}}/>
             <button onClick={applyC} disabled={cL} style={{background:"#111",color:"#fff",border:"none",padding:"9px 18px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",opacity:cL?.6:1}}>{cL?"...":"Apply"}</button>
           </div>
           <div style={{marginBottom:18}}>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#7a6e65",marginBottom:5}}><span>Subtotal</span><span>Rs.{sub.toLocaleString()}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--t-muted,#7a6e65)",marginBottom:5}}><span>Subtotal</span><span>Rs.{sub.toLocaleString()}</span></div>
             {coupon&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#16a34a",marginBottom:5}}><span>Discount ({coupon.code})</span><span>-Rs.{disc.toLocaleString()}</span></div>}
             <div style={{display:"flex",justifyContent:"space-between",fontSize:17,fontWeight:700,marginTop:10,paddingTop:10,borderTop:"1px solid #e8e4df"}}><span>Total</span><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22}}>Rs.{total.toLocaleString()}</span></div>
             <div style={{fontSize:11,color:"#8a7f76",marginTop:5}}>Delivery charges separate (discuss on WhatsApp)</div>
           </div>
           {/* Optional customer detail form */}
           <div style={{marginBottom:12}}>
-            <button onClick={()=>setShowForm(f=>!f)} style={{background:"none",border:"1px solid #e0dbd3",width:"100%",padding:"8px",fontSize:10,fontWeight:600,letterSpacing:1,cursor:"pointer",fontFamily:"inherit",color:"#7a6e65",display:"flex",alignItems:"center",justifyContent:"space-between",textTransform:"uppercase"}}>
+            <button onClick={()=>setShowForm(f=>!f)} style={{background:"none",border:"1px solid var(--t-border,#e0dbd3)",width:"100%",padding:"8px",fontSize:10,fontWeight:600,letterSpacing:1,cursor:"pointer",fontFamily:"inherit",color:"var(--t-muted,#7a6e65)",display:"flex",alignItems:"center",justifyContent:"space-between",textTransform:"uppercase"}}>
               <span>Add Delivery Details (Optional)</span>
               <span>{showForm?"▲":"▼"}</span>
             </button>
             {showForm&&(
-              <div style={{background:"#f5f2ee",padding:12,border:"1px solid #e0dbd3",borderTop:"none",display:"grid",gap:8}}>
-                <input value={custName} onChange={e=>setCustName(e.target.value)} placeholder="Your Name" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff"}}/>
-                <input value={custCity} onChange={e=>setCustCity(e.target.value)} placeholder="City" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff"}}/>
-                <input value={custAddr} onChange={e=>setCustAddr(e.target.value)} placeholder="Address (optional)" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"#fff"}}/>
+              <div style={{background:"#f5f2ee",padding:12,border:"1px solid var(--t-border,#e0dbd3)",borderTop:"none",display:"grid",gap:8}}>
+                <input value={custName} onChange={e=>setCustName(e.target.value)} placeholder="Your Name" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"var(--t-card,#fff)"}}/>
+                <input value={custCity} onChange={e=>setCustCity(e.target.value)} placeholder="City" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"var(--t-card,#fff)"}}/>
+                <input value={custAddr} onChange={e=>setCustAddr(e.target.value)} placeholder="Address (optional)" style={{border:"1px solid #d0ccc5",padding:"8px 10px",fontSize:12,outline:"none",fontFamily:"inherit",background:"var(--t-card,#fff)"}}/>
                 <div style={{fontSize:9,color:"#8a7f76",letterSpacing:.5}}>Yeh details WhatsApp message mein shamil hongi</div>
               </div>
             )}
@@ -955,13 +952,13 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
   function handleAdd(e){e.stopPropagation();onAdd(prod);setAdded(true);setTimeout(()=>setAdded(false),1200);}
   function handleShare(e){e.stopPropagation();const txt="Yeh product dekho: *"+prod.name+"*\nRs."+price.toLocaleString()+"\n\nJameel Fabrics Kunjah\njameel-fabrics-catalogue.vercel.app";window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");}
   return(
-    <div className="rv" onClick={()=>onOpenModal&&onOpenModal(prod)} style={{background:"var(--jf-card,#fff)",border:"1px solid "+(hov?"#b8b0a6":"rgba(26,22,18,.09)"),cursor:"pointer",transition:"all .45s cubic-bezier(.16,1,.3,1)",position:"relative",overflow:"hidden",transform:hov?"translateY(-8px)":"none",boxShadow:hov?"0 20px 56px rgba(0,0,0,.1)":"0 1px 4px rgba(0,0,0,.04)"}}>
+    <div className="rv" onClick={()=>onOpenModal&&onOpenModal(prod)} style={{background:"var(--t-card,#fff)",border:`1px solid ${hov?"var(--t-border,#b8b0a6)":"rgba(26,22,18,.07)"}`,cursor:"pointer",transition:"all .45s cubic-bezier(.16,1,.3,1)",position:"relative",overflow:"hidden",transform:hov?"translateY(-8px)":"none",boxShadow:hov?"0 20px 56px rgba(0,0,0,.1)":"0 1px 4px rgba(0,0,0,.04)"}}>
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{position:"relative",aspectRatio:"3/4",overflow:"hidden",background:"#f5f2ee"}}>
         <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"clamp(48px,7vw,72px)",transition:"transform .7s cubic-bezier(.16,1,.3,1)",transform:hov?"scale(1.1)":"scale(1)"}}>
           {img?<img src={img} alt={prod.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(prod.icon||"👗")}
         </div>
         <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(17,17,17,.72),transparent 55%)",opacity:hov?1:0,transition:"opacity .4s",display:"flex",flexDirection:"column",justifyContent:"flex-end",alignItems:"center",paddingBottom:20,gap:8}}>
-          <button onClick={e=>{e.stopPropagation();onOpenModal&&onOpenModal(prod);}} style={{background:"#fff",color:"#111",border:"none",padding:"9px 28px",fontSize:9,fontWeight:700,letterSpacing:2,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",transform:hov?"translateY(0)":"translateY(16px)",transition:"transform .35s"}}>QUICK VIEW</button>
+          <button onClick={e=>{e.stopPropagation();onOpenModal&&onOpenModal(prod);}} style={{background:"var(--t-card,#fff)",color:"var(--t-text,#111)",border:"none",padding:"9px 28px",fontSize:9,fontWeight:700,letterSpacing:2,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",transform:hov?"translateY(0)":"translateY(16px)",transition:"transform .35s"}}>QUICK VIEW</button>
           <button onClick={handleAdd} style={{background:"transparent",color:"rgba(255,255,255,.85)",border:"1px solid rgba(255,255,255,.4)",padding:"6px 22px",fontSize:9,fontWeight:600,letterSpacing:1.5,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",transform:hov?"translateY(0)":"translateY(16px)",transition:"transform .35s .05s"}}>ADD TO CART</button>
         </div>
         {prod.badge&&<div style={{position:"absolute",top:12,left:12,background:prod.badge==="SALE"?"#b91c1c":"#111",color:"#fff",padding:"3px 10px",fontSize:7,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:2}}>{prod.badge}</div>}
@@ -973,9 +970,9 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
         </button>
       </div>
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{padding:"14px 16px 18px"}}>
-        <div style={{fontSize:8,color:"#7a6e65",letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>{CAT_L[prod.cat]||prod.category||""}</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"#111",marginBottom:4,lineHeight:1.3}}>{prod.name}</div>
-        {prod.color&&<div style={{fontSize:11,color:"#7a6e65",marginBottom:6}}>{prod.color}</div>}
+        <div style={{fontSize:8,color:"var(--t-muted,#7a6e65)",letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>{CAT_L[prod.cat]||prod.category||""}</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"var(--t-text,#111)",marginBottom:4,lineHeight:1.3}}>{prod.name}</div>
+        {prod.color&&<div style={{fontSize:11,color:"var(--t-muted,#7a6e65)",marginBottom:6}}>{prod.color}</div>}
         {prod.display_stock_text&&(
           <div style={{fontSize:10,marginBottom:7,fontWeight:lowStock?700:400,color:lowStock?"#b91c1c":"#b5aba2",fontStyle:lowStock?"normal":"italic",display:"flex",alignItems:"center",gap:4}}>
             {lowStock&&<span style={{animation:"pulse 1.2s ease infinite",display:"inline-block",width:6,height:6,borderRadius:"50%",background:"#b91c1c",flexShrink:0}}/>}
@@ -986,7 +983,7 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:8}}>
           <div>
             {old&&<div style={{fontSize:11,color:"#c9a49a",textDecoration:"line-through",fontFamily:"'Cormorant Garamond',serif"}}>Rs.{old.toLocaleString()}</div>}
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:old?"#b91c1c":"#111",lineHeight:1}}>Rs.{price.toLocaleString()}</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:old?"#b91c1c":"var(--t-accent,#c9a84c)",lineHeight:1}}>Rs.{price.toLocaleString()}</div>
           </div>
           <button onClick={handleAdd} style={{flexShrink:0,background:added?"#16a34a":"#111",color:"#fff",border:"none",width:40,height:40,cursor:"pointer",fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",transition:"background .25s"}}>{added?"✓":"+"}</button>
         </div>
@@ -1179,13 +1176,13 @@ function CountdownBanner({settings}){
           <div key={k} style={{display:"flex",alignItems:"center",gap:"clamp(5px,1vw,8px)"}}>
             {i>0&&<span style={{color:"rgba(255,255,255,.5)",fontSize:20,fontWeight:300,marginBottom:14}}>:</span>}
             <div style={{textAlign:"center"}}>
-              <div style={{background:"rgba(0,0,0,.3)",color:"#fff",fontFamily:"'Jost',sans-serif",fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"5px clamp(8px,1.5vw,12px)",minWidth:"clamp(38px,5vw,48px)",textAlign:"center",letterSpacing:1,border:"1px solid rgba(255,255,255,.15)"}}>{pad(time[k])}</div>
+              <div style={{background:"rgba(0,0,0,.3)",color:"#fff",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"5px clamp(8px,1.5vw,12px)",minWidth:"clamp(38px,5vw,48px)",textAlign:"center",letterSpacing:1,border:"1px solid rgba(255,255,255,.15)"}}>{pad(time[k])}</div>
               <div style={{fontSize:7,color:"rgba(255,255,255,.55)",textTransform:"uppercase",letterSpacing:1.5,marginTop:3}}>{lbl}</div>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#fff",color:"#b91c1c",border:"none",padding:"8px clamp(14px,2vw,20px)",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:"'Jost',sans-serif",transition:"all .2s",flexShrink:0}} onMouseEnter={e=>{e.currentTarget.style.background="#f5f5f5"}} onMouseLeave={e=>{e.currentTarget.style.background="#fff"}}>
+      <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#fff",color:"#b91c1c",border:"none",padding:"8px clamp(14px,2vw,20px)",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,transition:"all .2s",flexShrink:0}} onMouseEnter={e=>{e.currentTarget.style.background="#f5f5f5"}} onMouseLeave={e=>{e.currentTarget.style.background="#fff"}}>
         Shop Now
       </button>
     </div>
@@ -1576,8 +1573,8 @@ function BrandGroupedGrid({filtered,cat,brandFilter,addToCart,toggleWish,wish,op
     <>
       {brands.map(brand=>(
         <React.Fragment key={brand}>
-          <div style={{gridColumn:"1/-1",paddingBottom:8,borderBottom:"2px solid #e8dfc0",marginBottom:4,marginTop:8,display:"flex",alignItems:"center",gap:12}}>
-            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,2vw,20px)",fontWeight:600,color:"#1a1612",letterSpacing:1}}>{brand}</span>
+          <div className="jf-brand-header" style={{gridColumn:"1/-1",paddingBottom:8,borderBottom:`2px solid ${TH?.border||"#e8dfc0"}`,marginBottom:4,marginTop:8,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(15px,2vw,20px)",fontWeight:600,color:"var(--t-text,#1a1612)",letterSpacing:1}}>{brand}</span>
             <span style={{fontSize:9,color:"#c9a84c",letterSpacing:2,textTransform:"uppercase",background:"rgba(201,168,76,.08)",padding:"2px 8px",borderRadius:10}}>{filtered.filter(p=>p.brand===brand).length} items</span>
           </div>
           {filtered.filter(p=>p.brand===brand).map((prod,i)=>
@@ -1591,16 +1588,83 @@ function BrandGroupedGrid({filtered,cat,brandFilter,addToCart,toggleWish,wish,op
 }
 
 
+function ThemeStyle({TH}){
+  useEffect(()=>{
+    // Load theme font
+    if(TH.fontImport){
+      let fontLink=document.getElementById("jf-theme-font");
+      if(!fontLink){fontLink=document.createElement("link");fontLink.id="jf-theme-font";fontLink.rel="stylesheet";document.head.appendChild(fontLink);}
+      fontLink.href=TH.fontImport;
+    }
+    // Inject theme CSS
+    let el=document.getElementById("jf-theme-style");
+    if(!el){el=document.createElement("style");el.id="jf-theme-style";document.head.appendChild(el);}
+    const hf=TH.headingFont||"'Cormorant Garamond',serif";
+    const bf=TH.bodyFont||"'Jost',sans-serif";
+    el.textContent=[
+      `:root{`,
+        `--t-bg:${TH.bg};--t-card:${TH.card};--t-surface:${TH.surface};`,
+        `--t-text:${TH.text};--t-muted:${TH.muted};--t-border:${TH.border};`,
+        `--t-accent:${TH.accent};--t-dark:${TH.dark};--t-dt:${TH.darkText};`,
+        `--t-hf:${hf};--t-bf:${bf};`,
+      `}`,
+      // Body
+      `body{background:var(--t-bg)!important;color:var(--t-text)!important;font-family:var(--t-bf)!important;transition:background .4s,color .4s}`,
+      // Headings
+      `h1,h2,h3,h4,h5{font-family:var(--t-hf)!important;color:var(--t-text)!important}`,
+      // Nav / topbar
+      `.jf-nav-bar{background:var(--t-card)!important;border-bottom:1px solid var(--t-border)!important}`,
+      // Store name
+      `.jf-nav-bar .jf-store-name{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
+      // Category bar
+      `.jf-cat-bar{background:var(--t-card)!important;border-bottom:1px solid var(--t-border)!important}`,
+      `.jf-cat-btn{color:var(--t-muted)!important;font-family:var(--t-bf)!important}`,
+      // Products
+      `.jf-prods-section{background:var(--t-bg)!important}`,
+      `.rv{background:var(--t-card)!important;border:1px solid var(--t-border)!important}`,
+      `.rv *{font-family:var(--t-bf)!important}`,
+      `.rv h3,.rv .prod-name{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
+      `.rv .prod-brand{color:var(--t-muted)!important}`,
+      `.rv .prod-price{color:var(--t-accent)!important;font-family:var(--t-hf)!important}`,
+      // Sections
+      `section{background:var(--t-bg)}`,
+      // Filter bar
+      `.jf-filter-row{background:var(--t-card)!important}`,
+      // Brand bar
+      `.jf-brand-bar{background:var(--t-card)!important;border:1px solid var(--t-border)!important}`,
+      // Search
+      `.jf-search input{background:var(--t-surface)!important;border:1px solid var(--t-border)!important;color:var(--t-text)!important}`,
+      // Footer
+      `footer{background:var(--t-dark)!important}`,
+      `footer,footer *,footer a{color:var(--t-dt)!important}`,
+      // Side menu
+      `.jf-side-menu{background:var(--t-card)!important}`,
+      // Brand section headers
+      `.jf-brand-header{color:var(--t-text)!important;font-family:var(--t-hf)!important;border-bottom-color:var(--t-border)!important}`,
+      `.jf-brand-header span{color:var(--t-accent)!important}`,
+      // Policies, about sections
+      `#policies,#reviews,#store-map{background:var(--t-bg)!important}`,
+      // BrandGroupedGrid brand title
+      `[class*="brand-title"]{color:var(--t-text)!important;font-family:var(--t-hf)!important}`,
+    ].join("");
+  },[TH]);
+  return null;
+}
+
+
 function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const TH=siteTheme||SITE_THEMES["Blue Beige"];
   // Apply ALL theme CSS variables on every render
   useEffect(()=>{
-    // Set CSS vars for full website theming
     const r=document.documentElement.style;
+    // Set both old (--jf-) and new (--t-) vars for compatibility
     const vars={
       "--jf-bg":TH.bg,"--jf-card":TH.card,"--jf-surface":TH.surface,
       "--jf-text":TH.text,"--jf-muted":TH.muted,"--jf-border":TH.border,
       "--jf-accent":TH.accent,"--jf-dark":TH.dark,"--jf-dark-text":TH.darkText,
+      "--t-bg":TH.bg,"--t-card":TH.card,"--t-surface":TH.surface,
+      "--t-text":TH.text,"--t-muted":TH.muted,"--t-border":TH.border,
+      "--t-accent":TH.accent,"--t-dark":TH.dark,"--t-dt":TH.darkText,
     };
     Object.entries(vars).forEach(([k,v])=>r.setProperty(k,v));
     document.body.style.background=TH.bg;
@@ -1717,7 +1781,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   }
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
-  return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
+  return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`}}>
+    <ThemeStyle TH={TH}/>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
     <AIOutfitSuggester prods={prods} onFilter={setCat}/>
     {/* Countdown Banner - above announcement */}
@@ -1725,21 +1790,21 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div style={{background:"linear-gradient(135deg,#b91c1c,#dc2626)",padding:"9px clamp(14px,3vw,32px)",display:"flex",alignItems:"center",justifyContent:"center",gap:"clamp(10px,2vw,24px)",flexWrap:"wrap",borderBottom:"1px solid rgba(0,0,0,.15)"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
           <span style={{fontSize:14}}>🔥</span>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(11px,1.4vw,14px)",fontWeight:700,color:"#fff",letterSpacing:.5}}>{settings.sale_title||"Eid Special Sale"}</div>
-          <span style={{fontSize:10,color:"rgba(255,255,255,.7)",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(11px,1.3vw,14px)"}}>{settings.sale_text||"Up to 30% Off"}</span>
+          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(11px,1.4vw,14px)",fontWeight:700,color:"#fff",letterSpacing:.5}}>{settings.sale_title||"Eid Special Sale"}</div>
+          <span style={{fontSize:10,color:"rgba(255,255,255,.7)",fontStyle:"italic",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(11px,1.3vw,14px)"}}>{settings.sale_text||"Up to 30% Off"}</span>
         </div>
         <div style={{display:"flex",gap:5,alignItems:"center",flexShrink:0}}>
           {["d","h","m","s"].map((u,i)=>(
             <div key={u} style={{display:"flex",alignItems:"center",gap:5}}>
               {i>0&&<span style={{color:"rgba(255,255,255,.5)",fontWeight:700,fontSize:16,lineHeight:1,marginBottom:12}}>:</span>}
               <div style={{textAlign:"center"}}>
-                <span style={{background:"rgba(0,0,0,.25)",color:"#fff",fontFamily:"'Jost',sans-serif",fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"4px 8px",display:"block",minWidth:38,letterSpacing:1}}>{cdTime[u]}</span>
+                <span style={{background:"rgba(0,0,0,.25)",color:"#fff",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`,fontSize:"clamp(16px,2.5vw,22px)",fontWeight:700,padding:"4px 8px",display:"block",minWidth:38,letterSpacing:1}}>{cdTime[u]}</span>
                 <span style={{fontSize:7,color:"rgba(255,255,255,.5)",letterSpacing:1.5,textTransform:"uppercase",display:"block",marginTop:3}}>{["Days","Hrs","Mins","Secs"][i]}</span>
               </div>
             </div>
           ))}
         </div>
-        <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#fff",color:"#b91c1c",border:"none",padding:"7px 18px",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",flexShrink:0,transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.background="#fef2f2";}} onMouseLeave={e=>{e.currentTarget.style.background="#fff";}}>
+        <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"var(--t-card)",color:"#b91c1c",border:"none",padding:"7px 18px",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",flexShrink:0,transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.background="#fef2f2";}} onMouseLeave={e=>{e.currentTarget.style.background="#fff";}}>
           Shop Now
         </button>
       </div>
@@ -1755,13 +1820,13 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* NAV */}
     <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(250,249,247,.97)",backdropFilter:"blur(24px)",borderBottom:"1px solid #e8e4df",height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
       <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(13px,1.5vw,17px)",fontWeight:900,letterSpacing:"clamp(2px,1vw,6px)",color:`${TH.text}`,lineHeight:1.1}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-        <div style={{fontSize:7,letterSpacing:"clamp(2px,.8vw,5px)",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500}}>KUNJAH · PUNJAB</div>
+        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(13px,1.5vw,17px)",fontWeight:900,letterSpacing:"clamp(2px,1vw,6px)",color:`${TH.text}`,lineHeight:1.1}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+        <div style={{fontSize:7,letterSpacing:"clamp(2px,.8vw,5px)",color:`${TH.accent}`,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontStyle:"italic",lineHeight:1,fontWeight:500}}>KUNJAH · PUNJAB</div>
       </button>
-      <div className="search-bar hide-mob" style={{display:"flex",alignItems:"center",gap:8,background:"#f0ede8",border:"1px solid #e0dbd3",padding:"7px 14px",flex:1,maxWidth:200}}>
+      <div className="search-bar hide-mob" style={{display:"flex",alignItems:"center",gap:8,background:"var(--t-surface)",border:"1px solid var(--t-border)",padding:"7px 14px",flex:1,maxWidth:200}}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a8f83" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input ref={searchRef} type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{background:"none",border:"none",outline:"none",fontSize:12,color:"#111",width:"100%",fontFamily:"inherit"}}/>
-        {search&&<button onClick={()=>setSearch("")} style={{background:"none",border:"none",cursor:"pointer",color:"#7a6e65",fontSize:16,padding:0}}>x</button>}
+        <input ref={searchRef} type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{background:"none",border:"none",outline:"none",fontSize:12,color:"var(--t-text)",width:"100%",fontFamily:"inherit"}}/>
+        {search&&<button onClick={()=>setSearch("")} style={{background:"none",border:"none",cursor:"pointer",color:"var(--t-muted)",fontSize:16,padding:0}}>x</button>}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
         <button onClick={()=>user?onAccount():setAuthModal("login")} style={{background:"none",border:"none",cursor:"pointer",width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",color:"#6b6358",borderRadius:4,transition:"background .2s",position:"relative"}} onMouseEnter={e=>e.currentTarget.style.background="#f0ede8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
@@ -1780,23 +1845,23 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* SIDE MENU */}
     {menuOpen&&(<>
       <div style={{position:"fixed",inset:0,zIndex:998,background:"rgba(0,0,0,.5)",backdropFilter:"blur(4px)"}} onClick={()=>setMenuOpen(false)}/>
-      <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(320px,88vw)",zIndex:999,background:"#faf9f7",display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.14)",animation:"slideR .3s cubic-bezier(.77,0,.18,1)"}}>
+      <div style={{position:"fixed",top:0,right:0,bottom:0,width:"min(320px,88vw)",zIndex:999,background:"var(--t-bg)",display:"flex",flexDirection:"column",boxShadow:"-16px 0 48px rgba(0,0,0,.14)",animation:"slideR .3s cubic-bezier(.77,0,.18,1)"}}>
         <div style={{padding:"20px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e8e4df",flexShrink:0}}>
-          <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"#111"}}>JAMEEL FABRICS</div><div style={{fontSize:9,color:"#7a6e65",letterSpacing:2,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Kunjah · Punjab</div></div>
-          <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#7a6e65"}}>x</button>
+          <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:15,fontWeight:700,color:"var(--t-text)"}}>JAMEEL FABRICS</div><div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:2,fontStyle:"italic",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`}}>Kunjah · Punjab</div></div>
+          <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"var(--t-muted)"}}>x</button>
         </div>
         <div style={{flex:1,overflowY:"auto",overscrollBehavior:"contain"}}>
           <>
             {/* Navigate */}
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#9a8f83",padding:"12px 16px 4px"}}>Navigate</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--t-muted)",padding:"12px 16px 4px"}}>Navigate</div>
             <button onClick={()=>{setCat("All");setMenuOpen(false);window.scrollTo({top:0,behavior:"smooth"});}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"11px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",borderRadius:6,transition:"background .15s"}}
               onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-              <span style={{fontSize:13,color:"#1a1612",fontWeight:500}}>Home</span>
+              <span style={{fontSize:13,color:"var(--t-text)",fontWeight:500}}>Home</span>
             </button>
 
             {/* Categories */}
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#9a8f83",padding:"12px 16px 4px",marginTop:4}}>Categories</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--t-muted)",padding:"12px 16px 4px",marginTop:4}}>Categories</div>
             {[
               {code:"WU",label:"Women Unstitch",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>},
               {code:"WS",label:"Women Stitch",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>},
@@ -1824,17 +1889,17 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
                     }}
                     style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:cat===code?"#f5f0e8":"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",borderRadius:6,transition:"background .15s"}}
                     onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>{e.currentTarget.style.background=cat===code?"#f5f0e8":"none";}}>
-                    <span style={{color:"#c9a84c",flexShrink:0}}>{icon}</span>
-                    <span style={{fontSize:13,color:"#1a1612",fontWeight:cat===code?600:400,flex:1}}>{label}</span>
+                    <span style={{color:"var(--t-accent)",flexShrink:0}}>{icon}</span>
+                    <span style={{fontSize:13,color:"var(--t-text)",fontWeight:cat===code?600:400,flex:1}}>{label}</span>
                     {catBrands.length>0&&<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#9a8f83" strokeWidth="1.5" style={{transition:"transform .2s",transform:isExpanded?"rotate(180deg)":"rotate(0deg)"}}><path d="M2 4l4 4 4-4"/></svg>}
                   </button>
                   {isExpanded&&catBrands.length>0&&(
                     <div style={{paddingLeft:44,paddingBottom:4}}>
-                      <button onClick={()=>{setCat(code);setBrandFilter("All");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}} style={{display:"block",width:"100%",padding:"7px 12px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",fontSize:12,color:"#6b5f52",borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+                      <button onClick={()=>{setCat(code);setBrandFilter("All");setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}} style={{display:"block",width:"100%",padding:"7px 12px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",fontSize:12,color:"var(--t-muted)",borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
                         All Brands
                       </button>
                       {catBrands.map(b=>(
-                        <button key={b} onClick={()=>{setCat(code);setBrandFilter(b);setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}} style={{display:"block",width:"100%",padding:"7px 12px",background:brandFilter===b&&cat===code?"#f0ede8":"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",fontSize:12,color:"#6b5f52",borderRadius:4,fontWeight:brandFilter===b&&cat===code?600:400}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background=brandFilter===b&&cat===code?"#f0ede8":"none"}>
+                        <button key={b} onClick={()=>{setCat(code);setBrandFilter(b);setMenuOpen(false);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}} style={{display:"block",width:"100%",padding:"7px 12px",background:brandFilter===b&&cat===code?"#f0ede8":"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left",fontSize:12,color:"var(--t-muted)",borderRadius:4,fontWeight:brandFilter===b&&cat===code?600:400}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background=brandFilter===b&&cat===code?"#f0ede8":"none"}>
                           · {b}
                         </button>
                       ))}
@@ -1845,33 +1910,33 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
             })}
 
             {/* Account */}
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#9a8f83",padding:"12px 16px 4px",marginTop:4}}>Account</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--t-muted)",padding:"12px 16px 4px",marginTop:4}}>Account</div>
             {user?(<>
               <button onClick={()=>{onAccount();setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderRadius:6}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span style={{fontSize:13,color:"#1a1612"}}>My Account</span>
+                <span style={{fontSize:13,color:"var(--t-text)"}}>My Account</span>
               </button>
               <button onClick={()=>{onLogout();setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderRadius:6}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a8f83" strokeWidth="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                <span style={{fontSize:13,color:"#9a8f83"}}>Logout</span>
+                <span style={{fontSize:13,color:"var(--t-muted)"}}>Logout</span>
               </button>
             </>):(
               <button onClick={()=>{setAuthModal("login");setMenuOpen(false);}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderRadius:6}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                <span style={{fontSize:13,color:"#1a1612"}}>Login / Register</span>
+                <span style={{fontSize:13,color:"var(--t-text)"}}>Login / Register</span>
               </button>
             )}
 
             {/* Info */}
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#9a8f83",padding:"12px 16px 4px",marginTop:4}}>Info</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--t-muted)",padding:"12px 16px 4px",marginTop:4}}>Info</div>
             {[
               {label:"Visit Our Store",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,fn:()=>{setMenuOpen(false);document.getElementById("store-map")?.scrollIntoView({behavior:"smooth"});}},
               {label:"Our Policies",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,fn:()=>{setMenuOpen(false);document.getElementById("policies")?.scrollIntoView({behavior:"smooth"});}},
               {label:"WhatsApp Us",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>,fn:()=>{const msg=settings?.wa_greeting||"Assalam! I am interested in your fabrics.";window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(msg),"_blank");setMenuOpen(false);}},
             ].map(({label,icon,fn})=>(
               <button key={label} onClick={fn} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"10px 16px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",borderRadius:6}} onMouseEnter={e=>e.currentTarget.style.background="#f5f0e8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
-                <span style={{color:"#c9a84c",flexShrink:0}}>{icon}</span>
-                <span style={{fontSize:13,color:"#1a1612"}}>{label}</span>
+                <span style={{color:"var(--t-accent)",flexShrink:0}}>{icon}</span>
+                <span style={{fontSize:13,color:"var(--t-text)"}}>{label}</span>
               </button>
             ))}
           </>
@@ -1884,7 +1949,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       {settings?.hero_banner_url&&settings?.hero_banner_show==="true"&&(
         <div style={{maxWidth:"100%",overflow:"hidden",position:"relative"}}>
           <img src={settings.hero_banner_url} alt={settings.hero_banner_caption||"Special Offer"} style={{width:"100%",maxHeight:"420px",objectFit:"cover",display:"block"}}/>
-          {settings.hero_banner_caption&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(to top,rgba(0,0,0,.5),transparent)",padding:"20px 30px",color:"#fff",fontSize:"clamp(16px,2.5vw,24px)",fontFamily:"'Cormorant Garamond',serif",fontWeight:600}}>{settings.hero_banner_caption}</div>}
+          {settings.hero_banner_caption&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(to top,rgba(0,0,0,.5),transparent)",padding:"20px 30px",color:"#fff",fontSize:"clamp(16px,2.5vw,24px)",fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontWeight:600}}>{settings.hero_banner_caption}</div>}
         </div>
       )}
       {/* HERO */}
@@ -1892,57 +1957,60 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(#e8e4df 1px,transparent 1px),linear-gradient(90deg,#e8e4df 1px,transparent 1px)",backgroundSize:"52px 52px",WebkitMaskImage:"radial-gradient(ellipse 90% 90% at 30% 50%,#000 20%,transparent 100%)",opacity:.4,pointerEvents:"none"}}/>
       <div className="hero-text" style={{zIndex:1}}>
         {/* Mobile full-width image banner - shows only on mobile */}
-        <div className="mob-hero-banner" style={{width:"100%",background:"#f0ede8",border:"1px solid #e0dbd3",aspectRatio:"4/3",marginBottom:20,position:"relative",overflow:"hidden",display:"none",alignItems:"center",justifyContent:"center",fontSize:72}}>
+        <div className="mob-hero-banner" style={{width:"100%",background:"var(--t-surface)",border:"1px solid var(--t-border)",aspectRatio:"4/3",marginBottom:20,position:"relative",overflow:"hidden",display:"none",alignItems:"center",justifyContent:"center",fontSize:72}}>
           <span style={{transition:"all .4s"}}>{heroImgs[heroImgIdx]}</span>
           <div style={{position:"absolute",top:10,left:10,background:"#111",color:"#fff",padding:"4px 10px",fontSize:7,fontWeight:800,letterSpacing:2}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",top:10,right:10,background:"#c9a84c",color:"#111",padding:"4px 10px",fontSize:7,fontWeight:800,letterSpacing:2}}>LIMITED EDITION</div>
+          <div style={{position:"absolute",top:10,right:10,background:"#c9a84c",color:"var(--t-text)",padding:"4px 10px",fontSize:7,fontWeight:800,letterSpacing:2}}>LIMITED EDITION</div>
           <div style={{position:"absolute",bottom:10,left:"50%",transform:"translateX(-50%)",display:"flex",gap:5}}>
             {heroImgs.map((_,i)=><span key={i} style={{width:i===heroImgIdx?14:5,height:5,borderRadius:3,background:i===heroImgIdx?"#111":"rgba(0,0,0,.25)",transition:"width .3s",display:"inline-block"}}/>)}
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18,animation:"fadeUp .8s ease .1s both"}}>
           <div style={{width:28,height:1,background:"#c9a84c"}}/>
-          <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
+          <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
         </div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(40px,6.5vw,84px)",fontWeight:900,lineHeight:.88,color:"#111",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:14}}>
+        <h1 style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(40px,6.5vw,84px)",fontWeight:900,lineHeight:.88,color:"var(--t-text)",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:14}}>
           JAMEEL<br/>
-          <span style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:300,fontStyle:"italic",color:"#6b6358",fontSize:"clamp(30px,5vw,64px)",letterSpacing:"clamp(6px,2vw,16px)"}}>Fabrics</span>
+          <span style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontWeight:300,fontStyle:"italic",color:"#6b6358",fontSize:"clamp(30px,5vw,64px)",letterSpacing:"clamp(6px,2vw,16px)"}}>Fabrics</span>
         </h1>
         <div style={{height:"clamp(20px,2.2vw,28px)",overflow:"hidden",marginBottom:22,animation:"fadeUp .8s ease .35s both"}}>
-          <div key={heroIdx} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.5vw,18px)",color:"#7a6e65",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
+          <div key={heroIdx} style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(13px,1.5vw,18px)",color:"var(--t-muted)",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
         </div>
         <div style={{width:44,height:1,background:"#c9a84c",marginBottom:22,animation:"fadeUp .6s ease .5s both"}}/>
-        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.4vw,17px)",color:"#7a6e65",lineHeight:2,marginBottom:32,animation:"fadeUp .8s ease .55s both"}}>{settings.about||"Premium Pakistani fabrics — each piece handpicked for quality, exclusivity and timeless elegance."}</p>
+        <p style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(13px,1.4vw,17px)",color:"var(--t-muted)",lineHeight:2,marginBottom:32,animation:"fadeUp .8s ease .55s both"}}>{settings.about||"Premium Pakistani fabrics — each piece handpicked for quality, exclusivity and timeless elegance."}</p>
         <div className="hero-btns" style={{display:"flex",gap:12,flexWrap:"wrap",animation:"fadeUp .8s ease .65s both"}}>
           <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#111",color:"#fff",border:"none",padding:"13px 36px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s"}} onMouseEnter={e=>{e.currentTarget.style.background="#2a2520";e.currentTarget.style.letterSpacing="5px";}} onMouseLeave={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.letterSpacing="4px";}}>View Collection</button>
           <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
-            <button style={{background:"transparent",color:"#111",border:"1px solid #111",padding:"13px 28px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>
+            <button style={{background:"transparent",color:"var(--t-text)",border:"1px solid #111",padding:"13px 28px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>
               <WaSvg/> WhatsApp Us
             </button>
           </a>
         </div>
       </div>
       <div className="hero-right" style={{zIndex:1,animation:"fadeUp 1.2s ease .4s both"}}>
-        <div style={{background:"#f0ede8",border:"1px solid #e0dbd3",aspectRatio:"3/4",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+        <div style={{background:"var(--t-surface)",border:"1px solid var(--t-border)",aspectRatio:"3/4",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
           <div style={{position:"absolute",top:16,right:16,background:"#111",color:"#fff",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge1 3s ease-in-out infinite",boxShadow:"0 4px 16px rgba(0,0,0,.3)"}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",bottom:20,left:16,background:"#c9a84c",color:"#111",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge2 3.5s ease-in-out infinite",boxShadow:"0 4px 16px rgba(201,168,76,.4)"}}>LIMITED EDITION</div>
-          <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:"'Playfair Display',serif",fontWeight:900,color:"#111",lineHeight:1,userSelect:"none"}}>JF</div>
-          <div style={{textAlign:"center",padding:"36px 20px",zIndex:2}}>
-            <div style={{fontSize:"clamp(52px,9vw,96px)",marginBottom:18}}>👗</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(15px,1.8vw,21px)",fontWeight:700,color:"#111",marginBottom:8}}>Exclusive Designs</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(12px,1.3vw,15px)",color:"#7a6e65",fontStyle:"italic",lineHeight:1.8}}>Once sold, never repeated<br/>Crafted for the discerning</div>
+          <div style={{position:"absolute",bottom:20,left:16,background:"#c9a84c",color:"var(--t-text)",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge2 3.5s ease-in-out infinite",boxShadow:"0 4px 16px rgba(201,168,76,.4)"}}>LIMITED EDITION</div>
+          <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontWeight:900,color:"var(--t-text)",lineHeight:1,userSelect:"none"}}>JF</div>
+          <div style={{textAlign:"center",padding:"20px 14px",zIndex:2}}>
+            {settings?.hero_box_img
+              ?<img src={settings.hero_box_img} alt={settings.hero_box_title||"Featured"} style={{width:"100%",height:"clamp(80px,10vw,120px)",objectFit:"cover",borderRadius:6,marginBottom:10}}/>
+              :<div style={{fontSize:"clamp(36px,6vw,56px)",marginBottom:10}}>👗</div>
+            }
+            <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(12px,1.4vw,16px)",fontWeight:700,color:`${TH.text}`,marginBottom:5}}>{settings?.hero_box_title||"Exclusive Designs"}</div>
+            <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(10px,1.1vw,13px)",color:`${TH.muted}`,fontStyle:"italic",lineHeight:1.7}}>{settings?.hero_box_sub||"Once sold, never repeated"}<br/>{settings?.hero_box_sub2||"Crafted for the discerning"}</div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginTop:18}}>
               <div style={{width:20,height:1,background:"#c9a84c"}}/>
-              <div style={{fontSize:9,color:"#c9a84c",letterSpacing:3,textTransform:"uppercase",fontWeight:600}}>Kunjah</div>
+              <div style={{fontSize:9,color:"var(--t-accent)",letterSpacing:3,textTransform:"uppercase",fontWeight:600}}>Kunjah</div>
               <div style={{width:20,height:1,background:"#c9a84c"}}/>
             </div>
           </div>
         </div>
         <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
           {[["500+","Happy Customers"],["100%","Exclusive Designs"],["4.9★","Customer Rating"],["5+","Years Trusted"]].map(([n,l])=>(
-            <div key={l} style={{background:"#fff",border:"1px solid #e0dbd3",padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700,color:"#111"}}>{n}</div>
-              <div style={{fontSize:9,color:"#7a6e65",letterSpacing:1,marginTop:2}}>{l}</div>
+            <div key={l} style={{background:"var(--t-card)",border:"1px solid var(--t-border)",padding:"12px 14px",textAlign:"center"}}>
+              <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:700,color:"var(--t-text)"}}>{n}</div>
+              <div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:1,marginTop:2}}>{l}</div>
             </div>
           ))}
         </div>
@@ -1950,7 +2018,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       <div onClick={adminTrigger} onTouchEnd={adminTrigger} style={{position:"absolute",bottom:0,left:0,width:50,height:50,opacity:0,cursor:"default",zIndex:10}}/>
     </section>
     {/* CATEGORY BAR */}
-    <div style={{background:"#fff",borderTop:"1px solid #e8e4df",borderBottom:"1px solid #e8e4df",position:"sticky",top:64,zIndex:99,overflowX:"auto"}}>
+    <div style={{background:"var(--t-card)",borderTop:"1px solid #e8e4df",borderBottom:"1px solid #e8e4df",position:"sticky",top:64,zIndex:99,overflowX:"auto"}}>
       <div style={{display:"flex",justifyContent:"center",minWidth:"max-content",margin:"0 auto"}}>
         {CATS.map(([c,lbl])=>(
           <button key={c} onClick={()=>{setCat(c);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}} style={{padding:"14px clamp(14px,2.5vw,28px)",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:10,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:cat===c?TH.text:TH.muted,borderBottom:cat===c?`2px solid ${TH.text}`:"2px solid transparent",transition:"all .25s",whiteSpace:"nowrap",flexShrink:0}}>
@@ -1961,12 +2029,12 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     </div>
     {/* VIDEO */}
     {settings.video_show==="true"&&settings.video_url&&(
-      <section style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",borderBottom:"1px solid #e8e4df",background:"#fff"}}>
+      <section style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",borderBottom:"1px solid #e8e4df",background:"var(--t-card)"}}>
         <div className="rv" style={{textAlign:"center",marginBottom:32}}>
-          <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>{settings.video_label||"Featured"}</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>{settings.video_title||"Watch Our Collection"}</div>
+          <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>{settings.video_label||"Featured"}</div>
+          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>{settings.video_title||"Watch Our Collection"}</div>
         </div>
-        <div className="rv" style={{maxWidth:920,margin:"0 auto",border:"1px solid #e0dbd3"}}>
+        <div className="rv" style={{maxWidth:920,margin:"0 auto",border:"1px solid var(--t-border)"}}>
           {(settings.video_url.includes("youtube")||settings.video_url.includes("youtu.be"))?
             <iframe src={"https://www.youtube.com/embed/"+(settings.video_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)||[])[1]+"?rel=0"} style={{width:"100%",height:"clamp(210px,45vw,520px)",border:"none"}} allowFullScreen/>:
             <video src={settings.video_url} controls style={{width:"100%",maxHeight:520,display:"block",background:"#111"}} preload="metadata"/>
@@ -1977,37 +2045,37 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* PRODUCTS */}
     <section id="prods" className="jf-prods-section" style={{background:`${TH.bg}`,borderBottom:`1px solid ${TH.border}`}}>
       <div style={{textAlign:"center",padding:"clamp(48px,6vw,68px) clamp(16px,4vw,60px) 28px"}}>
-        <div className="rv" style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Collection</div>
-        <div className="rv" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111",marginBottom:8}}>{cat==="All"?"All Collections":CAT_L[cat]||cat}</div>
+        <div className="rv" style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Collection</div>
+        <div className="rv" style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:8}}>{cat==="All"?"All Collections":CAT_L[cat]||cat}</div>
         <div className="rv" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
           <div style={{width:40,height:1,background:"#c9a84c"}}/>
-          <div style={{fontSize:9,color:"#7a6e65",letterSpacing:2}}>{filtered.length} pieces</div>
+          <div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:2}}>{filtered.length} pieces</div>
           <div style={{width:40,height:1,background:"#c9a84c"}}/>
         </div>
-        {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"#7a6e65",textAlign:"center",marginTop:8,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
+        {settings.sold_count&&<div className="rv" style={{fontSize:11,color:"var(--t-muted)",textAlign:"center",marginTop:8,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontStyle:"italic"}}>{settings.sold_count}+ pieces sold this month</div>}
       </div>
       {/* ── BRAND BAR ─────────────────────────────── */}
       <BrandBar prods={prods} cat={cat} brandFilter={brandFilter} setBrandFilter={setBrandFilter}/>
       {/* ── ADVANCED FILTERS ─────────────────────────── */}
-      <div style={{padding:"12px clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #f0ece0"}}>
+      <div style={{padding:"12px clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #f0ece0"}}>
         <div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",marginBottom:10}}>
-          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"#fff",color:"#4a4035",cursor:"pointer"}}>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"var(--t-card)",color:"#4a4035",cursor:"pointer"}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
-          {allBrands.length>2&&<select value={brandFilter} onChange={e=>setBrandFilter(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"#fff",color:"#4a4035",cursor:"pointer"}}>
+          {allBrands.length>2&&<select value={brandFilter} onChange={e=>setBrandFilter(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"var(--t-card)",color:"#4a4035",cursor:"pointer"}}>
             {allBrands.map(b=><option key={b} value={b}>{b==="All"?"All Brands":b}</option>)}
           </select>}
-          <span style={{fontSize:11,color:"#7a6e65",marginLeft:"auto"}}>{filtered.length} products</span>
+          <span style={{fontSize:11,color:"var(--t-muted)",marginLeft:"auto"}}>{filtered.length} products</span>
         </div>
         <div style={{maxWidth:320}}>
-          <div style={{fontSize:11,color:"#7a6e65",marginBottom:4}}>Price Range</div>
+          <div style={{fontSize:11,color:"var(--t-muted)",marginBottom:4}}>Price Range</div>
           <PriceSlider min={0} max={maxPrice} value={priceRange} onChange={setPriceRange}/>
         </div>
       </div>
 
       {/* Brand grouping handled by BrandBar above */}
       {filtered.length===0?(
-        <div style={{textAlign:"center",padding:64,color:"#8a7f76"}}><div style={{fontSize:40,marginBottom:12,opacity:.4}}>📦</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:18,color:"#7a6e65"}}>No products found</div></div>
+        <div style={{textAlign:"center",padding:64,color:"#8a7f76"}}><div style={{fontSize:40,marginBottom:12,opacity:.4}}>📦</div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,color:"var(--t-muted)"}}>No products found</div></div>
       ):(
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"clamp(12px,1.5vw,18px)",padding:"0 clamp(16px,4vw,60px) clamp(56px,7vw,80px)",maxWidth:1500,margin:"0 auto"}}>
           {prods.length===0&&!filtered.length
@@ -2022,16 +2090,16 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <MysteryGiftSection settings={settings} user={user} onAuth={setAuthModal} products={prods}/>
 
     {/* VISIT OUR STORE */}
-<section id="store-map" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#faf9f7",borderBottom:"1px solid #e8e4df"}}>
+<section id="store-map" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"var(--t-bg)",borderBottom:"1px solid #e8e4df"}}>
       <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(32px,5vw,72px)",alignItems:"start",maxWidth:1200,margin:"0 auto"}}>
         <div className="rv">
-          <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Find Us</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111",marginBottom:20}}>Visit Our Store</div>
+          <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Find Us</div>
+          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)",marginBottom:20}}>Visit Our Store</div>
           <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:28}}>
             {[["📍","Address",(settings.addr1||"Circular Road, Kunjah")+", "+(settings.addr2||"Distt Gujrat, Punjab")],["📞","Phone",settings.phone||"03228722232"],["💬","WhatsApp",settings.wa_number?"0"+settings.wa_number.slice(-10):"03228722232"],["⏰","Hours",settings.hours||"Mon-Sat: 10am-8pm"]].map(([ic,lbl,val])=>(
               <div key={lbl} style={{display:"flex",gap:14,alignItems:"flex-start"}}>
-                <div style={{width:36,height:36,background:"#f0ede8",border:"1px solid #e0dbd3",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{ic}</div>
-                <div><div style={{fontSize:9,letterSpacing:2,color:"#7a6e65",textTransform:"uppercase",fontWeight:700,marginBottom:2}}>{lbl}</div><div style={{fontSize:13,color:"#111"}}>{val}</div></div>
+                <div style={{width:36,height:36,background:"var(--t-surface)",border:"1px solid var(--t-border)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{ic}</div>
+                <div><div style={{fontSize:9,letterSpacing:2,color:"var(--t-muted)",textTransform:"uppercase",fontWeight:700,marginBottom:2}}>{lbl}</div><div style={{fontSize:13,color:"var(--t-text)"}}>{val}</div></div>
               </div>
             ))}
           </div>
@@ -2040,24 +2108,24 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
               <button style={{background:"#111",color:"#fff",border:"none",padding:"12px 28px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}><WaSvg/> WhatsApp</button>
             </a>
             <a href="https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
-              <button style={{background:"transparent",color:"#111",border:"1px solid #111",padding:"12px 24px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .2s",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>📍 Open in Maps</button>
+              <button style={{background:"transparent",color:"var(--t-text)",border:"1px solid #111",padding:"12px 24px",fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .2s",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>📍 Open in Maps</button>
             </a>
           </div>
         </div>
-        <div className="rv" style={{border:"1px solid #e0dbd3",overflow:"hidden"}}>
+        <div className="rv" style={{border:"1px solid var(--t-border)",overflow:"hidden"}}>
           <iframe title="Jameel Fabrics Location" src="https://maps.google.com/maps?q=Kunjah,+Gujrat,+Punjab,+Pakistan&output=embed&z=14" style={{width:"100%",height:"clamp(260px,40vw,420px)",border:"none",display:"block"}} loading="lazy"/>
-          <div style={{padding:"14px 16px",background:"#f0ede8",borderTop:"1px solid #e0dbd3",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:"#111"}}>Circular Road, Kunjah</div>
-            <a href="https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan" target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"#c9a84c",textDecoration:"none",fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Get Directions</a>
+          <div style={{padding:"14px 16px",background:"var(--t-surface)",borderTop:"1px solid #e0dbd3",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+            <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:700,color:"var(--t-text)"}}>Circular Road, Kunjah</div>
+            <a href="https://maps.google.com/?q=Kunjah+Gujrat+Punjab+Pakistan" target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:"var(--t-accent)",textDecoration:"none",fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Get Directions</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="policies" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
+    <section id="policies" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #e8e4df"}}>
       <div className="rv" style={{textAlign:"center",marginBottom:44}}>
-        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Promise</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Our Policies</div>
+        <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Our Promise</div>
+        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Our Policies</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16,maxWidth:1200,margin:"0 auto"}}>
         {[
@@ -2072,79 +2140,73 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     </section>
 
     {/* REVIEWS */}
-    <section id="reviews" style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"#fff",borderBottom:"1px solid #e8e4df"}}>
+    <section id="reviews" style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #e8e4df"}}>
       <div className="rv" style={{textAlign:"center",marginBottom:36}}>
-        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"#111"}}>Customer Reviews</div>
+        <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
+        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Customer Reviews</div>
       </div>
       <ReviewsSection/>
     </section>
 
-    <section style={{background:"#fdfcf8",padding:"56px clamp(16px,4vw,60px)",borderTop:"1px solid #f0ece0",borderBottom:"1px solid #f0ece0"}}>
-      <div style={{maxWidth:960,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"clamp(28px,4vw,60px)",alignItems:"center"}}>
-        <div>
-          <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Est. 1975</div>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(26px,3.5vw,40px)",fontWeight:600,color:"#1a1612",lineHeight:1.2,margin:"0 0 16px"}}>Jameel Fabrics<br/><em style={{fontWeight:300}}>Kunjah</em></h2>
-          <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#6b5f52",lineHeight:1.8,maxWidth:480,marginBottom:28}}>{settings?.story_text||"From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality."}</p>
-          <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
-            {[
-              [settings?.story_stat1||"50+",settings?.story_label1||"Years of Trust"],
-              [settings?.story_stat2||"10K+",settings?.story_label2||"Happy Customers"],
-              [settings?.story_stat3||"500+",settings?.story_label3||"Products"],
-            ].map(([n,d],i)=>(
-              <div key={i} style={{textAlign:"center"}}>
-                <div style={{fontSize:22,fontWeight:700,color:"#c9a84c",fontFamily:"'Cormorant Garamond',serif"}}>{n}</div>
-                <div style={{fontSize:10,color:"#7a6e65",letterSpacing:1,textTransform:"uppercase"}}>{d}</div>
+    <section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,60px)",background:`${TH.surface}`}}>
+      <div style={{maxWidth:960,margin:"0 auto"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:24,alignItems:"start"}}>
+
+          {/* ── Card 1: Our Story (show if story_show !== false) ── */}
+          {settings?.story_show!=="false"&&(
+            <div style={{background:`${TH.card}`,borderRadius:12,padding:"clamp(24px,4vw,36px)",border:`1px solid ${TH.border}`}}>
+              <div style={{fontSize:9,letterSpacing:4,color:TH.accent,textTransform:"uppercase",marginBottom:8}}>Since 1975</div>
+              <h2 style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.text,lineHeight:1.2,marginBottom:16}}>{settings?.story_title||"Our Story"}</h2>
+              <p style={{fontSize:13,color:TH.muted,lineHeight:1.8,marginBottom:24}}>{settings?.story_text||"From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality."}</p>
+              <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                {[[settings?.story_stat1||"50+",settings?.story_label1||"Years of Trust"],[settings?.story_stat2||"10K+",settings?.story_label2||"Happy Customers"],[settings?.story_stat3||"500+",settings?.story_label3||"Products"]].map(([n,l],i)=>(
+                  <div key={i} style={{textAlign:"center",padding:"10px 14px",background:TH.surface,borderRadius:8}}>
+                    <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:22,fontWeight:700,color:TH.accent,lineHeight:1}}>{n}</div>
+                    <div style={{fontSize:9,letterSpacing:1.5,textTransform:"uppercase",color:TH.muted,marginTop:3}}>{l}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-        <div style={{background:"linear-gradient(135deg,#1a1612,#2c2416)",borderRadius:12,padding:"32px 28px",color:"#fff"}}>
-          <div style={{fontSize:11,letterSpacing:3,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Why Choose Us</div>
-          {[["🧵","Premium Quality","Only the finest Pakistani fabrics"],["✂️","Expert Craftsmanship","Decades of tailoring expertise"],["🚚","Nationwide Delivery","Fast & secure shipping"],["💬","Personal Service","Guidance on every purchase"]].map(([ic,t,d],i)=>(
-            <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:i<3?16:0}}>
-              <span style={{fontSize:18,marginTop:2}}>{ic}</span>
-              <div><div style={{fontWeight:600,fontSize:13,marginBottom:2}}>{t}</div><div style={{fontSize:12,color:"rgba(255,255,255,.55)"}}>{d}</div></div>
             </div>
-          ))}
+          )}
+
+          {/* ── Card 2: Why Choose Us (show if features_show !== false) ── */}
+          {settings?.features_show!=="false"&&(
+            <div style={{background:`${TH.dark}`,borderRadius:12,padding:"clamp(24px,4vw,36px)"}}>
+              <div style={{fontSize:9,letterSpacing:4,color:TH.accent,textTransform:"uppercase",marginBottom:8,opacity:.7}}>Why Choose Us</div>
+              <h2 style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:"clamp(22px,3vw,32px)",fontWeight:600,color:TH.darkText,lineHeight:1.2,marginBottom:20}}>{settings?.features_title||"Our Commitment to Excellence"}</h2>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                {[
+                  [settings?.feat1_title||"Premium Brands",settings?.feat1_desc||"Gul Ahmed, Alkaram, Sapphire & all top brands — 100% genuine.","🧵"],
+                  [settings?.feat2_title||"50+ Years Experience",settings?.feat2_desc||"Serving families since 1975. Generations of trust.","⭐"],
+                  [settings?.feat3_title||"All Categories",settings?.feat3_desc||"Women, Men, Kids, Abayas, Bedsheets & more.","👗"],
+                  [settings?.feat4_title||"Nationwide Delivery",settings?.feat4_desc||"Fast & secure delivery across Pakistan.","🚚"],
+                  [settings?.feat5_title||"Easy Online Shopping",settings?.feat5_desc||"Browse, order, delivered to your door.","📱"],
+                  [settings?.feat6_title||"WhatsApp Support",settings?.feat6_desc||"Instant support via WhatsApp anytime.","💬"],
+                ].map(([title,desc,icon],i)=>(
+                  <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                    <span style={{fontSize:16,flexShrink:0,marginTop:1}}>{icon}</span>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:600,color:TH.darkText,marginBottom:2}}>{title}</div>
+                      <div style={{fontSize:11,color:`${TH.darkText}88`,lineHeight:1.6}}>{desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </section>
     
-    {/* FEATURES SECTION */}
-    <section style={{background:`${TH.dark}`,padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)"}}>
-      <div style={{textAlign:"center",marginBottom:40}}>
-        <div style={{fontSize:9,letterSpacing:4,color:TH.accent,textTransform:"uppercase",marginBottom:8,opacity:.7}}>Why Choose Us</div>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(24px,3.5vw,40px)",fontWeight:600,color:TH.darkText,lineHeight:1.2}}>
-          {settings?.features_title||"Our Commitment to Excellence"}
-        </h2>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16,maxWidth:1100,margin:"0 auto"}}>
-        {[
-          [settings?.feat1_title||"Premium Brands",settings?.feat1_desc||"Gul Ahmed, Alkaram, Sapphire & all top Pakistani brands — 100% genuine.","🧵"],
-          [settings?.feat2_title||"50+ Years Experience",settings?.feat2_desc||"Serving families since 1975. Generations of trust and quality.","⭐"],
-          [settings?.feat3_title||"All Categories",settings?.feat3_desc||"Women, Men, Kids, Abayas, Bedsheets, Blankets & more under one roof.","👗"],
-          [settings?.feat4_title||"Nationwide Delivery",settings?.feat4_desc||"Fast & secure delivery to every corner of Pakistan.","🚚"],
-          [settings?.feat5_title||"Easy Online Shopping",settings?.feat5_desc||"Browse, select, order — delivered to your door with ease.","📱"],
-          [settings?.feat6_title||"WhatsApp Support",settings?.feat6_desc||"Instant support via WhatsApp. We're always here for you.","💬"],
-        ].map(([title,desc,icon],i)=>(
-          <div key={i} style={{background:"rgba(255,255,255,.04)",border:`1px solid ${TH.accent}1a`,borderRadius:8,padding:"clamp(20px,3vw,28px)",transition:"all .25s",cursor:"default"}}
-            onMouseEnter={e=>{e.currentTarget.style.background=`rgba(255,255,255,.07)`;e.currentTarget.style.borderColor=`${TH.accent}44`;}}
-            onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";e.currentTarget.style.borderColor=`${TH.accent}1a`;}}>
-            <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(16px,2vw,20px)",fontWeight:600,color:TH.darkText,marginBottom:8,lineHeight:1.2}}>{title}</div>
-            <div style={{fontSize:12,color:`${TH.darkText}88`,lineHeight:1.7}}>{desc}</div>
-          </div>
-        ))}
-      </div>
-    </section>
+    
 
 {/* FOOTER */}
     <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 28px"}}>
       <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"1.8fr 1fr 1fr 1fr",gap:"clamp(24px,3.5vw,52px)",marginBottom:52,maxWidth:1200,margin:"0 auto 52px"}}>
         <div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
+          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+          <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
           <p style={{fontSize:11,color:"rgba(255,255,255,.6)",lineHeight:2,marginBottom:20}}>Premium Pakistani fabrics. Exclusive designs, exceptional quality, trusted by families since 1975.</p>
           <div style={{display:"flex",gap:10}}>
             {[{url:settings.insta||"#",bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",ic:<IgSvg/>},{url:"https://wa.me/"+wa,bg:"#25D366",ic:<WaSvg/>},{url:settings.tiktok||"#",bg:"#010101",ic:<TkSvg/>,border:"1px solid rgba(255,255,255,.15)"},{url:settings.fb||"#",bg:"#1877F2",ic:<FbSvg/>}].map((s,i)=>(
@@ -2185,32 +2247,32 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
 function AccountPage({user,onBack}){
   const[orders,setOrders]=useState([]);const[wl,setWl]=useState([]);
   useEffect(()=>{if(!sb||!user)return;sb.from("online_orders").select("*").eq("customer_id",user.id).order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWl(data||[]));},[user]);
-  const C={background:"#fff",border:"1px solid #e8e4df",padding:24,marginBottom:16};
-  return(<div style={{background:"#faf9f7",minHeight:"100vh",fontFamily:"'Jost',sans-serif"}}>
-    <div style={{background:"#fff",borderBottom:"1px solid #e8e4df",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16,position:"sticky",top:0,zIndex:100}}>
-      <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"#7a6e65",fontSize:13,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+  const C={background:"var(--t-card)",border:"1px solid var(--t-border)",padding:24,marginBottom:16};
+  return(<div style={{background:"var(--t-bg)",minHeight:"100vh",fontFamily:`${TH.bodyFont||"'Jost',sans-serif"}`}}>
+    <div style={{background:"var(--t-card)",borderBottom:"1px solid #e8e4df",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16,position:"sticky",top:0,zIndex:100}}>
+      <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"var(--t-muted)",fontSize:13,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6"/></svg> Back
       </button>
-      <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:700}}>My Account</div>
+      <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:18,fontWeight:700}}>My Account</div>
     </div>
     <div style={{maxWidth:820,margin:"0 auto",padding:"28px clamp(16px,4vw,40px)"}}>
       <div style={C}><div style={{fontSize:15,fontWeight:600,marginBottom:12}}>Account Info</div><div style={{fontSize:14,color:"#6b6358",marginBottom:5}}><strong>Email:</strong> {user.email}</div><div style={{fontSize:14,color:"#6b6358"}}><strong>Name:</strong> {user.user_metadata?.full_name||"Not set"}</div></div>
       <div style={C}>
         <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>My Orders ({orders.length})</div>
-        {!orders.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:16}}>No orders yet</div></div>:
+        {!orders.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:16}}>No orders yet</div></div>:
           orders.map(o=><div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:"1px solid #f0ede8",flexWrap:"wrap",gap:10}}>
             <div><div style={{fontWeight:600,fontSize:13}}>#{o.id.slice(-6).toUpperCase()}</div><div style={{fontSize:11,color:"#8a7f76",marginTop:2}}>{(o.items||[]).length} items - {new Date(o.created_at).toLocaleDateString()}</div></div>
-            <div style={{display:"flex",gap:12,alignItems:"center"}}><div style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:18}}>Rs.{Number(o.total).toLocaleString()}</div><span style={{padding:"3px 10px",fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span></div>
+            <div style={{display:"flex",gap:12,alignItems:"center"}}><div style={{fontWeight:700,fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:18}}>Rs.{Number(o.total).toLocaleString()}</div><span style={{padding:"3px 10px",fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span></div>
           </div>)
         }
       </div>
       <div style={C}>
         <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>Wishlist ({wl.length})</div>
-        {!wl.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:16}}>No saved items</div></div>:
+        {!wl.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:16}}>No saved items</div></div>:
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:14}}>
-            {wl.map(w=><div key={w.id} style={{border:"1px solid #e8e4df",overflow:"hidden"}}>
+            {wl.map(w=><div key={w.id} style={{border:"1px solid var(--t-border)",overflow:"hidden"}}>
               <div style={{aspectRatio:"3/4",background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:36}}>{w.products?.icon||"👗"}</div>
-              <div style={{padding:"10px 12px"}}><div style={{fontWeight:600,fontSize:13}}>{w.products?.name||""}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.sale_price||w.products?.price||0).toLocaleString()}</div></div>
+              <div style={{padding:"10px 12px"}}><div style={{fontWeight:600,fontSize:13}}>{w.products?.name||""}</div><div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:16,fontWeight:700,marginTop:4}}>Rs.{Number(w.products?.sale_price||w.products?.price||0).toLocaleString()}</div></div>
             </div>)}
           </div>
         }
@@ -2430,7 +2492,7 @@ function ABillTemplates(){
               <ACard key={t.id} style={{padding:16}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
                   <div>
-                    <div style={{fontWeight:700,fontSize:14,color:"#111"}}>{t.name}</div>
+                    <div style={{fontWeight:700,fontSize:14,color:"var(--t-text)"}}>{t.name}</div>
                     <div style={{fontSize:11,color:"#6b7280",marginTop:2,whiteSpace:"pre-line",maxHeight:40,overflow:"hidden"}}>{t.header?.slice(0,80)}...</div>
                   </div>
                   <div style={{display:"flex",gap:6}}>
@@ -2445,7 +2507,7 @@ function ABillTemplates(){
 
       {edit&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setEdit(null)}>
-          <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:500,maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+          <div style={{background:"var(--t-card)",borderRadius:12,padding:24,width:"100%",maxWidth:500,maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
             <div style={{fontWeight:700,fontSize:15,marginBottom:16}}>{edit==="new"?"New Template":"Edit Template"}</div>
             <div style={{marginBottom:10}}><ALbl c="Template Name"/><AI value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Default Bill"/></div>
             <div style={{marginBottom:10}}>
@@ -2617,7 +2679,7 @@ function ABrands(){
             <ACard key={k} style={{padding:18}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <div>
-                  <div style={{fontWeight:700,fontSize:13,color:"#111"}}>{l}</div>
+                  <div style={{fontWeight:700,fontSize:13,color:"var(--t-text)"}}>{l}</div>
                   <div style={{fontSize:11,color:"#9ca3af"}}>{list.length}/{max} brands</div>
                 </div>
                 <div style={{width:36,height:36,borderRadius:"50%",background:list.length>=max?"#fee2e2":"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:list.length>=max?"#dc2626":"#16a34a"}}>
@@ -2662,7 +2724,7 @@ class ErrorBoundary extends React.Component{
     if(this.state.err)return(
       <div style={{padding:40,textAlign:"center",fontFamily:"'Inter',sans-serif"}}>
         <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
-        <div style={{fontWeight:600,fontSize:16,color:"#111",marginBottom:8}}>Something went wrong</div>
+        <div style={{fontWeight:600,fontSize:16,color:"var(--t-text)",marginBottom:8}}>Something went wrong</div>
         <div style={{fontSize:12,color:"#9ca3af",marginBottom:20,maxWidth:400,margin:"0 auto 20px"}}>{this.state.err.message}</div>
         <button onClick={()=>this.setState({err:null})} style={{background:"#111",color:"#fff",border:"none",padding:"10px 24px",borderRadius:6,cursor:"pointer",fontSize:13}}>Try Again</button>
       </div>
@@ -2676,22 +2738,22 @@ function AdminLogin({onSuccess,onCancel}){
   const[pass,setPass]=useState("");const[loading,setLoading]=useState(false);
   async function check(){setLoading(true);let ok=false;if(sb){const{data}=await sb.from("website_settings").select("value").eq("key","admin_pass").single();ok=data?.value===pass;}else ok=pass==="jameel@admin2026";setLoading(false);if(ok)onSuccess();else{setPass("");toast("Wrong password!","error");}}
   return(<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(0,0,0,.88)",display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(10px)"}}>
-    <div style={{background:"#faf9f7",padding:"44px 40px",width:"100%",maxWidth:360,textAlign:"center"}}>
-      <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:"#111",marginBottom:4}}>Admin Panel</div>
-      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,color:"#7a6e65",fontStyle:"italic",marginBottom:32}}>Jameel Fabrics</div>
-      <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&check()} style={{width:"100%",border:"none",borderBottom:"1px solid #d0ccc5",padding:"12px 0",fontSize:17,color:"#111",outline:"none",textAlign:"center",letterSpacing:5,marginBottom:24,fontFamily:"inherit",background:"transparent"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/>
+    <div style={{background:"var(--t-bg)",padding:"44px 40px",width:"100%",maxWidth:360,textAlign:"center"}}>
+      <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:24,fontWeight:700,color:"var(--t-text)",marginBottom:4}}>Admin Panel</div>
+      <div style={{fontFamily:`${TH.headingFont||"'Cormorant Garamond',serif"}`,fontSize:13,color:"var(--t-muted)",fontStyle:"italic",marginBottom:32}}>Jameel Fabrics</div>
+      <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&check()} style={{width:"100%",border:"none",borderBottom:"1px solid #d0ccc5",padding:"12px 0",fontSize:17,color:"var(--t-text)",outline:"none",textAlign:"center",letterSpacing:5,marginBottom:24,fontFamily:"inherit",background:"transparent"}} onFocus={e=>e.target.style.borderBottomColor="#111"} onBlur={e=>e.target.style.borderBottomColor="#d0ccc5"}/>
       <button onClick={check} disabled={loading} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:14,fontSize:10,fontWeight:700,letterSpacing:3.5,cursor:loading?"not-allowed":"pointer",fontFamily:"inherit",textTransform:"uppercase",marginBottom:12,opacity:loading?.6:1}} onMouseEnter={e=>!loading&&(e.currentTarget.style.background="#2a2520")} onMouseLeave={e=>e.currentTarget.style.background="#111"}>{loading?"Verifying...":"Unlock"}</button>
       <button onClick={onCancel} style={{background:"none",border:"none",color:"#8a7f76",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
     </div>
   </div>);
 }
 
-const ACard=({children,style})=><div style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:10,...style}}>{children}</div>;
+const ACard=({children,style})=><div style={{background:"var(--t-card)",border:"1px solid #e5e7eb",borderRadius:10,...style}}>{children}</div>;
 const ABtn=({sm,children,...p})=><button {...p} style={{display:"inline-flex",alignItems:"center",gap:6,padding:sm?"5px 12px":"9px 18px",borderRadius:6,fontSize:sm?11:13,fontWeight:500,cursor:"pointer",border:"none",fontFamily:"inherit",transition:"all .15s",...p.style}}>{children}</button>;
-function AI({...p}){return<input {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",...p.style}} onFocus={e=>{e.target.style.borderColor="#111";p.onFocus&&p.onFocus(e);}} onBlur={e=>{e.target.style.borderColor="#e5e7eb";p.onBlur&&p.onBlur(e);}}/>;}
-function AS({children,...p}){return<select {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",cursor:"pointer",...p.style}}>{children}</select>;}
+function AI({...p}){return<input {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",...p.style}} onFocus={e=>{e.target.style.borderColor="#111";p.onFocus&&p.onFocus(e);}} onBlur={e=>{e.target.style.borderColor="#e5e7eb";p.onBlur&&p.onBlur(e);}}/>;}
+function AS({children,...p}){return<select {...p} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",cursor:"pointer",...p.style}}>{children}</select>;}
 const Bdg=({c,children})=><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:c==="g"?"#dcfce7":c==="y"?"#fef9c3":c==="r"?"#fee2e2":c==="b"?"#dbeafe":"#f3f4f6",color:c==="g"?"#16a34a":c==="y"?"#ca8a04":c==="r"?"#dc2626":c==="b"?"#2563eb":"#6b7280"}}>{children}</span>;
-const AH=({title,sub})=><div style={{marginBottom:22}}><div style={{fontSize:22,fontWeight:700,fontFamily:"'Playfair Display',serif",marginBottom:4,color:"#111"}}>{title}</div>{sub&&<div style={{fontSize:13,color:"#6b7280"}}>{sub}</div>}</div>;
+const AH=({title,sub})=><div style={{marginBottom:22}}><div style={{fontSize:22,fontWeight:700,fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,marginBottom:4,color:"var(--t-text)"}}>{title}</div>{sub&&<div style={{fontSize:13,color:"#6b7280"}}>{sub}</div>}</div>;
 const ALbl=({c})=><div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>{c}</div>;
 
 function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
@@ -2706,17 +2768,17 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
   return(<div>
     {/* Header */}
     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:24,gap:12,flexWrap:"wrap"}}>
-      <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:700,color:"#111827"}}>Good Morning 👋</div><div style={{fontSize:13,color:"#6b7280",marginTop:3}}>Here's what's happening with your store today</div></div>
+      <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:22,fontWeight:700,color:"#111827"}}>Good Morning 👋</div><div style={{fontSize:13,color:"#6b7280",marginTop:3}}>Here's what's happening with your store today</div></div>
       <button onClick={()=>onNav("products")} style={{background:"#0f0d0a",color:"#fff",border:"none",padding:"9px 18px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#0f0d0a"}>+ Add Product</button>
     </div>
     {/* Stats */}
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:16,marginBottom:20}}>
-      {stats.map(s=><div key={s.l} style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:12,padding:20,transition:"box-shadow .2s",cursor:"default"}} onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 6px rgba(0,0,0,.07)"} onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
+      {stats.map(s=><div key={s.l} style={{background:"var(--t-card)",border:"1px solid #e5e7eb",borderRadius:12,padding:20,transition:"box-shadow .2s",cursor:"default"}} onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 6px rgba(0,0,0,.07)"} onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
           <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
           <div style={{width:36,height:36,borderRadius:8,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",color:s.ibc}}>{s.ic}</div>
         </div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:700,color:"#111827",marginBottom:4}}>{s.v}</div>
+        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:26,fontWeight:700,color:"#111827",marginBottom:4}}>{s.v}</div>
         <div style={{fontSize:12,color:"#9ca3af"}}>{s.change}</div>
       </div>)}
     </div>
@@ -2771,7 +2833,7 @@ function ADash({prods,orders,alerts,pending,todayOrders,todayRev,onNav}){
           <tbody>
             {!orders?.length?<tr><td colSpan={6} style={{padding:40,textAlign:"center",color:"#9ca3af"}}>No orders yet</td></tr>:
               orders.slice(0,5).map(o=><tr key={o.id}>
-                <td className="adm-td"><span style={{fontWeight:700,color:"#c9a84c",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</span></td>
+                <td className="adm-td"><span style={{fontWeight:700,color:"var(--t-accent)",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</span></td>
                 <td className="adm-td"><div style={{fontWeight:500,fontSize:13}}>{o.customer_name||"Customer"}</div><div style={{fontSize:11,color:"#6b7280"}}>{o.customer_email||""}</div></td>
                 <td className="adm-td" style={{color:"#6b7280"}}>{(o.items||[]).length} items</td>
                 <td className="adm-td"><span style={{fontWeight:700}}>Rs.{Number(o.total||0).toLocaleString()}</span></td>
@@ -2794,7 +2856,7 @@ function APending({pending,onRefresh}){
       pending.map(p=><ACard key={p.id} style={{padding:16,marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div style={{width:48,height:58,background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>{(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}</div>
-          <div><div style={{fontWeight:700,fontSize:15,color:"#111"}}>{p.name}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{CAT_L[p.cat]||p.category||""} - Rs.{Number(p.sale_price||p.price||0).toLocaleString()} - Stock: {p.real_stock||p.stock||0}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c="">ERP</Bdg><Bdg c="y">Pending</Bdg></div></div>
+          <div><div style={{fontWeight:700,fontSize:15,color:"var(--t-text)"}}>{p.name}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{CAT_L[p.cat]||p.category||""} - Rs.{Number(p.sale_price||p.price||0).toLocaleString()} - Stock: {p.real_stock||p.stock||0}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c="">ERP</Bdg><Bdg c="y">Pending</Bdg></div></div>
         </div>
         <div style={{display:"flex",gap:8}}>
           <ABtn onClick={()=>approve(p)} style={{background:"#111",color:"#fff"}}>✓ Approve</ABtn>
@@ -2810,10 +2872,10 @@ function AAlerts({alerts,onRefresh}){
   async function resolve(a){if(!sb)return;await sb.from("website_alerts").update({resolved:true}).eq("id",a.id);toast("Resolved");onRefresh();}
   return(<div><AH title="Stock Alerts" sub="ERP pe sale hone ke baad updates"/>
     {!alerts.length?<ACard style={{padding:48,textAlign:"center",color:"#9ca3af"}}><div style={{fontSize:36,marginBottom:12}}>✓</div><div style={{fontWeight:600}}>No alerts</div></ACard>:
-      alerts.map(a=><div key={a.id} style={{background:"#fff",border:"1px solid #e5e7eb",borderLeft:"3px solid "+(a.alert_type==="sold"||a.type==="sold_out"?"#ef4444":"#f59e0b"),borderRadius:8,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+      alerts.map(a=><div key={a.id} style={{background:"var(--t-card)",border:"1px solid #e5e7eb",borderLeft:"3px solid "+(a.alert_type==="sold"||a.type==="sold_out"?"#ef4444":"#f59e0b"),borderRadius:8,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <div style={{width:36,height:36,borderRadius:8,background:a.alert_type==="sold"||a.type==="sold_out"?"#fee2e2":"#fef3c7",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{a.alert_type==="sold"||a.type==="sold_out"?"X":"!"}</div>
-          <div><div style={{fontWeight:600,fontSize:13,color:"#111"}}>{a.product_name}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{a.message}</div>{a.qty_remaining!=null&&<div style={{fontSize:11,color:"#ef4444",fontWeight:700,marginTop:2}}>Remaining: {a.qty_remaining}</div>}</div>
+          <div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{a.product_name}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{a.message}</div>{a.qty_remaining!=null&&<div style={{fontSize:11,color:"#ef4444",fontWeight:700,marginTop:2}}>Remaining: {a.qty_remaining}</div>}</div>
         </div>
         <div style={{display:"flex",gap:8}}>
           <ABtn sm onClick={()=>minus(a)} style={{background:"#fee2e2",color:"#dc2626"}}>-1 Stock</ABtn>
@@ -2840,8 +2902,8 @@ function AProducts({products,onRefresh}){
       err=res.error;
     }
     if(err){
-      if(err.message?.includes("RLS")||err.message?.includes("policy")||err.code==="42501"){
-        toast("⚠️ Permission error — run SQL fix in Supabase","error");
+      if(err.message?.includes("RLS")||err.message?.includes("policy")||err.code==="42501"||err.code==="42000"||err.message?.includes("violates")||err.message?.includes("permission")){
+        toast("⚠️ RLS Error — Supabase SQL Editor mein yeh run karo: DROP POLICY IF EXISTS \"Anyone can manage products\" ON products; CREATE POLICY \"open_products\" ON products FOR ALL USING (true) WITH CHECK (true);","error");
         console.error("RLS Error:",err);
       }else{
         toast("Error: "+err.message,"error");
@@ -2859,9 +2921,9 @@ function AProducts({products,onRefresh}){
     </div>
     {editP&&(
       <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.55)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-        <div style={{background:"#fff",width:"100%",maxWidth:640,maxHeight:"90vh",overflowY:"auto",borderRadius:10,boxShadow:"0 25px 60px rgba(0,0,0,.25)"}}>
-          <div style={{padding:"20px 24px",borderBottom:"1px solid #e5e7eb",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"#fff",zIndex:1}}>
-            <div style={{fontSize:16,fontWeight:600,color:"#111"}}>{editP.id==="new"?"Add Product":"Edit Product"}</div>
+        <div style={{background:"var(--t-card)",width:"100%",maxWidth:640,maxHeight:"90vh",overflowY:"auto",borderRadius:10,boxShadow:"0 25px 60px rgba(0,0,0,.25)"}}>
+          <div style={{padding:"20px 24px",borderBottom:"1px solid #e5e7eb",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"var(--t-card)",zIndex:1}}>
+            <div style={{fontSize:16,fontWeight:600,color:"var(--t-text)"}}>{editP.id==="new"?"Add Product":"Edit Product"}</div>
             <button onClick={()=>setEditP(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#9ca3af"}}>x</button>
           </div>
           <div style={{padding:24}}>
@@ -2890,7 +2952,7 @@ function AProducts({products,onRefresh}){
                     {(form["img"+n]||form["photo_url"+(n===1?"":n)])?<img src={form["img"+n]||form["photo_url"+(n===1?"":n)]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(n===1?"img":"+")}
                   </div>
                   <AI value={form["img"+n]||form["photo_url"+(n===1?"":n)]||""} onChange={e=>setForm({...form,["img"+n]:e.target.value,["photo_url"+(n===1?"":n)]:e.target.value})} placeholder={"Image "+n+(n===1?" (main — URL ya upload karo)":"")} style={{flex:1}}/>
-                  <label style={{flexShrink:0,background:"#f0ede8",border:"1px solid #d0ccc5",padding:"8px 10px",cursor:"pointer",fontSize:11,fontWeight:600,color:"#7a6e65",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:4}}>
+                  <label style={{flexShrink:0,background:"var(--t-surface)",border:"1px solid #d0ccc5",padding:"8px 10px",cursor:"pointer",fontSize:11,fontWeight:600,color:"var(--t-muted)",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:4}}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Upload
                     <input type="file" accept="image/*" style={{display:"none"}} onChange={async(e)=>{
@@ -2908,13 +2970,13 @@ function AProducts({products,onRefresh}){
                 </div>
               ))}
             </div>
-            <div style={{marginTop:14}}><ALbl c="WA Note"/><textarea value={form.note||""} onChange={e=>setForm({...form,note:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:60,resize:"vertical"}} placeholder="Note for WA order..."/></div>
+            <div style={{marginTop:14}}><ALbl c="WA Note"/><textarea value={form.note||""} onChange={e=>setForm({...form,note:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",minHeight:60,resize:"vertical"}} placeholder="Note for WA order..."/></div>
             <div style={{display:"flex",gap:20,marginTop:14}}>
               <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.active!==false} onChange={e=>setForm({...form,active:e.target.checked})} style={{accentColor:"#111"}}/>Show on website</label>
               <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.featured||false} onChange={e=>setForm({...form,featured:e.target.checked})} style={{accentColor:"#111"}}/>Featured</label>
             </div>
           </div>
-          <div style={{padding:"16px 24px",borderTop:"1px solid #e5e7eb",display:"flex",justifyContent:"flex-end",gap:8,position:"sticky",bottom:0,background:"#fff"}}>
+          <div style={{padding:"16px 24px",borderTop:"1px solid #e5e7eb",display:"flex",justifyContent:"flex-end",gap:8,position:"sticky",bottom:0,background:"var(--t-card)"}}>
             <ABtn onClick={()=>setEditP(null)} style={{background:"transparent",color:"#6b7280",border:"1px solid #e5e7eb"}}>Cancel</ABtn>
             <ABtn onClick={save} style={{background:saved?"#16a34a":"#111",color:"#fff",transition:"background .3s"}}>{saving?"Saving...":saved?"✓ Saved":"Save"}</ABtn>
           </div>
@@ -2926,10 +2988,10 @@ function AProducts({products,onRefresh}){
         <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Product","Category","Price","Stock Text","Status","Actions"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
         <tbody>
           {products.map(p=><tr key={p.id} style={{borderBottom:"1px solid #f3f4f6"}}>
-            <td style={{padding:"12px 16px"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:48,background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>{(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}</div><div><div style={{fontWeight:600,fontSize:13,color:"#111"}}>{p.name}</div><div style={{fontSize:11,color:"#9ca3af"}}>{p.color||""}</div></div></div></td>
+            <td style={{padding:"12px 16px"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:48,background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>{(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}</div><div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{p.name}</div><div style={{fontSize:11,color:"#9ca3af"}}>{p.color||""}</div></div></div></td>
             <td style={{padding:"12px 16px",fontSize:12,color:"#6b7280"}}>{CAT_L[p.cat]||p.category||""}</td>
             <td style={{padding:"12px 16px"}}><div style={{fontWeight:600,color:p.old_price?"#b91c1c":"#111"}}>Rs.{Number(p.sale_price||p.price||0).toLocaleString()}</div>{p.old_price&&<div style={{fontSize:11,textDecoration:"line-through",color:"#9ca3af"}}>Rs.{Number(p.old_price).toLocaleString()}</div>}</td>
-            <td style={{padding:"12px 16px",fontSize:12,color:"#7a6e65",fontStyle:"italic"}}>{p.display_stock_text||"In Stock"}</td>
+            <td style={{padding:"12px 16px",fontSize:12,color:"var(--t-muted)",fontStyle:"italic"}}>{p.display_stock_text||"In Stock"}</td>
             <td style={{padding:"12px 16px"}}><Bdg c={p.active?"g":""}>{p.active?"Active":"Hidden"}</Bdg></td>
             <td style={{padding:"12px 16px"}}><div style={{display:"flex",gap:4}}>
               <ABtn sm onClick={()=>open(p)} style={{background:"transparent",border:"1px solid #e5e7eb",color:"#374151"}}>Edit</ABtn>
@@ -2951,8 +3013,8 @@ function AOrders({orders,wa}){
         <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Order","Customer","Items","Total","Status","Date","Actions"].map(h=><th key={h} style={{padding:"10px 14px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
         <tbody>
           {orders.map(o=><tr key={o.id} style={{borderBottom:"1px solid #f3f4f6"}}>
-            <td style={{padding:"12px 14px",fontWeight:700,color:"#c9a84c",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</td>
-            <td style={{padding:"12px 14px"}}><div style={{fontWeight:600,fontSize:13,color:"#111"}}>{o.customer_name||"Customer"}</div><div style={{fontSize:11,color:"#9ca3af"}}>{o.customer_email||""}</div></td>
+            <td style={{padding:"12px 14px",fontWeight:700,color:"var(--t-accent)",fontSize:12}}>#{o.id.slice(-6).toUpperCase()}</td>
+            <td style={{padding:"12px 14px"}}><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{o.customer_name||"Customer"}</div><div style={{fontSize:11,color:"#9ca3af"}}>{o.customer_email||""}</div></td>
             <td style={{padding:"12px 14px",fontSize:12,color:"#6b7280"}}>{(o.items||[]).length}</td>
             <td style={{padding:"12px 14px",fontWeight:700,fontSize:13}}>Rs.{Number(o.total).toLocaleString()}</td>
             <td style={{padding:"12px 14px"}}><Bdg c={o.status==="pending"?"y":o.status==="confirmed"?"g":"b"}>{o.status}</Bdg></td>
@@ -2975,7 +3037,7 @@ function ACoupons({coupons,onRefresh}){
   async function del(id){if(!sb||!window.confirm("Delete?"))return;await sb.from("coupons").delete().eq("id",id);onRefresh();}
   return(<div><AH title="Coupons" sub="Discount codes manage karo"/>
     <ACard style={{padding:20,marginBottom:20}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Create Coupon</div>
+      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Create Coupon</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <div style={{gridColumn:"1/-1"}}><ALbl c="Code *"/><AI value={f.code} onChange={e=>setF({...f,code:e.target.value.toUpperCase()})} placeholder="e.g. SAVE20" style={{fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}/></div>
         <div><ALbl c="Type"/><AS value={f.type} onChange={e=>setF({...f,type:e.target.value})}><option value="percent">Percentage (%)</option><option value="flat">Fixed (Rs.)</option></AS></div>
@@ -2986,7 +3048,7 @@ function ACoupons({coupons,onRefresh}){
       <ABtn onClick={save} style={{background:"#111",color:"#fff",marginTop:14}}>+ Create Coupon</ABtn>
     </ACard>
     {coupons.map(c=><ACard key={c.id} style={{padding:"16px 20px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-      <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,letterSpacing:2,color:"#111"}}>{c.code}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>{c.type==="percent"?c.value+"%":"Rs."+c.value} off{c.min_order?" - Min Rs."+c.min_order:""}{c.expires_at?" - Expires "+new Date(c.expires_at).toLocaleDateString():""}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c={c.active?"g":""}>{c.active?"Active":"Inactive"}</Bdg><Bdg c="">{c.used_count||0} used</Bdg></div></div>
+      <div><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:20,fontWeight:700,letterSpacing:2,color:"var(--t-text)"}}>{c.code}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:4}}>{c.type==="percent"?c.value+"%":"Rs."+c.value} off{c.min_order?" - Min Rs."+c.min_order:""}{c.expires_at?" - Expires "+new Date(c.expires_at).toLocaleDateString():""}</div><div style={{display:"flex",gap:6,marginTop:6}}><Bdg c={c.active?"g":""}>{c.active?"Active":"Inactive"}</Bdg><Bdg c="">{c.used_count||0} used</Bdg></div></div>
       <ABtn onClick={()=>del(c.id)} style={{background:"#fee2e2",color:"#dc2626"}}>Delete</ABtn>
     </ACard>)}
   </div>);
@@ -2997,7 +3059,11 @@ function AContent({settings}){
   const[saved,setSaved]=useState(false);
   const[vidUploading,setVidUploading]=useState(false);
   const[debRef]=useState({});
-  useEffect(()=>{if(settings&&Object.keys(settings).length>0)setF({...settings});},[settings]);
+  useEffect(()=>{
+    if(settings&&Object.keys(settings).length>0){
+      setF(prev=>({...settings,...prev})); // keep local unsaved changes on top
+    }
+  },[]);  // only on mount - don't override user edits
 
   // Auto-save individual field on change
   function updateF(key,val){
@@ -3035,12 +3101,23 @@ function AContent({settings}){
 
   async function uploadBanner(file){
     if(!file)return;
+    if(!sb){alert("Supabase not connected");return;}
+    // Try Supabase Storage first, fallback to base64
+    try{
+      const ext=file.name.split(".").pop();
+      const path="banners/hero_"+Date.now()+"."+ext;
+      const{data,error}=await sb.storage.from("images").upload(path,file,{contentType:file.type,upsert:true});
+      if(!error){
+        const{data:{publicUrl}}=sb.storage.from("images").getPublicUrl(path);
+        updateF("hero_banner_url",publicUrl);
+        updateF("hero_banner_show","true");
+        return;
+      }
+    }catch{}
+    // Fallback: base64 (small images only)
+    if(file.size>500*1024){alert("Image too large (max 500KB). Supabase Storage bucket 'images' create karo.");return;}
     const r=new FileReader();
-    r.onload=async ev=>{
-      const url=ev.target.result;
-      updateF("hero_banner_url",url);
-      updateF("hero_banner_show","true");
-    };
+    r.onload=async ev=>{updateF("hero_banner_url",ev.target.result);updateF("hero_banner_show","true");};
     r.readAsDataURL(file);
   }
 
@@ -3053,7 +3130,9 @@ function AContent({settings}){
     {t:"🏷️ Brand Ticker",fields:[["ticker_brands","Brands (· se alag karo)",true]]},
     {t:"📊 Stats",fields:[["sold_count","Sold Count Text"]]},
     {t:"🗺️ Countdown Timer",fields:[["sale_title","Sale Title"],["sale_text","Sale Subtitle"],["sale_end_date","End Date",false,true]]},
-    {t:"📖 Our Story",fields:[["story_text","Story Text",true],["story_stat1","Stat 1 Number"],["story_label1","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_label2","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_label3","Stat 3 Label"]]},
+    {t:"📖 Our Story",fields:[["our_story_title","Section Title"],["story_text","Story Text",true],["story_stat1","Stat 1 Number"],["story_label1","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_label2","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_label3","Stat 3 Label"]]},
+    {t:"✨ Why Choose Us",fields:[["why_us_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Desc"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Desc"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Desc"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Desc"]]},
+    {t:"🖼️ Hero Box (Right Panel)",fields:[["hero_box_title","Title"],["hero_box_sub","Line 1"],["hero_box_sub2","Line 2"]]},
     {t:"✨ Features Section",fields:[["features_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Description"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Description"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Description"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Description"],["feat5_title","Feature 5 Title"],["feat5_desc","Feature 5 Description"],["feat6_title","Feature 6 Title"],["feat6_desc","Feature 6 Description"]]},
   ];
 
@@ -3072,14 +3151,14 @@ function AContent({settings}){
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
       {sections.map(sec=>(
         <ACard key={sec.t} style={{padding:16,marginBottom:0}}>
-          <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#111"}}>{sec.t}</div>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>{sec.t}</div>
           {sec.fields.map(([k,l,isTextarea,isDate])=>(
             <div key={k} style={{marginBottom:10}}>
               <ALbl c={l}/>
               {isDate
                 ?<AI type="date" value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>
                 :isTextarea
-                  ?<textarea value={f[k]||""} onChange={e=>updateF(k,e.target.value)} rows={3} style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
+                  ?<textarea value={f[k]||""} onChange={e=>updateF(k,e.target.value)} rows={k==="story_text"||k==="about"?5:k==="ticker_brands"||k==="announcement"?4:3} style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
                   :<AI value={f[k]||""} onChange={e=>updateF(k,e.target.value)}/>
               }
             </div>
@@ -3089,7 +3168,7 @@ function AContent({settings}){
 
       {/* Hero Banner Upload */}
       <ACard style={{padding:16}}>
-        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#111"}}>📸 Hero Banner / Post</div>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>📸 Hero Banner / Post</div>
         <input type="file" accept="image/*" onChange={e=>uploadBanner(e.target.files[0])} style={{fontSize:11,marginBottom:8,display:"block",width:"100%"}}/>
         {f.hero_banner_url&&<img src={f.hero_banner_url} alt="" style={{width:"100%",maxHeight:100,objectFit:"cover",borderRadius:4,marginBottom:8}}/>}
         <ALbl c="Caption"/>
@@ -3100,13 +3179,46 @@ function AContent({settings}){
         </label>
       </ACard>
 
+      {/* Hero Featured Box */}
+      <ACard style={{padding:16}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>⭐ Hero Featured Box (right side)</div>
+        <ALbl c="Box Image (optional)"/>
+        <input type="file" accept="image/*" onChange={e=>{const file=e.target.files[0];if(!file)return;if(file.size>500*1024){alert("Image too large — max 500KB");return;}
+          const r=new FileReader();r.onload=async ev=>{updateF("hero_box_img",ev.target.result);};r.readAsDataURL(file);}} style={{fontSize:11,marginBottom:8,display:"block",width:"100%"}}/>
+        {f.hero_box_img&&<img src={f.hero_box_img} alt="" style={{width:"100%",maxHeight:80,objectFit:"cover",borderRadius:4,marginBottom:8}}/>}
+        <ALbl c="Title"/><AI value={f.hero_box_title||""} onChange={e=>updateF("hero_box_title",e.target.value)} placeholder="Exclusive Designs"/>
+        <div style={{marginTop:8}}><ALbl c="Sub Line 1"/><AI value={f.hero_box_sub||""} onChange={e=>updateF("hero_box_sub",e.target.value)} placeholder="Once sold, never repeated"/></div>
+        <div style={{marginTop:8}}><ALbl c="Sub Line 2"/><AI value={f.hero_box_sub2||""} onChange={e=>updateF("hero_box_sub2",e.target.value)} placeholder="Crafted for the discerning"/></div>
+      </ACard>
+
+      {/* Hero Box Image + Show/Hide Cards */}
+      <ACard style={{padding:16}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>🖼️ Hero Box Image</div>
+        <input type="file" accept="image/*" onChange={e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>updateF("hero_box_img",ev.target.result);r.readAsDataURL(file);}} style={{fontSize:11,marginBottom:8,display:"block",width:"100%"}}/>
+        {f.hero_box_img&&<img src={f.hero_box_img} alt="" style={{width:"100%",maxHeight:80,objectFit:"cover",borderRadius:4,marginBottom:6}}/>}
+      </ACard>
+
+      <ACard style={{padding:16,gridColumn:"1/-1"}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>👁️ About Section Visibility</div>
+        <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
+          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
+            <input type="checkbox" checked={f.show_our_story!=="false"} onChange={e=>updateF("show_our_story",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
+            Show "Our Story" card
+          </label>
+          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
+            <input type="checkbox" checked={f.show_why_us!=="false"} onChange={e=>updateF("show_why_us",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
+            Show "Why Choose Us" card
+          </label>
+        </div>
+      </ACard>
+
       {/* Video Upload */}
       <ACard style={{padding:16}}>
-        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#111"}}>🎥 Video Section</div>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>🎥 Video Section</div>
         <ALbl c="Video Title"/><AI value={f.video_title||""} onChange={e=>updateF("video_title",e.target.value)} placeholder="e.g. Our Story"/>
         <div style={{marginTop:8}}><ALbl c="Upload Video (Mobile)"/></div>
         <input type="file" accept="video/*" capture="environment" onChange={e=>uploadVideo(e.target.files[0])} style={{fontSize:11,marginBottom:6,display:"block"}}/>
-        {vidUploading&&<div style={{fontSize:11,color:"#c9a84c"}}>⏳ Uploading...</div>}
+        {vidUploading&&<div style={{fontSize:11,color:"var(--t-accent)"}}>⏳ Uploading...</div>}
         {f.video_url&&!vidUploading&&<div style={{fontSize:11,color:"#16a34a",marginBottom:4}}>✅ Video ready</div>}
         <div style={{marginTop:4}}><ALbl c="Ya URL paste karo"/><AI value={f.video_url||""} onChange={e=>updateF("video_url",e.target.value)} placeholder="https://..."/></div>
         <label style={{display:"flex",alignItems:"center",gap:8,marginTop:8,cursor:"pointer",fontSize:12}}>
@@ -3167,7 +3279,7 @@ function ASubs({subs}){
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {safeSubs.map((s,i)=>(
               <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
-                <span style={{fontSize:13,color:"#111"}}>{s.email}</span>
+                <span style={{fontSize:13,color:"var(--t-text)"}}>{s.email}</span>
                 <span style={{fontSize:11,color:"#9ca3af"}}>{new Date(s.subscribed_at).toLocaleDateString()}</span>
               </div>
             ))}
@@ -3183,7 +3295,7 @@ function ASubs({subs}){
               <div key={i} style={{padding:"12px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
                 <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
                   <div>
-                    <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{o.name}</div>
+                    <div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{o.name}</div>
                     <div style={{fontSize:11,color:"#6b7280"}}>📞 {o.phone} · {o.address}</div>
                     <div style={{display:"flex",gap:8,marginTop:4}}>
                       <span style={{fontSize:10,background:"#fef3c7",color:"#92400e",padding:"2px 8px",borderRadius:10,fontWeight:600}}>{o.tier||"—"}</span>
@@ -3193,7 +3305,7 @@ function ASubs({subs}){
                   </div>
                   <div style={{fontSize:10,color:"#9ca3af"}}>{o.created_at?new Date(o.created_at).toLocaleDateString():""}</div>
                 </div>
-                {o.notes&&<div style={{fontSize:11,color:"#6b7280",marginTop:6,padding:"6px 10px",background:"#fff",borderRadius:4,border:"1px solid #e5e7eb"}}>"{o.notes}"</div>}
+                {o.notes&&<div style={{fontSize:11,color:"#6b7280",marginTop:6,padding:"6px 10px",background:"var(--t-card)",borderRadius:4,border:"1px solid #e5e7eb"}}>"{o.notes}"</div>}
               </div>
             ))}
           </div>
@@ -3207,7 +3319,7 @@ function ASubs({subs}){
             {users.map((u,i)=>(
               <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#f9fafb",borderRadius:8,border:"1px solid #e5e7eb"}}>
                 <div>
-                  <div style={{fontWeight:600,fontSize:13,color:"#111"}}>{u.user_metadata?.full_name||"User"}</div>
+                  <div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{u.user_metadata?.full_name||"User"}</div>
                   <div style={{fontSize:11,color:"#6b7280"}}>{u.email}</div>
                 </div>
                 <div style={{fontSize:11,color:"#9ca3af"}}>{u.created_at?new Date(u.created_at).toLocaleDateString():""}</div>
@@ -3267,25 +3379,25 @@ function ASettings({settings}){
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
       <div>
         <ACard style={{padding:18,marginBottom:16}}>
-          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"#111"}}>🔐 Change Password</div>
+          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>🔐 Change Password</div>
           <div style={{marginBottom:8}}><ALbl c="New Password"/><input type="password" value={np} onChange={e=>setNp(e.target.value)} style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/></div>
           <div style={{marginBottom:10}}><ALbl c="Confirm Password"/><input type="password" value={cp} onChange={e=>sCp(e.target.value)} style={{width:"100%",padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:13,outline:"none",boxSizing:"border-box"}}/></div>
           <ABtn onClick={changePwd} style={{background:"#111",color:"#fff",width:"100%"}}>Change Password</ABtn>
         </ACard>
         <ACard style={{padding:18,marginBottom:16}}>
-          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"#111"}}>📊 Supabase Status</div>
+          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>📊 Supabase Status</div>
           <div style={{fontSize:12,color:sb?"#16a34a":"#dc2626",fontWeight:600}}>{sb?"✅ Connected":"❌ Not Connected"}</div>
           {sb&&<div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>URL: {process.env.REACT_APP_SUPABASE_URL?.slice(0,30)}...</div>}
         </ACard>
       </div>
       <div>
         <ACard style={{padding:18,marginBottom:16}}>
-          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"#111"}}>💾 Backup</div>
+          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>💾 Backup</div>
           <ABtn onClick={async()=>{if(!sb)return;const{data}=await sb.from("products").select("*");const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data,null,2));a.download="products_backup_"+Date.now()+".json";a.click();}} style={{background:"#111",color:"#fff",width:"100%",marginBottom:8}}>⬇️ Download Products Backup</ABtn>
           <ABtn onClick={async()=>{if(!sb)return;const{data}=await sb.from("online_orders").select("*");const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data,null,2));a.download="orders_backup_"+Date.now()+".json";a.click();}} style={{background:"#374151",color:"#fff",width:"100%"}}>⬇️ Download Orders Backup</ABtn>
         </ACard>
         <ACard style={{padding:18}}>
-          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"#111"}}>🔗 Quick Links</div>
+          <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>🔗 Quick Links</div>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {[["🎨 Theme","theme"],["🏪 Shop Settings","shop_settings"],["💬 WhatsApp","wa_settings"],["📦 Subscription","sub_settings"],["🚚 Delivery","delivery"],["🧾 Bill Templates","bill_templates"]].map(([l,id])=>(
               <button key={id} onClick={()=>{const nav=document.querySelector(`[data-nav="${id}"]`);if(nav)nav.click();}} style={{textAlign:"left",padding:"8px 12px",background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,cursor:"pointer",color:"#374151",transition:"all .15s"}}>{l} →</button>
@@ -3316,7 +3428,7 @@ function AReviews({onRefresh}){
   return(<div>
     <AH title="Customer Reviews" sub="Website pe dikhne wale reviews manage karo"/>
     <ACard style={{padding:20,marginBottom:20}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Add Review Manually</div>
+      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Add Review Manually</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <div><ALbl c="Customer Name *"/><AI value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Hamza Muhammadi"/></div>
         <div><ALbl c="Product Name"/><AI value={form.product_name} onChange={e=>setForm({...form,product_name:e.target.value})} placeholder="Embroidered Dress"/></div>
@@ -3331,7 +3443,7 @@ function AReviews({onRefresh}){
             Show on website
           </label>
         </div>
-        <div style={{gridColumn:"1/-1"}}><ALbl c="Review Text *"/><textarea value={form.review_text} onChange={e=>setForm({...form,review_text:e.target.value})} placeholder="Bohat acha fabric tha, quality best hai!" style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"#111",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/></div>
+        <div style={{gridColumn:"1/-1"}}><ALbl c="Review Text *"/><textarea value={form.review_text} onChange={e=>setForm({...form,review_text:e.target.value})} placeholder="Bohat acha fabric tha, quality best hai!" style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",minHeight:70,resize:"vertical"}}/></div>
       </div>
       <ABtn onClick={add} disabled={loading} style={{background:"#111",color:"#fff",marginTop:14,opacity:loading?.6:1}}>{loading?"Adding...":"+ Add Review"}</ABtn>
     </ACard>
@@ -3339,7 +3451,7 @@ function AReviews({onRefresh}){
       reviews.map(r=><ACard key={r.id} style={{padding:"14px 18px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
         <div style={{flex:1}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-            <div style={{fontWeight:600,fontSize:14,color:"#111"}}>{r.customer_name}</div>
+            <div style={{fontWeight:600,fontSize:14,color:"var(--t-text)"}}>{r.customer_name}</div>
             <div style={{color:"#f59e0b",fontSize:13}}>{stars(r.rating||5)}</div>
             <Bdg c={r.source==="manual"?"":"b"}>{r.source==="manual"?"Manual":"Customer"}</Bdg>
             <Bdg c={r.approved?"g":""}>{r.approved?"Visible":"Hidden"}</Bdg>
@@ -3371,7 +3483,7 @@ function ASoldCounter({onRefresh}){
     <AH title="Sold Counter" sub="Website pe 'X pieces sold' dikhao"/>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
       <ACard style={{padding:20}}>
-        <div style={{fontSize:15,fontWeight:600,marginBottom:4,color:"#111"}}>Current Numbers</div>
+        <div style={{fontSize:15,fontWeight:600,marginBottom:4,color:"var(--t-text)"}}>Current Numbers</div>
         <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Real orders se auto count + manual boost option</div>
         <div style={{display:"grid",gap:12}}>
           <div><ALbl c="Real Sold (auto from orders)"/>
@@ -3394,10 +3506,10 @@ function ASoldCounter({onRefresh}){
         <ABtn onClick={save} style={{background:"#111",color:"#fff",marginTop:14}}>Save</ABtn>
       </ACard>
       <ACard style={{padding:20}}>
-        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Preview</div>
+        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Preview</div>
         <div style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:8,padding:20,textAlign:"center"}}>
           <div style={{fontSize:32,marginBottom:8}}>✅</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:28,fontWeight:700,color:"#111"}}>{displayNum}+</div>
+          <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:28,fontWeight:700,color:"var(--t-text)"}}>{displayNum}+</div>
           <div style={{fontSize:12,color:"#6b7280",marginTop:4}}>{f.sold_text||"pieces sold this month"}</div>
         </div>
         <div style={{fontSize:11,color:"#9ca3af",marginTop:12,lineHeight:1.8}}>
@@ -3432,12 +3544,12 @@ function AAnalytics({settings={}}){
           <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
           <div style={{fontSize:22}}>{s.ic}</div>
         </div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:"#9ca3af"}}>{s.v}</div>
+        <div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:24,fontWeight:700,color:"#9ca3af"}}>{s.v}</div>
         <div style={{fontSize:10,color:"#9ca3af",marginTop:4}}>{s.sub}</div>
       </ACard>)}
     </div>
     <ACard style={{padding:24,marginBottom:20}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Google Analytics Setup</div>
+      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Google Analytics Setup</div>
       <div style={{display:"grid",gap:12,maxWidth:500}}>
         <div>
           <ALbl c="Measurement ID (G-XXXXXXXXXX)"/>
@@ -3447,7 +3559,7 @@ function AAnalytics({settings={}}){
       </div>
     </ACard>
     <ACard style={{padding:24}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"#111"}}>Setup Guide</div>
+      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Setup Guide</div>
       <div style={{display:"grid",gap:12}}>
         {[
           ["1","analytics.google.com pe jao","Free Google account se login karo"],
@@ -3457,7 +3569,7 @@ function AAnalytics({settings={}}){
           ["5","Real-time report dekho","Google Analytics dashboard mein live visitors dikhenge"],
         ].map(([n,t,d])=><div key={n} style={{display:"flex",gap:14,padding:"12px 0",borderBottom:"1px solid #f3f4f6"}}>
           <div style={{width:28,height:28,background:"#111",color:"#fff",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,flexShrink:0}}>{n}</div>
-          <div><div style={{fontWeight:600,fontSize:13,color:"#111"}}>{t}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{d}</div></div>
+          <div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{t}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{d}</div></div>
         </div>)}
       </div>
     </ACard>
@@ -3545,8 +3657,8 @@ function AdminPanel({onExit}){
       <aside className={`adm-sb${col?" col":""}${mobOpen?" mob-open":""}`}>
         {/* Logo */}
         <div style={{padding:"18px 14px",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:900,color:"#0a0907"}}>JF</div>
-          {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
+          <div style={{width:36,height:36,background:"#c9a84c",borderRadius:6,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:900,color:"#0a0907"}}>JF</div>
+          {!col&&<div style={{overflow:"hidden",whiteSpace:"nowrap"}}><div style={{fontFamily:`${TH.headingFont||"'Playfair Display',serif"}`,fontSize:13,fontWeight:700,color:"#fff",letterSpacing:1}}>JAMEEL FABRICS</div><div style={{fontSize:10,color:"rgba(255,255,255,.3)"}}>Admin Panel</div></div>}
         </div>
 
         {/* Nav items */}
@@ -3576,7 +3688,7 @@ function AdminPanel({onExit}){
       {/* Main */}
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
         {/* Topbar */}
-        <div style={{height:60,background:"#fff",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 20px",gap:12,flexShrink:0,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
+        <div style={{height:60,background:"var(--t-card)",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 20px",gap:12,flexShrink:0,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
           <button onClick={()=>{setCol(c=>!c);setMobOpen(m=>!m);}} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
@@ -3584,7 +3696,7 @@ function AdminPanel({onExit}){
           {/* Search */}
           <div style={{display:"flex",alignItems:"center",gap:8,background:"#f4f5f7",border:"1px solid #e5e7eb",borderRadius:6,padding:"7px 12px",width:200}} className="hide-mob">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" placeholder="Search..." style={{background:"none",border:"none",outline:"none",fontSize:13,color:"#111",width:"100%",fontFamily:"inherit"}}/>
+            <input type="text" placeholder="Search..." style={{background:"none",border:"none",outline:"none",fontSize:13,color:"var(--t-text)",width:"100%",fontFamily:"inherit"}}/>
           </div>
           {/* Alerts bell */}
           <button onClick={()=>setPage("alerts")} style={{background:"none",border:"none",cursor:"pointer",width:36,height:36,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",color:"#6b7280",position:"relative",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
@@ -3642,7 +3754,7 @@ function ScrollUpBtn(){
       onClick={()=>window.scrollTo({top:0,behavior:"smooth"})}
       style={{position:"fixed",bottom:28,left:16,zIndex:800,
         width:40,height:40,borderRadius:"50%",
-        background:"#1a1612",color:"#c9a84c",border:"1px solid rgba(201,168,76,.3)",
+        background:"#1a1612",color:"var(--t-accent)",border:"1px solid rgba(201,168,76,.3)",
         fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",
         justifyContent:"center",boxShadow:"0 4px 16px rgba(0,0,0,.25)",
         transition:"all .25s",
