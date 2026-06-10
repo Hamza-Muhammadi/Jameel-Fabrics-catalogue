@@ -1139,6 +1139,7 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
   const[alertEmail,setAlertEmail]=useState("");
   const[alertDone,setAlertDone]=useState(false);
   const[copied,setCopied]=useState(false);
+  const[sizeGuide,setSizeGuide]=useState(false);
   const autoRef=useRef(null);
   const isOutOfStock=prod&&(prod.real_stock===0||(prod.real_stock===undefined&&prod.stock===0));
 
@@ -1245,8 +1246,32 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
             <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
               {sizes.map(s=><button key={s} onClick={()=>setSelSize(s)} style={{border:"1px solid "+(selSize===s?"#111":"#d0ccc5"),padding:"6px 14px",fontSize:11,fontWeight:600,cursor:"pointer",background:selSize===s?"#111":"#fff",color:selSize===s?"#fff":"#111",transition:"all .2s",fontFamily:"inherit"}}>{s}</button>)}
             </div>
-            <div style={{fontSize:10,color:"#c9a84c",cursor:"pointer",letterSpacing:1,marginBottom:14,textDecoration:"underline"}}>Size Guide</div>
+            <button onClick={()=>setSizeGuide(true)} style={{fontSize:10,color:"#c9a84c",cursor:"pointer",letterSpacing:1,marginBottom:14,background:"none",border:"none",textDecoration:"underline",padding:0,fontFamily:"inherit"}}>📏 Size Guide</button>
           </>)}
+          {sizeGuide&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setSizeGuide(false)}>
+            <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:480,maxHeight:"80vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+                <div style={{fontWeight:700,fontSize:15}}>📏 Size Guide</div>
+                <button onClick={()=>setSizeGuide(false)} style={{background:"none",border:"none",fontSize:18,cursor:"pointer",color:"#7a6e65"}}>✕</button>
+              </div>
+              {prod.size_chart_img?(
+                <img src={prod.size_chart_img} alt="Size Chart" style={{width:"100%",borderRadius:8}}/>
+              ):(
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                  <thead><tr style={{background:"#f5f0e8"}}>{["Size","Chest","Waist","Length","Sleeve"].map(h=><th key={h} style={{padding:"8px 12px",textAlign:"left",fontWeight:700,fontSize:10,letterSpacing:1,color:"#7a6e65",textTransform:"uppercase",borderBottom:"1px solid #e0d8cc"}}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {[["S","34\"","30\"","52\"","24\""],["M","36\"","32\"","53\"","24.5\""],["L","38\"","34\"","54\"","25\""],["XL","40\"","36\"","55\"","25.5\""],["XXL","42\"","38\"","56\"","26\""],["XXXL","44\"","40\"","57\"","26.5\""]].map(([sz,...vals])=>(
+                      <tr key={sz} style={{borderBottom:"1px solid #f0ede8"}}>
+                        <td style={{padding:"8px 12px",fontWeight:700}}>{sz}</td>
+                        {vals.map((v,i)=><td key={i} style={{padding:"8px 12px",color:"#4a4035"}}>{v}</td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <div style={{fontSize:10,color:"#9a8f83",marginTop:12,lineHeight:1.6}}>* Measurements are approximate. For stitched items, please add 1-2 inches for comfort.</div>
+            </div>
+          </div>}
 
           {/* Description */}
           {prod.note&&<div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:14,color:"#7a6e65",lineHeight:1.9,fontStyle:"italic",marginBottom:18}}>{prod.note}</div>}
@@ -2410,8 +2435,19 @@ function RecentlyViewedStrip({items,onOpenModal}){
 
 function AccountPage({user,onBack}){
   const[orders,setOrders]=useState([]);const[wl,setWl]=useState([]);
+  const[tab,setTab]=useState("orders");
+  const[compareA,setCompareA]=useState(null);const[compareB,setCompareB]=useState(null);
+  const[compareOpen,setCompareOpen]=useState(false);
   useEffect(()=>{if(!sb||!user)return;sb.from("online_orders").select("*").eq("customer_id",user.id).order("created_at",{ascending:false}).then(({data})=>setOrders(data||[]));sb.from("wishlists").select("*,products(*)").eq("customer_id",user.id).then(({data})=>setWl(data||[]));},[user]);
   const C={background:"var(--t-card)",border:"1px solid var(--t-border)",padding:24,marginBottom:16};
+
+  // Wardrobe: all purchased items flattened
+  const wardrobe=orders.flatMap(o=>(o.items||[]).map(it=>({...it,orderId:o.id,orderedAt:o.created_at,status:o.status})));
+
+  // Style Score
+  const styleScore=Math.min(100,wardrobe.length*10+wl.length*5);
+  const scoreLabel=styleScore>=80?"Style Icon 👑":styleScore>=50?"Trendsetter ✨":styleScore>=20?"Fashion Starter 🌸":"New Member 🎀";
+
   return(<div style={{background:"var(--t-bg)",minHeight:"100vh",fontFamily:"var(--t-bf,'Jost',sans-serif)"}}>
     <div style={{background:"var(--t-card)",borderBottom:"1px solid #e8e4df",padding:"16px clamp(16px,4vw,60px)",display:"flex",alignItems:"center",gap:16,position:"sticky",top:0,zIndex:100}}>
       <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:"var(--t-muted)",fontSize:13,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
@@ -2419,17 +2455,101 @@ function AccountPage({user,onBack}){
       </button>
       <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:700}}>My Account</div>
     </div>
-    <div style={{maxWidth:820,margin:"0 auto",padding:"28px clamp(16px,4vw,40px)"}}>
+    {/* Tab nav */}
+    <div style={{background:"var(--t-card)",borderBottom:"1px solid var(--t-border)",display:"flex",overflowX:"auto"}}>
+      {[["orders","📦 Orders"],["wardrobe","👗 My Wardrobe"],["wishlist","❤️ Wishlist"]].map(([k,l])=>(
+        <button key={k} onClick={()=>setTab(k)} style={{padding:"12px 20px",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:12,fontWeight:600,color:tab===k?"#c9a84c":"#7a6e65",borderBottom:tab===k?"2px solid #c9a84c":"2px solid transparent",whiteSpace:"nowrap",transition:"all .2s"}}>{l}</button>
+      ))}
+    </div>
+    <div style={{maxWidth:860,margin:"0 auto",padding:"28px clamp(16px,4vw,40px)"}}>
       <div style={C}><div style={{fontSize:15,fontWeight:600,marginBottom:12}}>Account Info</div><div style={{fontSize:14,color:"#6b6358",marginBottom:5}}><strong>Email:</strong> {user.email}</div><div style={{fontSize:14,color:"#6b6358"}}><strong>Name:</strong> {user.user_metadata?.full_name||"Not set"}</div></div>
-      <div style={C}>
+
+      {/* ── ORDERS TAB ── */}
+      {tab==="orders"&&<div style={C}>
         <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>My Orders ({orders.length})</div>
         {!orders.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:16}}>No orders yet</div></div>:
           orders.map(o=><div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:"1px solid #f0ede8",flexWrap:"wrap",gap:10}}>
-            <div><div style={{fontWeight:600,fontSize:13}}>#{o.id.slice(-6).toUpperCase()}</div><div style={{fontSize:11,color:"#8a7f76",marginTop:2}}>{(o.items||[]).length} items - {new Date(o.created_at).toLocaleDateString()}</div></div>
+            <div><div style={{fontWeight:600,fontSize:13}}>#{o.id.slice(-6).toUpperCase()}</div><div style={{fontSize:11,color:"#8a7f76",marginTop:2}}>{(o.items||[]).length} items · {new Date(o.created_at).toLocaleDateString()}</div></div>
             <div style={{display:"flex",gap:12,alignItems:"center"}}><div style={{fontWeight:700,fontFamily:"'Cormorant Garamond',serif",fontSize:18}}>Rs.{Number(o.total).toLocaleString()}</div><span style={{padding:"3px 10px",fontSize:11,fontWeight:600,background:o.status==="delivered"?"#dcfce7":o.status==="confirmed"?"#dbeafe":"#fef9c3",color:o.status==="delivered"?"#16a34a":o.status==="confirmed"?"#2563eb":"#ca8a04"}}>{o.status}</span></div>
           </div>)
         }
-      </div>
+      </div>}
+
+      {/* ── WARDROBE TAB ── */}
+      {tab==="wardrobe"&&<>
+        {/* Style Score */}
+        <div style={{...C,background:"linear-gradient(135deg,#1a1612,#2c1f0a)",border:"none",color:"#f5efe0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+            <div>
+              <div style={{fontSize:10,letterSpacing:3,color:"#c9a84c",textTransform:"uppercase",marginBottom:4}}>Your Style Score</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:"#c9a84c"}}>{styleScore}/100</div>
+              <div style={{fontSize:13,color:"rgba(245,239,224,.7)",marginTop:4}}>{scoreLabel}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:12,color:"rgba(245,239,224,.5)",marginBottom:4}}>{wardrobe.length} items purchased · {wl.length} in wishlist</div>
+              <div style={{background:"rgba(201,168,76,.15)",border:"1px solid rgba(201,168,76,.3)",padding:"6px 14px",borderRadius:20,fontSize:11,color:"#c9a84c"}}>
+                {styleScore<50?"Add more to wardrobe to improve score":"Great wardrobe! Keep exploring"}
+              </div>
+            </div>
+          </div>
+          <div style={{marginTop:14,background:"rgba(255,255,255,.08)",borderRadius:4,height:6,overflow:"hidden"}}>
+            <div style={{width:styleScore+"%",height:"100%",background:"linear-gradient(90deg,#c9a84c,#e8c96a)",transition:"width 1s ease",borderRadius:4}}/>
+          </div>
+        </div>
+
+        {/* Purchased Items */}
+        <div style={C}>
+          <div style={{fontSize:15,fontWeight:600,marginBottom:16}}>👗 My Purchased Items ({wardrobe.length})</div>
+          {!wardrobe.length?<div style={{textAlign:"center",padding:32,color:"#8a7f76"}}><div style={{fontSize:14}}>No purchases yet — start shopping!</div></div>:(
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:12}}>
+              {wardrobe.map((it,i)=>(
+                <div key={i} style={{border:"1px solid var(--t-border)",borderRadius:8,overflow:"hidden",background:"var(--t-bg)"}}>
+                  <div style={{background:"#f5f0e8",aspectRatio:"1",display:"flex",alignItems:"center",justifyContent:"center",fontSize:32}}>👗</div>
+                  <div style={{padding:"8px 10px"}}>
+                    <div style={{fontWeight:600,fontSize:12,lineHeight:1.3,marginBottom:4}}>{it.name||"Product"}</div>
+                    <div style={{fontSize:11,color:"#c9a84c",fontWeight:700}}>Rs.{Number(it.price||0).toLocaleString()}</div>
+                    <div style={{fontSize:9,color:"#9a8f83",marginTop:3}}>{new Date(it.orderedAt).toLocaleDateString()}</div>
+                    {compareA===null||compareA===i?(
+                      <button onClick={()=>setCompareA(compareA===i?null:i)} style={{marginTop:6,width:"100%",fontSize:9,padding:"4px",border:"1px solid "+(compareA===i?"#c9a84c":"#e0d8cc"),background:compareA===i?"rgba(201,168,76,.1)":"transparent",cursor:"pointer",borderRadius:3,fontWeight:600,color:compareA===i?"#c9a84c":"#7a6e65"}}>
+                        {compareA===i?"✓ Selected A":"Select A"}
+                      </button>
+                    ):(
+                      <button onClick={()=>{setCompareB(i);setCompareOpen(true);}} style={{marginTop:6,width:"100%",fontSize:9,padding:"4px",border:"1px solid #6366f1",background:"rgba(99,102,241,.08)",cursor:"pointer",borderRadius:3,fontWeight:600,color:"#6366f1"}}>Compare with A</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Compare Modal */}
+        {compareOpen&&compareA!==null&&compareB!==null&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setCompareOpen(false)}>
+            <div style={{background:"#fff",borderRadius:12,padding:24,width:"100%",maxWidth:500}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
+                <div style={{fontWeight:700,fontSize:15}}>Compare Items</div>
+                <button onClick={()=>setCompareOpen(false)} style={{background:"none",border:"none",fontSize:18,cursor:"pointer"}}>✕</button>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+                {[wardrobe[compareA],wardrobe[compareB]].map((it,i)=>(
+                  <div key={i} style={{border:"1px solid #e0d8cc",borderRadius:8,padding:14,textAlign:"center"}}>
+                    <div style={{fontSize:10,color:"#7a6e65",marginBottom:6,fontWeight:700,letterSpacing:1}}>{i===0?"ITEM A":"ITEM B"}</div>
+                    <div style={{fontSize:32,marginBottom:8}}>👗</div>
+                    <div style={{fontWeight:600,fontSize:13,marginBottom:4}}>{it?.name||"Product"}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"#c9a84c"}}>Rs.{Number(it?.price||0).toLocaleString()}</div>
+                    <div style={{fontSize:10,color:"#9a8f83",marginTop:4}}>{new Date(it?.orderedAt).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={()=>{setCompareOpen(false);setCompareA(null);setCompareB(null);}} style={{marginTop:16,width:"100%",padding:"10px",background:"#111",color:"#fff",border:"none",borderRadius:6,cursor:"pointer",fontWeight:600,fontSize:13}}>Close</button>
+            </div>
+          </div>
+        )}
+      </>}
+
+      {/* ── WISHLIST TAB ── */}
+      {tab==="wishlist"&&
       <div style={C}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:8}}>
           <div style={{fontSize:15,fontWeight:600}}>Wishlist ({wl.length})</div>
@@ -2446,7 +2566,8 @@ function AccountPage({user,onBack}){
             </div>)}
           </div>
         }
-      </div>
+      </div>}
+
     </div>
   </div>);
 }
