@@ -856,18 +856,18 @@ function Intro({onEnter,siteTheme,themeName}){
     .jf-mob-header{display:none!important}
     @media(max-width:767px){
       .jf-left{display:none!important}
-      .jf-right{padding:0 1.5rem 2.5rem!important;align-items:center!important;justify-content:flex-start!important;overflow-y:auto!important;background:${TH.iBg}!important}
-      .jf-right-inner{max-width:100%!important;width:100%!important;text-align:center!important;padding:0!important;margin:0!important}
+      .jf-right{padding:0!important;align-items:stretch!important;justify-content:flex-start!important;overflow-y:auto!important;background:${TH.iBg}!important;flex-direction:column!important}
+      .jf-right-inner{max-width:100%!important;width:100%!important;text-align:center!important;padding:1.5rem 1.5rem 3rem!important;margin:0!important}
       .jf-bg-text{display:none!important}
       .jf-tags{display:none!important}
-      .jf-mob-header{display:flex!important;flex-direction:column!important;align-items:center!important;width:100%!important;padding:2.5rem 0 0!important;margin:0 0 1.2rem!important;text-align:center!important}
-      .jf-mob-brand{font-family:'Syne',sans-serif!important;font-size:clamp(2.4rem,12vw,3.2rem)!important;font-weight:800!important;line-height:0.9!important;color:${TH.iEnter}!important;letter-spacing:-1px!important;margin:0!important;padding:0!important}
+      .jf-mob-header{display:flex!important;flex-direction:column!important;align-items:center!important;width:100%!important;padding:2.5rem 1.5rem 2rem!important;margin:0!important;text-align:center!important;background:${TH.iLeft}!important}
+      .jf-mob-brand{font-family:'Syne',sans-serif!important;font-size:clamp(2.4rem,12vw,3.2rem)!important;font-weight:800!important;line-height:0.9!important;color:${TH.iBrand}!important;letter-spacing:-1px!important;margin:0!important;padding:0!important}
       .jf-mob-accent{color:transparent!important;-webkit-text-stroke:2px ${TH.iAccent}!important}
-      .jf-mob-meta{font-size:0.55rem!important;letter-spacing:3px!important;text-transform:uppercase!important;color:${TH.iEyebrow}!important;margin:0.6rem 0 0!important;padding:0!important}
-      .jf-mob-stats{display:flex!important;justify-content:center!important;gap:1.2rem!important;margin:0.8rem 0 0!important;padding:0.8rem 0!important;border-top:1px solid ${TH.iTag}!important;border-bottom:1px solid ${TH.iTag}!important;width:100%!important}
+      .jf-mob-meta{font-size:0.55rem!important;letter-spacing:3px!important;text-transform:uppercase!important;color:${TH.iAccent}!important;margin:0.6rem 0 0!important;padding:0!important}
+      .jf-mob-stats{display:flex!important;justify-content:center!important;gap:1.2rem!important;margin:0.8rem 0 0!important;padding:0.8rem 0!important;border-top:1px solid ${TH.iAccent}40!important;border-bottom:1px solid ${TH.iAccent}40!important;width:100%!important}
       .jf-mob-sitem{text-align:center!important;margin:0!important;padding:0!important}
-      .jf-mob-snum{font-family:'Syne',sans-serif!important;font-size:1.1rem!important;font-weight:800!important;color:${TH.iEnter}!important;margin:0!important;padding:0!important}
-      .jf-mob-slabel{font-size:0.5rem!important;letter-spacing:2px!important;text-transform:uppercase!important;color:${TH.iEyebrow}!important;margin:2px 0 0!important;padding:0!important}
+      .jf-mob-snum{font-family:'Syne',sans-serif!important;font-size:1.1rem!important;font-weight:800!important;color:${TH.iBrand}!important;margin:0!important;padding:0!important}
+      .jf-mob-slabel{font-size:0.5rem!important;letter-spacing:2px!important;text-transform:uppercase!important;color:${TH.iBrand}60!important;margin:2px 0 0!important;padding:0!important}
       .jf-eyebrow{margin:1.5rem 0 0.8rem!important;padding:0!important}
       .jf-enter{font-size:clamp(1.8rem,9vw,2.8rem)!important;letter-spacing:-1px!important;margin:0!important;padding:0!important}
       .jf-store{font-size:clamp(1.8rem,9vw,2.8rem)!important;letter-spacing:-1px!important;margin:0 0 1.5rem!important;padding:0!important}
@@ -2206,9 +2206,9 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <CountdownBanner settings={settings}/>
     {/* NAV */}
     <nav style={{position:"sticky",top:0,zIndex:100,background:`${TH.card}f5`,backdropFilter:"blur(24px)",borderBottom:`1px solid ${TH.border}`,height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
-      <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0,maxWidth:"clamp(100px,34vw,240px)",overflow:"hidden"}}>
-        <div style={{fontFamily:"'Jost',sans-serif",fontSize:"clamp(11px,1.1vw,14px)",fontWeight:700,letterSpacing:"clamp(1px,.25vw,2.5px)",color:`${TH.text}`,lineHeight:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-        <div style={{fontSize:"5.5px",letterSpacing:"1px",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500,whiteSpace:"nowrap",marginTop:"2px"}}>KUNJAH · PUNJAB</div>
+      <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:1,minWidth:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0,overflow:"hidden"}}>
+        <div style={{fontFamily:"'Jost',sans-serif",fontSize:"clamp(9px,2.6vw,14px)",fontWeight:700,letterSpacing:"clamp(.4px,.18vw,1.8px)",color:`${TH.text}`,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+        <div style={{fontSize:"5px",letterSpacing:".6px",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500,whiteSpace:"nowrap",marginTop:"1px"}}>KUNJAH · PUNJAB</div>
       </button>
       <div className="search-bar hide-mob" style={{display:"flex",alignItems:"center",gap:8,background:"var(--t-surface)",border:"1px solid var(--t-border)",padding:"7px 14px",flex:1,maxWidth:200}}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a8f83" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -4889,7 +4889,7 @@ function AdminPanel({onExit}){
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
         {/* Topbar */}
         <div style={{height:60,background:"var(--t-card)",borderBottom:"1px solid #e5e7eb",display:"flex",alignItems:"center",padding:"0 20px",gap:12,flexShrink:0,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
-          <button onClick={()=>{setCol(c=>!c);setMobOpen(m=>!m);}} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+          <button onClick={()=>{if(window.innerWidth<=768){setMobOpen(m=>!m);setCol(false);}else{setCol(c=>!c);}}} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:6,color:"#6b7280",transition:"background .15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f4f5f7"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
           <div style={{fontSize:16,fontWeight:600,color:"#111827",flex:1}}>{TITLES[page]||page}</div>
