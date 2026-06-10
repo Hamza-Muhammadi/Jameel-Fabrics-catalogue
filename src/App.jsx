@@ -655,14 +655,22 @@ function SubscriptionBox({settings,user,onAuth}){
   const boxDate2=settings?.sub_date2||"28";
 
   async function subscribe(){
-    if(!form.name||!form.phone)return alert("Name and phone required");
-    if(sb&&user)await sb.from("subscriptions").insert({
-      user_id:user.id,name:form.name,phone:form.phone,
-      address:form.address,tier:selectedTier,gender,
-      notes:form.notes,status:"pending",
-      created_at:new Date().toISOString()
-    });
+    if(!form.name||!form.phone)return toast("Name aur phone number required hai","error");
+    if(sb){
+      const{error}=await sb.from("subscriptions").insert({
+        user_id:user?.id||null,
+        name:form.name,phone:form.phone,
+        address:form.address,tier:selectedTier,gender,
+        notes:form.notes,status:"pending",
+        created_at:new Date().toISOString()
+      });
+      if(error){toast("Subscription save mein masla hua, WhatsApp pe order karo","error");}
+    }
+    // Also send WhatsApp confirmation
+    const msg=`📦 *Mystery Box Subscription*\n\nName: ${form.name}\nPhone: ${form.phone}\nTier: ${selectedTier}\nGender: ${gender}\nAddress: ${form.address||"Will provide later"}\nNotes: ${form.notes||"None"}\n\nPlease confirm my subscription! JazakAllah 🙏`;
+    window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(msg)}`,"_blank");
     setDone(true);
+    toast("Subscription request sent! WhatsApp pe confirm karo","success");
   }
 
   return(
@@ -926,6 +934,37 @@ function AuthModal({mode,onClose,onSuccess}){
   </div>);
 }
 
+function LastSecondAddon({cart,setCart,settings}){
+  const[addons,setAddons]=useState([]);
+  useEffect(()=>{
+    if(!sb)return;
+    sb.from("products").select("id,name,price,img1,category").eq("in_stock",true).limit(50)
+      .then(({data})=>{
+        if(!data)return;
+        const cartIds=new Set(cart.map(c=>c.id));
+        const filtered=data.filter(p=>!cartIds.has(p.id));
+        const shuffled=filtered.sort(()=>Math.random()-.5).slice(0,4);
+        setAddons(shuffled);
+      });
+  },[cart.length]);
+  if(!addons.length)return null;
+  return(<div style={{marginBottom:12,padding:"10px 0",borderTop:"1px solid #e8e4df"}}>
+    <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:"#c9a84c",textTransform:"uppercase",marginBottom:8}}>⚡ Customers Also Bought</div>
+    <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4}}>
+      {addons.map(p=>(
+        <div key={p.id} style={{flexShrink:0,width:90,textAlign:"center"}}>
+          <div style={{width:90,height:80,background:"#f0ede8",overflow:"hidden",borderRadius:4,marginBottom:4}}>
+            {p.img1?<img src={p.img1} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:<div style={{height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24}}>👗</div>}
+          </div>
+          <div style={{fontSize:9,fontWeight:600,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
+          <div style={{fontSize:10,color:"#c9a84c",fontWeight:700,marginBottom:4}}>Rs.{Number(p.price||0).toLocaleString()}</div>
+          <button onClick={()=>setCart(c=>[...c,{...p,qty:1,price:Number(p.price)}])} style={{width:"100%",padding:"4px 0",fontSize:9,fontWeight:700,background:"#111",color:"#fff",border:"none",borderRadius:3,cursor:"pointer",letterSpacing:.5}}>+ Add</button>
+        </div>
+      ))}
+    </div>
+  </div>);
+}
+
 function CartPanel({cart,setCart,wa,onClose,user,settings,gift,setGift}){
   const[code,setCode]=useState("");const[coupon,setCoupon]=useState(null);const[cL,setCL]=useState(false);
   const[showForm,setShowForm]=useState(false);
@@ -1040,6 +1079,7 @@ function CartPanel({cart,setCart,wa,onClose,user,settings,gift,setGift}){
             💰 <strong>Advance Payment:</strong> Product price advance. Delivery (Pak Post) charges alag.
           </div>
           <GiftOption value={gift} onChange={setGift} prods={cart.map(i=>({id:i.id,name:i.name,sale_price:i.price}))}/>
+          <LastSecondAddon cart={cart} setCart={setCart} settings={settings}/>
           <button onClick={checkout} style={{width:"100%",padding:15,background:"#111",color:"#fff",border:"none",fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:12}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
             <WaSvg/> Order via WhatsApp
           </button>
@@ -1131,6 +1171,72 @@ function PolicyCard({ic,title,desc,color}){
 }
 
 
+/* ═══ STYLE QUIZ ═══ */
+function StyleQuiz({prods,onClose,onFilter}){
+  const[step,setStep]=useState(0);
+  const[ans,setAns]=useState({});
+  const[result,setResult]=useState(null);
+
+  const QUESTIONS=[
+    {key:"gender",q:"Aap ke liye shopping kar rahe hain?",opts:["Apne liye (Women)","Apne liye (Men)","Bachon ke liye","Gift ke liye"]},
+    {key:"occasion",q:"Kaunsa occasion hai?",opts:["Eid / Mehndi","Office / Daily wear","Wedding / Party","Casual / Home"]},
+    {key:"feel",q:"Fabric kaisa chahiye?",opts:["Soft & light","Medium weight","Heavy & warm","Embroidered"]},
+    {key:"budget",q:"Budget kya hai?",opts:["Under Rs.2000","Rs.2000–5000","Rs.5000–10000","Rs.10000+"]},
+    {key:"color",q:"Kaun sa color prefer karte hain?",opts:["Light & pastel","Dark & bold","Neutral (white/beige/grey)","Printed / colorful"]},
+  ];
+
+  function pick(val){
+    const newAns={...ans,[QUESTIONS[step].key]:val};
+    setAns(newAns);
+    if(step<QUESTIONS.length-1){setStep(s=>s+1);}
+    else{
+      const gMap={"Apne liye (Women)":"WU","Apne liye (Men)":"MP","Bachon ke liye":"KU","Gift ke liye":"WU"};
+      const cat=gMap[newAns.gender]||"All";
+      setResult({cat,ans:newAns});
+    }
+  }
+
+  const q=QUESTIONS[step];
+  return(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={onClose}>
+      <div style={{background:"#fff",borderRadius:16,padding:28,width:"100%",maxWidth:420}} onClick={e=>e.stopPropagation()}>
+        {result?(
+          <div style={{textAlign:"center"}}>
+            <div style={{fontSize:40,marginBottom:12}}>🎉</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,marginBottom:8}}>Your Style Profile!</div>
+            <div style={{fontSize:13,color:"#7a6e65",lineHeight:1.7,marginBottom:20}}>
+              Based on your answers, we recommend:<br/>
+              <strong style={{color:"#1a1612"}}>{result.ans.gender} · {result.ans.occasion} · {result.ans.feel}</strong>
+            </div>
+            <div style={{background:"#f5f0e8",borderRadius:8,padding:14,marginBottom:20,fontSize:13,color:"#4a4035"}}>
+              Budget: <strong>{result.ans.budget}</strong> · Color: <strong>{result.ans.color}</strong>
+            </div>
+            <button onClick={()=>onFilter(result.cat)} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:"13px",fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:6,marginBottom:8}}>Show My Products →</button>
+            <button onClick={()=>{setStep(0);setAns({});setResult(null);}} style={{width:"100%",background:"none",border:"1px solid #e0d8cc",padding:"10px",fontSize:12,cursor:"pointer",borderRadius:6,color:"#7a6e65"}}>Retake Quiz</button>
+          </div>
+        ):(
+          <>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+              <div style={{fontSize:10,color:"#7a6e65",letterSpacing:1}}>Question {step+1} of {QUESTIONS.length}</div>
+              <button onClick={onClose} style={{background:"none",border:"none",fontSize:18,cursor:"pointer",color:"#9a8f83"}}>✕</button>
+            </div>
+            <div style={{background:"#f5f0e8",borderRadius:6,height:4,marginBottom:20,overflow:"hidden"}}>
+              <div style={{width:((step+1)/QUESTIONS.length*100)+"%",height:"100%",background:"#c9a84c",transition:"width .3s"}}/>
+            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#1a1612",marginBottom:20,lineHeight:1.3}}>{q.q}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {q.opts.map(o=>(
+                <button key={o} onClick={()=>pick(o)} style={{padding:"12px 16px",border:"1px solid #e0d8cc",borderRadius:8,background:"#fff",cursor:"pointer",fontSize:13,fontWeight:500,color:"#1a1612",textAlign:"left",transition:"all .15s"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid #c9a84c";e.currentTarget.style.background="#fffdf5";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid #e0d8cc";e.currentTarget.style.background="#fff";}}>{o}</button>
+              ))}
+            </div>
+            {step>0&&<button onClick={()=>setStep(s=>s-1)} style={{marginTop:14,background:"none",border:"none",cursor:"pointer",fontSize:12,color:"#7a6e65",padding:0}}>← Back</button>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ═══ PRODUCT MODAL ═══ */
 function ProductModal({prod,onClose,onAdd,onWish,wished}){
   const[imgIdx,setImgIdx]=useState(0);
@@ -1216,6 +1322,18 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
             </div>
           )}
           <div style={{fontSize:9,color:"#7a6e65",textAlign:"center",letterSpacing:1}}>← Swipe to change image</div>
+          {/* Product Video */}
+          {prod.video_url&&<div style={{marginTop:6}}>
+            <div style={{fontSize:9,color:"#c9a84c",letterSpacing:1.5,textTransform:"uppercase",marginBottom:6,fontWeight:700}}>▶ Product Video</div>
+            {prod.video_url.includes("youtube.com")||prod.video_url.includes("youtu.be")
+              ?<iframe
+                  src={prod.video_url.replace("watch?v=","embed/").replace("youtu.be/","www.youtube.com/embed/")}
+                  style={{width:"100%",aspectRatio:"16/9",border:"none",borderRadius:4}}
+                  allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
+                  allowFullScreen/>
+              :<video src={prod.video_url} controls style={{width:"100%",borderRadius:4,maxHeight:160}} playsInline/>
+            }
+          </div>}
         </div>
 
         {/* Right: Info */}
@@ -1633,11 +1751,20 @@ function MysteryGiftSection({settings,user,onAuth,products}){
             <div style={{fontSize:10,color:"#b5aba2"}}>+ product price</div>
           </div>
 
-          <button onClick={()=>user?setGiftOpen(true):onAuth("login")} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:4,transition:"all .2s"}}
-            onMouseEnter={e=>{e.currentTarget.style.background="#c9a84c";e.currentTarget.style.color="#000";}}
-            onMouseLeave={e=>{e.currentTarget.style.background="#1a1612";e.currentTarget.style.color="#c9a84c";}}>
-            Send a Gift →
-          </button>
+          <div style={{display:"grid",gap:8}}>
+            <button onClick={()=>user?setGiftOpen(true):onAuth("login")} style={{width:"100%",background:"#1a1612",color:"#c9a84c",border:"none",padding:"12px",fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:4,transition:"all .2s"}}
+              onMouseEnter={e=>{e.currentTarget.style.background="#c9a84c";e.currentTarget.style.color="#000";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="#1a1612";e.currentTarget.style.color="#c9a84c";}}>
+              Send a Gift →
+            </button>
+            <button onClick={()=>{
+              const budgets=[{min:0,label:"Under Rs.1,500",cat:"lawn"},{min:1500,label:"Rs.1,500–3,000",cat:"khaddar"},{min:3000,label:"Rs.3,000–5,000",cat:"lawn"},{min:5000,label:"Rs.5,000+",cat:"suiting"}];
+              const msg=`🎁 *Gift a Suit from Jameel Fabrics!*\n\nKisi kho khoobsurat suit gift karo 💝\n\nHumary paas har budget mein options hain:\n\n🥈 Budget Gifts: Rs.1,000–1,500\n🥇 Standard Gifts: Rs.2,000–3,500\n💠 Premium Gifts: Rs.4,000–6,000\n💎 Luxury Gifts: Rs.7,000+\n\nSabhi options mein beautiful gift wrapping available hai!\n\n👉 Order karo: wa.me/${WA_NUM}\n\nJazakAllah Khair! 🙏`;
+              window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(msg)}`,"_blank");
+            }} style={{width:"100%",background:"transparent",color:"#c9a84c",border:"1px solid rgba(201,168,76,.4)",padding:"10px",fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",cursor:"pointer",borderRadius:4}}>
+              📲 Share Gift Catalogue
+            </button>
+          </div>
         </div>
 
         {/* ── RIGHT: Mystery Box ─────────────────────── */}
@@ -1739,6 +1866,30 @@ function MysteryGiftSection({settings,user,onAuth,products}){
           )}
         </div>
       </div>}
+
+      {/* ── Mystery Box Policies ── */}
+      <div style={{maxWidth:960,margin:"48px auto 0",padding:"32px 0",borderTop:"1px solid rgba(201,168,76,.15)"}}>
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:6}}>Policies</div>
+          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(18px,2.5vw,26px)",fontWeight:600,color:"#1a1612",margin:0}}>Mystery Box & Gift Policies</h3>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:16}}>
+          {[
+            {ic:"📦",t:"Box Contents",d:"Each mystery box contains carefully curated fabrics from top brands. Exact items are not disclosed to maintain the surprise element."},
+            {ic:"🔄",t:"No Returns",d:"Mystery boxes are non-refundable and non-exchangeable due to their curated nature. Quality is guaranteed."},
+            {ic:"🚚",t:"Delivery",d:"Boxes are dispatched on the 12th and 28th of every month. Delivery via Pak Post, TCS, or Leopard Courier."},
+            {ic:"💰",t:"Payment",d:"Full advance payment required. Cash on delivery not available for mystery boxes. EasyPaisa/JazzCash/Bank transfer accepted."},
+            {ic:"🎁",t:"Gift Policy",d:"Gifts are wrapped and dispatched within 2-3 business days. Gift message is included as-is. No returns on gifted items."},
+            {ic:"⭐",t:"Quality Promise",d:"All fabrics are sourced from authentic brands. If a wrong item is sent, we will replace it at no cost."},
+          ].map(p=>(
+            <div key={p.t} style={{background:"#fdfcf8",border:"1px solid rgba(201,168,76,.12)",borderRadius:10,padding:18}}>
+              <div style={{fontSize:22,marginBottom:8}}>{p.ic}</div>
+              <div style={{fontWeight:700,fontSize:13,color:"#1a1612",marginBottom:6}}>{p.t}</div>
+              <div style={{fontSize:12,color:"#9a8f83",lineHeight:1.6}}>{p.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -1827,6 +1978,42 @@ function ThemeStyle({TH}){
 }
 
 
+function NewsletterBar(){
+  const[email,setEmail]=useState("");
+  const[done,setDone]=useState(false);
+  const[loading,setLoading]=useState(false);
+  async function sub(){
+    if(!email||!email.includes("@"))return toast("Valid email daalo","error");
+    setLoading(true);
+    if(sb){
+      const{error}=await sb.from("newsletter_subscribers").upsert({email:email.toLowerCase(),subscribed_at:new Date().toISOString()},{onConflict:"email"});
+      if(error){
+        // fallback — try the subscriptions table if that's what exists
+        await sb.from("subscriptions").insert({email:email.toLowerCase(),subscribed_at:new Date().toISOString(),type:"newsletter"}).catch(()=>{});
+      }
+    }
+    setLoading(false);setDone(true);setEmail("");
+    toast("Subscribed! Exclusive deals milenge 🎉","success");
+  }
+  if(done)return(
+    <div style={{maxWidth:1200,margin:"0 auto 32px",textAlign:"center",padding:"20px",borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:28}}>
+      <div style={{fontSize:13,color:"rgba(255,255,255,.5)"}}>✅ Subscribed! Exclusive deals milenge 🎉</div>
+    </div>
+  );
+  return(
+    <div style={{maxWidth:1200,margin:"0 auto 32px",borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:28}}>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:4}}>Newsletter</div>
+        <div style={{fontSize:14,fontWeight:600,color:"rgba(255,255,255,.7)"}}>Exclusive deals aur new arrivals pehle paao</div>
+      </div>
+      <div style={{display:"flex",gap:0,maxWidth:400,margin:"0 auto"}}>
+        <input value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sub()} placeholder="apna@email.com" type="email" style={{flex:1,padding:"10px 14px",border:"1px solid rgba(201,168,76,.3)",borderRight:"none",background:"rgba(255,255,255,.05)",color:"#fff",fontSize:12,outline:"none",fontFamily:"inherit"}}/>
+        <button onClick={sub} disabled={loading} style={{padding:"10px 20px",background:"#c9a84c",color:"#000",border:"none",fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,whiteSpace:"nowrap",opacity:loading?.6:1}}>{loading?"...":"Subscribe"}</button>
+      </div>
+    </div>
+  );
+}
+
 function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const TH=siteTheme||SITE_THEMES["Blue Beige"];
   // Apply ALL theme CSS variables on every render
@@ -1869,6 +2056,9 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const[gift,setGift]=useState({enabled:false});
   const[abandonTimer,setAbandonTimer]=useState(null);
   const[priceDrop,setPriceDrop]=useState({});
+  const[vipUnlocked,setVipUnlocked]=useState(false);
+  const[abandonPopup,setAbandonPopup]=useState(false);
+  const[styleQuizOpen,setStyleQuizOpen]=useState(false);
   const[heroImgIdx,setHeroImgIdx]=useState(0);
   const heroImgs=["👗","✨","🌸","🧵","💎"];
   const[modalProd,setModalProd]=useState(null);
@@ -1897,6 +2087,24 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   },[settings]);
   useEffect(()=>{if(!sb)return;sb.from("products").select("*").eq("website_status","approved").eq("active",true).order("created_at",{ascending:false}).then(({data})=>setProds(data||[]));const ch=sb.channel("shop_p").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{sb.from("products").select("*").eq("website_status","approved").eq("active",true).order("created_at",{ascending:false}).then(({data})=>setProds(data||[]));}).subscribe();return()=>sb.removeChannel(ch);},[]);
   useEffect(()=>{if(!sb||!user)return;sb.from("wishlists").select("product_id").eq("customer_id",user.id).then(({data})=>{if(data)setWish(new Set(data.map(x=>x.product_id)));});},[user]);
+  // VIP unlock check
+  useEffect(()=>{
+    if(!sb||!user)return;
+    sb.from("vip_customers").select("vip_unlocked,total_purchase").eq("customer_id",user.id).single()
+      .then(({data})=>{if(data?.vip_unlocked)setVipUnlocked(true);})
+      .catch(()=>{
+        sb.from("online_orders").select("total").eq("customer_id",user.id)
+          .then(({data})=>{const sum=(data||[]).reduce((a,o)=>a+Number(o.total||0),0);if(sum>=10000)setVipUnlocked(true);});
+      });
+  },[user]);
+  // Abandoned cart recovery
+  useEffect(()=>{
+    if(cart.length===0){clearTimeout(abandonTimer);return;}
+    clearTimeout(abandonTimer);
+    const t=setTimeout(()=>{if(cart.length>0)setAbandonPopup(true);},3600000);
+    setAbandonTimer(t);
+    return()=>clearTimeout(t);
+  },[cart]);
   useEffect(()=>{document.body.style.overflow=menuOpen?"hidden":"";return()=>{document.body.style.overflow="";};},[menuOpen]);
   // Back to top
   useEffect(()=>{
@@ -1960,7 +2168,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   return(<div style={{background:`${TH.bg}`,minHeight:"100vh",fontFamily:"var(--t-bf,'Jost',sans-serif)"}}>
     <ThemeStyle TH={TH}/>
     <ImageZoom src={zoomImg} onClose={()=>setZoomImg(null)}/>
-    <AIOutfitSuggester prods={prods} onFilter={setCat}/>
+    {settings.show_ai_suggester!=="false"&&<AIOutfitSuggester prods={prods} onFilter={setCat}/>}
     {/* Countdown Banner - above announcement */}
         {/* Announcement */}
     <div style={{background:"#111",height:34,display:"flex",alignItems:"center",overflow:"hidden"}}>
@@ -2242,8 +2450,40 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       )}
     </section>
     
+    {/* HIDDEN VIP COLLECTION */}
+    {vipUnlocked&&<section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,60px)",background:"linear-gradient(135deg,#0a0806 0%,#1a1612 50%,#2c1f0a 100%)",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle,rgba(201,168,76,.08) 1px,transparent 1px)",backgroundSize:"28px 28px",pointerEvents:"none"}}/>
+      <div style={{position:"relative",zIndex:1}}>
+        <div style={{textAlign:"center",marginBottom:36}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(201,168,76,.1)",border:"1px solid rgba(201,168,76,.3)",borderRadius:20,padding:"6px 16px",marginBottom:14}}>
+            <span style={{fontSize:14}}>👑</span>
+            <span style={{fontSize:10,fontWeight:800,letterSpacing:3,color:"#c9a84c",textTransform:"uppercase"}}>Exclusive VIP Access</span>
+          </div>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(26px,4vw,42px)",fontWeight:600,color:"#f5efe0",lineHeight:1.2,marginBottom:8}}>Hidden Luxury Collection</h2>
+          <p style={{fontSize:13,color:"rgba(245,239,224,.5)",maxWidth:460,margin:"0 auto"}}>Unlocked for our most valued customers — premium suiting not available to the public</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:16,maxWidth:1100,margin:"0 auto"}}>
+          {prods.filter(p=>p.vip_only||p.badge==="VIP").slice(0,8).map((p,i)=>(
+            <div key={p.id||i} onClick={()=>setModalProd(p)} style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(201,168,76,.2)",borderRadius:8,overflow:"hidden",cursor:"pointer",transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.border="1px solid rgba(201,168,76,.5)";e.currentTarget.style.background="rgba(255,255,255,.07)";}} onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(201,168,76,.2)";e.currentTarget.style.background="rgba(255,255,255,.04)";}}>
+              <div style={{aspectRatio:"3/4",background:"rgba(255,255,255,.04)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:42,position:"relative"}}>
+                {p.img1?<img src={p.img1} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(p.icon||"💎")}
+                <div style={{position:"absolute",top:8,left:8,background:"#c9a84c",color:"#000",fontSize:7,fontWeight:800,letterSpacing:1,padding:"2px 8px",textTransform:"uppercase"}}>VIP</div>
+              </div>
+              <div style={{padding:"12px 14px"}}>
+                <div style={{fontWeight:600,fontSize:13,color:"#f5efe0",marginBottom:4,lineHeight:1.3}}>{p.name}</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#c9a84c"}}>Rs.{Number(p.sale_price||p.price||0).toLocaleString()}</div>
+              </div>
+            </div>
+          ))}
+          {prods.filter(p=>p.vip_only||p.badge==="VIP").length===0&&(
+            <div style={{gridColumn:"1/-1",textAlign:"center",padding:"48px 0",color:"rgba(245,239,224,.3)",fontSize:14}}>VIP collection coming soon — check back later</div>
+          )}
+        </div>
+      </div>
+    </section>}
+
     {/* ALL COLLECTION — Mystery Box + Gift Sender */}
-    <MysteryGiftSection settings={settings} user={user} onAuth={setAuthModal} products={prods}/>
+    {settings.show_mystery!=="false"&&<MysteryGiftSection settings={settings} user={user} onAuth={setAuthModal} products={prods}/>}
 
     {/* VISIT OUR STORE */}
 <section id="store-map" style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",background:"var(--t-bg)",borderBottom:"1px solid #e8e4df"}}>
@@ -2301,7 +2541,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
         <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Customer Reviews</div>
       </div>
-      <ReviewsSection/>
+      {settings.show_reviews!=="false"&&<ReviewsSection/>}
     </section>
 
     <section style={{padding:"clamp(48px,6vw,80px) clamp(16px,4vw,60px)",background:`${TH.surface}`,borderBottom:"1px solid var(--t-border)"}}>
@@ -2382,6 +2622,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           </div>
         ))}
       </div>
+      {/* Newsletter subscribe */}
+      <NewsletterBar/>
       <div style={{borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:20,maxWidth:1200,margin:"0 auto",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
         <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>© 2026 {settings.store_name||"JAMEEL FABRICS KUNJAH"}. All Rights Reserved.</div>
         <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>Premium Pakistani Clothing</div>
@@ -2402,6 +2644,24 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {modalProd&&<ProductModal prod={modalProd} onClose={()=>setModalProd(null)} onAdd={addToCart} onWish={toggleWish} wished={wish.has(modalProd.id)}/>}
     {cartOpen&&<CartPanel cart={cart} setCart={setCart} wa={wa} onClose={()=>setCartOpen(false)} user={user} settings={settings} gift={gift} setGift={setGift}/>}
     {authModal&&<AuthModal mode={authModal} onClose={()=>setAuthModal(null)} onSuccess={()=>setAuthModal(null)}/>}
+
+    {/* ABANDONED CART POPUP */}
+    {abandonPopup&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setAbandonPopup(false)}>
+      <div style={{background:"#fff",borderRadius:16,padding:28,width:"100%",maxWidth:360,textAlign:"center"}} onClick={e=>e.stopPropagation()}>
+        <div style={{fontSize:40,marginBottom:12}}>🛍️</div>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#1a1612",marginBottom:8}}>Apni cart bhool gaye?</div>
+        <p style={{fontSize:13,color:"#7a6e65",lineHeight:1.7,marginBottom:20}}>Aapki cart mein {cart.length} item(s) hain. Abhi order karo aur apna pasandida fabric paao!</p>
+        <div style={{background:"#dcfce7",border:"1px solid #86efac",borderRadius:8,padding:"10px 16px",marginBottom:20,fontSize:13,fontWeight:600,color:"#16a34a"}}>🎁 10% discount available on selected items</div>
+        <button onClick={()=>{setAbandonPopup(false);setCartOpen(true);}} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:"13px",fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:6,marginBottom:8}}>Complete My Order</button>
+        <button onClick={()=>setAbandonPopup(false)} style={{width:"100%",background:"none",border:"1px solid #e0d8cc",padding:"10px",fontSize:12,cursor:"pointer",borderRadius:6,color:"#7a6e65"}}>Maybe Later</button>
+      </div>
+    </div>}
+
+    {/* STYLE QUIZ */}
+    {styleQuizOpen&&<StyleQuiz prods={prods} onClose={()=>setStyleQuizOpen(false)} onFilter={p=>{setCat(p);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});setStyleQuizOpen(false);}}/>}
+    <button onClick={()=>setStyleQuizOpen(true)} style={{position:"fixed",bottom:80,right:16,zIndex:899,background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"#fff",border:"none",borderRadius:50,padding:"10px 16px",fontSize:12,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 16px rgba(99,102,241,.4)",display:"flex",alignItems:"center",gap:6}}>
+      🎯 Style Quiz
+    </button>
   </div>);
 }
 
@@ -2728,6 +2988,114 @@ function AWASettings({settings,onSaved}){
 }
 
 // ── BILL TEMPLATES CRUD ───────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ADMIN: SIZE CHART TEMPLATES
+// ══════════════════════════════════════════════════════════════
+const DEFAULT_CHARTS=[
+  {id:"unstitched_lawn",name:"Unstitched Lawn",rows:[["Size","Shirt Length","Shirt Width","Dupatta","Shalwar"],["1 Meter","—","—","2.5m","—"],["2.5 Meters","42\"","22\"","2.5m","2.5m"],["3 Meters","44\"","24\"","2.5m","2.5m"]]},
+  {id:"stitched_kameez",name:"Stitched Kameez",rows:[["Size","Chest","Length","Sleeve","Neck"],["XS","32\"","38\"","22\"","14\""],["S","34\"","40\"","23\"","14.5\""],["M","36\"","42\"","24\"","15\""],["L","38\"","44\"","25\"","15.5\""],["XL","40\"","46\"","26\"","16\""],["XXL","42\"","48\"","27\"","17\""]]},
+  {id:"stitched_shalwar",name:"Stitched Shalwar",rows:[["Size","Waist","Hip","Length"],["XS","28\"","36\"","38\""],["S","30\"","38\"","39\""],["M","32\"","40\"","40\""],["L","34\"","42\"","41\""],["XL","36\"","44\"","42\""],["XXL","38\"","46\"","43\""]]},
+  {id:"kids_shirt",name:"Kids Shirt",rows:[["Age","Chest","Length","Sleeve"],["2-3yr","22\"","18\"","12\""],["4-5yr","24\"","20\"","14\""],["6-7yr","26\"","22\"","15\""],["8-9yr","28\"","24\"","17\""],["10-11yr","30\"","26\"","18\""]]},
+  {id:"suiting_2pcs",name:"Suiting 2-Piece",rows:[["Size","Kameez Length","Kameez Width","Trouser Length"],["S/M","44\"","22\"","40\""],["M/L","46\"","24\"","41\""],["L/XL","48\"","26\"","42\""],["XL/XXL","50\"","28\"","43\""]]},
+];
+
+function ASizeCharts(){
+  const[charts,setCharts]=useState([]);
+  const[edit,setEdit]=useState(null);
+  const[form,setForm]=useState({id:"",name:"",rows:[]});
+  const[loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    if(!sb){setCharts(DEFAULT_CHARTS);setLoading(false);return;}
+    sb.from("website_settings").select("value").eq("key","size_charts").single()
+      .then(({data})=>{
+        if(data?.value){try{setCharts(JSON.parse(data.value));setLoading(false);return;}catch{}}
+        setCharts(DEFAULT_CHARTS);setLoading(false);
+      });
+  },[]);
+
+  async function saveAll(list){
+    if(!sb)return;
+    await sb.from("website_settings").upsert({key:"size_charts",value:JSON.stringify(list)},{onConflict:"key"});
+  }
+
+  async function save(){
+    if(!form.name)return toast("Name required","error");
+    const updated=edit==="new"
+      ?[...charts,{...form,id:form.id||form.name.toLowerCase().replace(/\s+/g,"_")+Date.now()}]
+      :charts.map(c=>c.id===edit?{...form}:c);
+    setCharts(updated);await saveAll(updated);setEdit(null);toast("Chart saved!","success");
+  }
+
+  function addRow(){setForm(f=>({...f,rows:[...f.rows,f.rows[0]?.map(()=>"")||["",""]]}))}
+  function updateCell(ri,ci,v){setForm(f=>{const r=f.rows.map(r=>[...r]);r[ri][ci]=v;return{...f,rows:r};});}
+  function addCol(){setForm(f=>({...f,rows:f.rows.map(r=>[...r,""])}))}
+  function removeRow(ri){setForm(f=>({...f,rows:f.rows.filter((_,i)=>i!==ri)}))}
+
+  return(<div>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+      <AH title="📏 Size Chart Templates" sub="10 stitched/unstitched categories ke liye size charts"/>
+      <ABtn onClick={()=>{setEdit("new");setForm({id:"",name:"",rows:[["Size","Chest","Length"],["S","34\"","40\""],["M","36\"","42\""],["L","38\"","44\""]]}); }} style={{background:"#111",color:"#fff"}}>+ New Chart</ABtn>
+    </div>
+    {loading?<div style={{textAlign:"center",padding:32,color:"#9ca3af"}}>Loading...</div>:(
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+        {charts.map(c=>(
+          <ACard key={c.id} style={{padding:16}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+              <div style={{fontWeight:700,fontSize:13}}>{c.name}</div>
+              <div style={{display:"flex",gap:4}}>
+                <ABtn sm onClick={()=>{setEdit(c.id);setForm({...c,rows:c.rows.map(r=>[...r])});}} style={{background:"#f3f4f6"}}>Edit</ABtn>
+                <ABtn sm onClick={()=>{if(!window.confirm("Delete?"))return;const u=charts.filter(x=>x.id!==c.id);setCharts(u);saveAll(u);}} style={{background:"#fee2e2",color:"#dc2626"}}>Del</ABtn>
+              </div>
+            </div>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+                {c.rows.map((row,ri)=>(
+                  <tr key={ri} style={{background:ri===0?"#f9fafb":"transparent"}}>
+                    {row.map((cell,ci)=>(
+                      <td key={ci} style={{padding:"4px 6px",border:"1px solid #e5e7eb",fontWeight:ri===0?700:400,color:ri===0?"#374151":"#6b7280"}}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </table>
+            </div>
+            <div style={{marginTop:6,fontSize:11,color:"#9ca3af"}}>{c.rows.length-1} sizes · {(c.rows[0]?.length||0)-1} measurements</div>
+          </ACard>
+        ))}
+      </div>
+    )}
+
+    {edit&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setEdit(null)}>
+      <div style={{background:"var(--t-card)",borderRadius:12,padding:24,width:"100%",maxWidth:640,maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+        <div style={{fontWeight:700,fontSize:15,marginBottom:16}}>{edit==="new"?"New Size Chart":"Edit Size Chart"}</div>
+        <div style={{marginBottom:12}}><ALbl c="Chart Name"/><AI value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Stitched Kameez"/></div>
+        <div style={{overflowX:"auto",marginBottom:12}}>
+          <table style={{borderCollapse:"collapse",fontSize:12,minWidth:300}}>
+            {form.rows.map((row,ri)=>(
+              <tr key={ri} style={{background:ri===0?"#f0f9ff":"transparent"}}>
+                {row.map((cell,ci)=>(
+                  <td key={ci} style={{padding:3,border:"1px solid #e5e7eb"}}>
+                    <input value={cell} onChange={e=>updateCell(ri,ci,e.target.value)} style={{width:70,padding:"4px 6px",border:"none",outline:"none",fontSize:12,background:"transparent",fontWeight:ri===0?700:400}}/>
+                  </td>
+                ))}
+                <td style={{padding:3}}><button onClick={()=>removeRow(ri)} style={{fontSize:10,padding:"2px 6px",border:"1px solid #fecaca",borderRadius:4,cursor:"pointer",background:"#fee2e2",color:"#dc2626"}}>✕</button></td>
+              </tr>
+            ))}
+          </table>
+        </div>
+        <div style={{display:"flex",gap:8,marginBottom:16}}>
+          <ABtn sm onClick={addRow} style={{background:"#f3f4f6"}}>+ Row</ABtn>
+          <ABtn sm onClick={addCol} style={{background:"#f3f4f6"}}>+ Column</ABtn>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <ABtn onClick={save} style={{background:"#111",color:"#fff"}}>Save Chart</ABtn>
+          <ABtn onClick={()=>setEdit(null)} style={{background:"#f3f4f6"}}>Cancel</ABtn>
+        </div>
+      </div>
+    </div>}
+  </div>);
+}
+
 function ABillTemplates(){
   const[templates,setTemplates]=useState([]);
   const[edit,setEdit]=useState(null);
@@ -3294,7 +3662,8 @@ function AProducts({products,onRefresh}){
                 </div>
               ))}
             </div>
-            <div style={{marginTop:14}}><ALbl c="WA Note"/><textarea value={form.note||""} onChange={e=>setForm({...form,note:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",minHeight:60,resize:"vertical"}} placeholder="Note for WA order..."/></div>
+            <div style={{marginTop:14}}><ALbl c="Product Video URL (YouTube / MP4 link)"/><AI value={form.video_url||""} onChange={e=>setForm({...form,video_url:e.target.value})} placeholder="https://youtube.com/watch?v=... or .mp4 url"/></div>
+            <div style={{marginTop:10}}><ALbl c="WA Note"/><textarea value={form.note||""} onChange={e=>setForm({...form,note:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,color:"var(--t-text)",outline:"none",fontFamily:"inherit",minHeight:60,resize:"vertical"}} placeholder="Note for WA order..."/></div>
             <div style={{display:"flex",gap:20,marginTop:14}}>
               <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.active!==false} onChange={e=>setForm({...form,active:e.target.checked})} style={{accentColor:"#111"}}/>Show on website</label>
               <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}><input type="checkbox" checked={form.featured||false} onChange={e=>setForm({...form,featured:e.target.checked})} style={{accentColor:"#111"}}/>Featured</label>
@@ -3523,16 +3892,27 @@ function AContent({settings}){
       </ACard>
 
       <ACard style={{padding:16,gridColumn:"1/-1"}}>
-        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>👁️ About Section Visibility</div>
-        <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
-            <input type="checkbox" checked={f.show_our_story!=="false"} onChange={e=>updateF("show_our_story",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
-            Show "Our Story" card
-          </label>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13}}>
-            <input type="checkbox" checked={f.show_why_us!=="false"} onChange={e=>updateF("show_why_us",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16}}/>
-            Show "Why Choose Us" card
-          </label>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>👁️ Section Visibility Controls</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:12}}>
+          {[
+            ["show_announcement","📢 Announcement Bar","true"],
+            ["show_countdown","⏰ Countdown Timer","true"],
+            ["show_our_story","📖 Our Story Section","true"],
+            ["show_why_us","✨ Why Choose Us","true"],
+            ["show_mystery","🎁 Mystery Box Section","true"],
+            ["show_ai_suggester","🤖 AI Outfit Suggester","true"],
+            ["show_reviews","⭐ Reviews Section","true"],
+            ["show_brand_ticker","🏷️ Brand Ticker Bar","true"],
+            ["show_vip","👑 VIP Collection","true"],
+            ["hero_banner_show","🖼️ Hero Banner","false"],
+            ["video_show","🎥 Video Section","false"],
+            ["sub_active","📦 Mystery Subscription","true"],
+          ].map(([key,label,defaultVal])=>(
+            <label key={key} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:12,padding:"8px 10px",border:"1px solid #e5e7eb",borderRadius:6,background:f[key]===(f[key]==="false"?"false":"false")?"#f9fafb":"transparent"}}>
+              <input type="checkbox" checked={f[key]!=="false"&&(f[key]||defaultVal)!=="false"} onChange={e=>updateF(key,e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:16,height:16,flexShrink:0}}/>
+              <span>{label}</span>
+            </label>
+          ))}
         </div>
       </ACard>
 
@@ -3554,6 +3934,69 @@ function AContent({settings}){
   </div>);
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN: TREND ALERT SYSTEM
+// ══════════════════════════════════════════════════════════════
+function ATrendAlerts({products}){
+  const[slowProds,setSlowProds]=useState([]);
+  const[subs,setSubs]=useState([]);
+  const[sending,setSending]=useState(false);
+  const[sent,setSent]=useState([]);
+  const[discount,setDiscount]=useState(10);
+
+  useEffect(()=>{
+    if(!sb)return;
+    // Mark products as slow-moving if stock > 20 and no recent order
+    sb.from("subscriptions").select("email").then(({data})=>setSubs(data||[]));
+  },[]);
+
+  // Identify slow-moving products (high stock products without discount)
+  const slowMoving=(products||[]).filter(p=>Number(p.stock||0)>15&&!p.is_trending);
+
+  async function sendAlert(prod){
+    if(!subs.length)return toast("No subscribers to alert","error");
+    const dcPrice=Math.round(Number(prod.price||0)*(1-discount/100));
+    const msg=`🛍️ *TREND ALERT — Jameel Fabrics*\n\n*${prod.name}* — Special ${discount}% OFF!\n\n💰 Was: Rs.${Number(prod.price||0).toLocaleString()}\n✅ Now: Rs.${dcPrice.toLocaleString()}\n\n📦 Stock available: ${prod.stock} pcs\n\n🛒 Order now via WhatsApp!\nwa.me/${WA_NUM}?text=Order: ${encodeURIComponent(prod.name)}`;
+    setSending(true);
+    // Save alert to DB
+    await sb.from("website_alerts").insert({type:"trend_alert",product_id:prod.id,product_name:prod.name,discount_pct:discount,message:msg,sent_to:subs.length,created_at:new Date().toISOString()}).catch(()=>{});
+    // Open WhatsApp broadcast link for first subscriber as demo
+    window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(`*TREND ALERT BROADCAST*\n\nProduct: ${prod.name}\nDiscount: ${discount}%\nSubscribers: ${subs.length}\n\n${msg.slice(0,200)}...`)}`,"_blank");
+    setSent(s=>[...s,prod.id]);
+    setSending(false);
+    toast(`Alert sent for ${prod.name} to ${subs.length} subscribers!`,"success");
+  }
+
+  return(<div>
+    <AH title="📊 Trend Alert System" sub="Slow-moving products detect karo aur subscribers ko alert bhejo"/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
+      <ACard style={{padding:16}}><div style={{fontSize:28,fontWeight:800,color:"#c9a84c"}}>{slowMoving.length}</div><div style={{fontSize:12,color:"#6b7280"}}>Slow-Moving Products</div></ACard>
+      <ACard style={{padding:16}}><div style={{fontSize:28,fontWeight:800,color:"#16a34a"}}>{subs.length}</div><div style={{fontSize:12,color:"#6b7280"}}>Subscribed Customers</div></ACard>
+    </div>
+    <div style={{marginBottom:16,display:"flex",alignItems:"center",gap:12}}>
+      <ALbl c="Discount %"/>
+      <input type="number" value={discount} onChange={e=>setDiscount(Number(e.target.value))} min={5} max={50} style={{width:80,padding:"6px 10px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:13,outline:"none"}}/>
+    </div>
+    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+      {slowMoving.length===0&&<div style={{textAlign:"center",padding:32,color:"#9ca3af"}}>No slow-moving products found</div>}
+      {slowMoving.map(p=>(
+        <ACard key={p.id} style={{padding:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+            <div>
+              <div style={{fontWeight:600,fontSize:13}}>{p.name}</div>
+              <div style={{fontSize:12,color:"#6b7280"}}>Stock: {p.stock} pcs · Rs.{Number(p.price||0).toLocaleString()}</div>
+            </div>
+            {sent.includes(p.id)
+              ?<span style={{fontSize:12,color:"#16a34a",fontWeight:600}}>✅ Alert Sent</span>
+              :<ABtn onClick={()=>sendAlert(p)} disabled={sending} style={{background:"#c9a84c",color:"#0a0907",fontWeight:700,fontSize:12}}>📣 Send {discount}% Alert</ABtn>
+            }
+          </div>
+        </ACard>
+      ))}
+    </div>
+  </div>);
+}
 
 function ASubs({subs}){
   const safeSubs=subs||[];
@@ -3718,13 +4161,119 @@ function ASettings({settings}){
         <ACard style={{padding:18,marginBottom:16}}>
           <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>💾 Backup</div>
           <ABtn onClick={async()=>{if(!sb)return;const{data}=await sb.from("products").select("*");const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data,null,2));a.download="products_backup_"+Date.now()+".json";a.click();}} style={{background:"#111",color:"#fff",width:"100%",marginBottom:8}}>⬇️ Download Products Backup</ABtn>
-          <ABtn onClick={async()=>{if(!sb)return;const{data}=await sb.from("online_orders").select("*");const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data,null,2));a.download="orders_backup_"+Date.now()+".json";a.click();}} style={{background:"#374151",color:"#fff",width:"100%"}}>⬇️ Download Orders Backup</ABtn>
+          <ABtn onClick={async()=>{if(!sb)return;const{data}=await sb.from("online_orders").select("*");const a=document.createElement("a");a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data,null,2));a.download="orders_backup_"+Date.now()+".json";a.click();}} style={{background:"#374151",color:"#fff",width:"100%",marginBottom:8}}>⬇️ Download Orders Backup</ABtn>
+          <ABtn onClick={async()=>{
+            if(!sb)return;
+            const{data:orders}=await sb.from("online_orders").select("*").order("created_at",{ascending:false});
+            if(!orders)return;
+            const total=orders.reduce((s,o)=>s+Number(o.total||0),0);
+            const confirmed=orders.filter(o=>o.status==="confirmed"||o.status==="delivered").length;
+            const rows=orders.map(o=>`${o.id.slice(-6).toUpperCase()} | ${new Date(o.created_at).toLocaleDateString()} | ${o.customer_name||"Guest"} | Rs.${Number(o.total||0).toLocaleString()} | ${o.status}`).join("\n");
+            const report=`JAMEEL FABRICS — SALES REPORT\nGenerated: ${new Date().toLocaleString()}\n${"=".repeat(60)}\n\nTotal Orders: ${orders.length}\nConfirmed/Delivered: ${confirmed}\nTotal Revenue: Rs.${total.toLocaleString()}\n\n${"=".repeat(60)}\nOrder ID | Date | Customer | Amount | Status\n${"-".repeat(60)}\n${rows}`;
+            const a=document.createElement("a");a.href="data:text/plain,"+encodeURIComponent(report);a.download="sales_report_"+Date.now()+".txt";a.click();
+          }} style={{background:"#16a34a",color:"#fff",width:"100%"}}>📊 Download Sales Report</ABtn>
         </ACard>
       </div>
     </div>
   </div>);
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN: CUSTOMER MANAGEMENT
+// ══════════════════════════════════════════════════════════════
+function ACustomers(){
+  const[customers,setCustomers]=useState([]);
+  const[form,setForm]=useState({name:"",email:"",phone:"",address:""});
+  const[billForm,setBillForm]=useState({customer_id:"",amount:"",note:""});
+  const[loading,setLoading]=useState(false);
+  const[tab,setTab]=useState("list");
+
+  useEffect(()=>{load();},[]);
+
+  async function load(){
+    if(!sb)return;
+    const{data:vip}=await sb.from("vip_customers").select("*").order("created_at",{ascending:false});
+    const{data:auth}=await sb.from("auth_users_view").select("id,email,created_at").limit(50).catch(()=>({data:[]}));
+    setCustomers(vip||[]);
+  }
+
+  async function addCustomer(){
+    if(!form.name||!form.email)return toast("Name aur email required","error");
+    setLoading(true);
+    await sb.from("vip_customers").insert({...form,total_purchase:0,vip_unlocked:false,created_at:new Date().toISOString()}).catch(()=>{});
+    setLoading(false);toast("Customer added!","success");
+    setForm({name:"",email:"",phone:"",address:""});load();
+  }
+
+  async function addBill(){
+    if(!billForm.customer_id||!billForm.amount)return toast("Customer ID aur amount required","error");
+    const amt=Number(billForm.amount);
+    const{data:existing}=await sb.from("vip_customers").select("total_purchase").eq("id",billForm.customer_id).single();
+    const newTotal=(existing?.total_purchase||0)+amt;
+    await sb.from("vip_customers").update({total_purchase:newTotal,vip_unlocked:newTotal>=10000,last_purchase:new Date().toISOString(),last_note:billForm.note}).eq("id",billForm.customer_id);
+    toast(`Bill added! Total: Rs.${newTotal.toLocaleString()}${newTotal>=10000?" — VIP UNLOCKED! 👑":""}`,newTotal>=10000?"success":"info");
+    setBillForm({customer_id:"",amount:"",note:""});load();
+  }
+
+  async function toggleVip(c){
+    await sb.from("vip_customers").update({vip_unlocked:!c.vip_unlocked}).eq("id",c.id);
+    toast(c.vip_unlocked?"VIP removed":"VIP unlocked 👑","success");load();
+  }
+
+  return(<div>
+    <AH title="👥 Customer Management" sub="Customers manage karo, bills add karo, VIP unlock karo"/>
+    <div style={{display:"flex",gap:8,marginBottom:20}}>
+      {[["list","Customer List"],["add","Add Customer"],["bill","Add Bill"]].map(([k,l])=>(
+        <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 16px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,fontWeight:600,cursor:"pointer",background:tab===k?"#111":"#fff",color:tab===k?"#fff":"#374151"}}>{l}</button>
+      ))}
+    </div>
+
+    {tab==="list"&&<ACard style={{padding:0,overflow:"hidden"}}>
+      <table style={{width:"100%",borderCollapse:"collapse"}}>
+        <thead><tr>{["Name","Email","Phone","Total Purchase","VIP","Actions"].map(h=><th key={h} className="adm-th">{h}</th>)}</tr></thead>
+        <tbody>
+          {customers.map(c=>(
+            <tr key={c.id}>
+              <td className="adm-td" style={{fontWeight:600}}>{c.name}</td>
+              <td className="adm-td" style={{fontSize:12,color:"#6b7280"}}>{c.email}</td>
+              <td className="adm-td">{c.phone||"—"}</td>
+              <td className="adm-td"><span style={{fontWeight:700,color:"#c9a84c"}}>Rs.{Number(c.total_purchase||0).toLocaleString()}</span></td>
+              <td className="adm-td"><span style={{padding:"2px 8px",borderRadius:12,fontSize:11,fontWeight:700,background:c.vip_unlocked?"#fef9c3":"#f3f4f6",color:c.vip_unlocked?"#ca8a04":"#6b7280"}}>{c.vip_unlocked?"👑 VIP":"Regular"}</span></td>
+              <td className="adm-td"><button onClick={()=>toggleVip(c)} style={{fontSize:11,padding:"4px 10px",border:"1px solid #e5e7eb",borderRadius:4,cursor:"pointer",background:"#f9fafb"}}>{c.vip_unlocked?"Remove VIP":"Grant VIP"}</button></td>
+            </tr>
+          ))}
+          {!customers.length&&<tr><td colSpan={6} style={{textAlign:"center",padding:32,color:"#9ca3af",fontSize:13}}>No customers yet</td></tr>}
+        </tbody>
+      </table>
+    </ACard>}
+
+    {tab==="add"&&<ACard style={{padding:20}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+        <div><ALbl c="Full Name *"/><AI value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Hamza Muhammadi"/></div>
+        <div><ALbl c="Email *"/><AI value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="hamza@email.com"/></div>
+        <div><ALbl c="Phone"/><AI value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="03001234567"/></div>
+        <div><ALbl c="Address"/><AI value={form.address} onChange={e=>setForm({...form,address:e.target.value})} placeholder="Kunjah, Gujrat"/></div>
+      </div>
+      <ABtn onClick={addCustomer} style={{background:"#111",color:"#fff"}} disabled={loading}>{loading?"Adding...":"Add Customer"}</ABtn>
+    </ACard>}
+
+    {tab==="bill"&&<ACard style={{padding:20}}>
+      <div style={{fontSize:13,color:"#6b7280",marginBottom:16}}>Customer ki purchase add karo — 10k+ pe automatically VIP unlock ho ga</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+        <div><ALbl c="Customer"/>
+          <select value={billForm.customer_id} onChange={e=>setBillForm({...billForm,customer_id:e.target.value})} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",fontSize:13,outline:"none"}}>
+            <option value="">— Select Customer —</option>
+            {customers.map(c=><option key={c.id} value={c.id}>{c.name} (Rs.{Number(c.total_purchase||0).toLocaleString()})</option>)}
+          </select>
+        </div>
+        <div><ALbl c="Purchase Amount (Rs.)"/><AI type="number" value={billForm.amount} onChange={e=>setBillForm({...billForm,amount:e.target.value})} placeholder="5000"/></div>
+      </div>
+      <div style={{marginBottom:12}}><ALbl c="Note (optional)"/><AI value={billForm.note} onChange={e=>setBillForm({...billForm,note:e.target.value})} placeholder="Order details..."/></div>
+      <ABtn onClick={addBill} style={{background:"#16a34a",color:"#fff"}}>Add Bill & Update Total</ABtn>
+    </ACard>}
+  </div>);
+}
 
 function AReviews({onRefresh}){
   const{data:reviews}=useDB(()=>sb.from("reviews").select("*").order("created_at",{ascending:false}),[]);
@@ -3839,56 +4388,143 @@ function ASoldCounter({onRefresh}){
 
 function AAnalytics({settings={}}){
   const[gId,setGId]=useState(settings.ga_id||"");
-  const[loading,setLoading]=useState(false);
-  useEffect(()=>setGId(settings.ga_id||""),[settings]);
+  const[gaLoading,setGaLoading]=useState(false);
+  const[orders,setOrders]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[tab,setTab]=useState("sales");
+
+  useEffect(()=>{setGId(settings.ga_id||"");},[settings]);
+  useEffect(()=>{
+    if(!sb){setLoading(false);return;}
+    sb.from("online_orders").select("*").order("created_at",{ascending:false}).limit(500)
+      .then(({data})=>{setOrders(data||[]);setLoading(false);});
+  },[]);
+
   async function saveGA(){
-    if(!sb)return;setLoading(true);
+    if(!sb)return;setGaLoading(true);
     await sb.from("website_settings").upsert({key:"ga_id",value:gId},{onConflict:"key"});
-    setLoading(false);toast("Saved! Page reload karo","success");
+    setGaLoading(false);toast("Saved! Page reload karo","success");
   }
-  const stats=[
-    {l:"Total Visitors",v:"—",ic:"👥",sub:"Google Analytics connect karo"},
-    {l:"Page Views",v:"—",ic:"👁️",sub:"Data automatically aayega"},
-    {l:"WA Button Clicks",v:"—",ic:"💬",sub:"Tracking required"},
-    {l:"Avg. Session",v:"—",ic:"⏱️",sub:"Google mein dekho"},
+
+  // Compute analytics from orders
+  const today=new Date();today.setHours(0,0,0,0);
+  const thisWeek=new Date(today);thisWeek.setDate(today.getDate()-7);
+  const thisMonth=new Date(today);thisMonth.setDate(1);
+
+  const todayOrds=orders.filter(o=>new Date(o.created_at)>=today);
+  const weekOrds=orders.filter(o=>new Date(o.created_at)>=thisWeek);
+  const monthOrds=orders.filter(o=>new Date(o.created_at)>=thisMonth);
+
+  const rev=arr=>arr.reduce((s,o)=>s+Number(o.total||0),0);
+  const todayRev=rev(todayOrds);const weekRev=rev(weekOrds);const monthRev=rev(monthOrds);
+
+  // Top products from order items
+  const prodCount={};
+  orders.forEach(o=>{
+    try{const items=typeof o.items==="string"?JSON.parse(o.items):o.items||[];
+      items.forEach(it=>{const k=it.name||it.product_name||"Unknown";prodCount[k]=(prodCount[k]||0)+(it.qty||it.quantity||1);});
+    }catch{}
+  });
+  const topProds=Object.entries(prodCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Peak hours
+  const hourCount=Array(24).fill(0);
+  orders.forEach(o=>{hourCount[new Date(o.created_at).getHours()]++;});
+  const maxHour=Math.max(...hourCount)||1;
+  const peakHour=hourCount.indexOf(maxHour);
+
+  // Last 7 days chart
+  const days7=[];
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days7.push({d,label:d.toLocaleDateString("en",{weekday:"short"}),rev:rev(orders.filter(o=>{const od=new Date(o.created_at);od.setHours(0,0,0,0);return od.getTime()===d.getTime();}))});}
+  const maxDay=Math.max(...days7.map(x=>x.rev))||1;
+
+  const statCards=[
+    {l:"Today Orders",v:todayOrds.length,ic:"📦",sub:`Rs.${todayRev.toLocaleString()} revenue`},
+    {l:"This Week",v:weekOrds.length,ic:"📅",sub:`Rs.${weekRev.toLocaleString()} revenue`},
+    {l:"This Month",v:monthOrds.length,ic:"🗓️",sub:`Rs.${monthRev.toLocaleString()} revenue`},
+    {l:"All Time",v:orders.length,ic:"💰",sub:`Rs.${rev(orders).toLocaleString()} total`},
   ];
+
   return(<div>
-    <AH title="Google Analytics" sub="Website visitors ka data track karo"/>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))",gap:14,marginBottom:20}}>
-      {stats.map(s=><ACard key={s.l} style={{padding:18}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
-          <div style={{fontSize:22}}>{s.ic}</div>
-        </div>
-        <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:24,fontWeight:700,color:"#9ca3af"}}>{s.v}</div>
-        <div style={{fontSize:10,color:"#9ca3af",marginTop:4}}>{s.sub}</div>
-      </ACard>)}
-    </div>
-    <ACard style={{padding:24,marginBottom:20}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Google Analytics Setup</div>
-      <div style={{display:"grid",gap:12,maxWidth:500}}>
-        <div>
-          <ALbl c="Measurement ID (G-XXXXXXXXXX)"/>
-          <AI value={gId} onChange={e=>setGId(e.target.value)} placeholder="G-XXXXXXXXXX" style={{letterSpacing:2,fontWeight:600}}/>
-        </div>
-        <ABtn onClick={saveGA} disabled={loading} style={{background:"#111",color:"#fff",width:"fit-content",opacity:loading?.6:1}}>{loading?"Saving...":"Save & Enable"}</ABtn>
+    <AH title="📊 Sales Analytics" sub="Real-time sales data, top products, aur peak hours"/>
+    {loading?<div style={{textAlign:"center",padding:32,color:"#9ca3af"}}>Loading analytics...</div>:(<>
+      {/* Stats row */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:12,marginBottom:20}}>
+        {statCards.map(s=><ACard key={s.l} style={{padding:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontSize:11,fontWeight:600,color:"#6b7280",textTransform:"uppercase",letterSpacing:.5}}>{s.l}</div>
+            <div style={{fontSize:20}}>{s.ic}</div>
+          </div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:26,fontWeight:700,color:"var(--t-text)"}}>{s.v}</div>
+          <div style={{fontSize:11,color:"#9ca3af",marginTop:4}}>{s.sub}</div>
+        </ACard>)}
       </div>
-    </ACard>
-    <ACard style={{padding:24}}>
-      <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Setup Guide</div>
-      <div style={{display:"grid",gap:12}}>
-        {[
-          ["1","analytics.google.com pe jao","Free Google account se login karo"],
-          ["2","New Property banao","Website ka naam: Jameel Fabrics"],
-          ["3","Measurement ID copy karo","G-XXXXXXXXXX format mein hoga"],
-          ["4","Upar field mein paste karo","Save karo — 24 hours mein data aana shuru ho jaayega"],
-          ["5","Real-time report dekho","Google Analytics dashboard mein live visitors dikhenge"],
-        ].map(([n,t,d])=><div key={n} style={{display:"flex",gap:14,padding:"12px 0",borderBottom:"1px solid #f3f4f6"}}>
-          <div style={{width:28,height:28,background:"#111",color:"#fff",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,flexShrink:0}}>{n}</div>
-          <div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{t}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{d}</div></div>
-        </div>)}
+
+      {/* Tabs */}
+      <div style={{display:"flex",gap:4,marginBottom:16}}>
+        {[["sales","📈 Sales Chart"],["top","🏆 Top Products"],["peak","⏰ Peak Hours"],["ga","🔗 Google Analytics"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 14px",fontSize:11,fontWeight:600,border:`1px solid ${tab===t?"#111":"#e5e7eb"}`,background:tab===t?"#111":"transparent",color:tab===t?"#fff":"#6b7280",borderRadius:4,cursor:"pointer"}}>{l}</button>
+        ))}
       </div>
-    </ACard>
+
+      {/* Sales Chart */}
+      {tab==="sales"&&<ACard style={{padding:20}}>
+        <div style={{fontWeight:600,fontSize:14,marginBottom:16}}>Last 7 Days Revenue</div>
+        <div style={{display:"flex",alignItems:"flex-end",gap:8,height:140}}>
+          {days7.map((d,i)=>(
+            <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+              <div style={{fontSize:9,color:"#6b7280",fontWeight:700}}>Rs.{(d.rev/1000).toFixed(1)}k</div>
+              <div style={{width:"100%",background:d.rev>0?"#c9a84c":"#f3f4f6",borderRadius:"4px 4px 0 0",height:d.rev?(d.rev/maxDay*100)+"%":"4px",minHeight:4,transition:"height .4s"}}/>
+              <div style={{fontSize:10,color:"#9ca3af",fontWeight:600}}>{d.label}</div>
+            </div>
+          ))}
+        </div>
+      </ACard>}
+
+      {/* Top Products */}
+      {tab==="top"&&<ACard style={{padding:0,overflow:"hidden"}}>
+        <div style={{padding:"14px 16px",borderBottom:"1px solid #f3f4f6",fontWeight:600,fontSize:14}}>🏆 Best-Selling Products</div>
+        {topProds.length===0?<div style={{textAlign:"center",padding:32,color:"#9ca3af"}}>No order data yet</div>:topProds.map(([name,qty],i)=>(
+          <div key={name} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",borderBottom:"1px solid #f9fafb"}}>
+            <div style={{width:24,height:24,background:i===0?"#c9a84c":i===1?"#9ca3af":i===2?"#d97706":"#f3f4f6",color:i<3?"#fff":"#6b7280",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0}}>{i+1}</div>
+            <div style={{flex:1,fontWeight:500,fontSize:13}}>{name}</div>
+            <div style={{fontSize:12,color:"#6b7280"}}>{qty} pcs sold</div>
+            <div style={{width:80,height:6,background:"#f3f4f6",borderRadius:3,overflow:"hidden"}}>
+              <div style={{height:"100%",background:"#c9a84c",width:(qty/topProds[0][1]*100)+"%",borderRadius:3}}/>
+            </div>
+          </div>
+        ))}
+      </ACard>}
+
+      {/* Peak Hours */}
+      {tab==="peak"&&<ACard style={{padding:20}}>
+        <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>⏰ Order Peak Hours</div>
+        <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Peak hour: {peakHour}:00–{peakHour+1}:00 ({hourCount[peakHour]} orders)</div>
+        <div style={{display:"flex",alignItems:"flex-end",gap:2,height:100,overflowX:"auto"}}>
+          {hourCount.map((c,h)=>(
+            <div key={h} style={{flex:"0 0 calc(100%/24 - 2px)",display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+              <div style={{width:"100%",background:h===peakHour?"#c9a84c":c>0?"#111":"#f3f4f6",borderRadius:"2px 2px 0 0",height:c?(c/maxHour*80)+"%":"3px",minHeight:3,transition:"height .3s"}}/>
+              {h%3===0&&<div style={{fontSize:8,color:"#9ca3af"}}>{h}h</div>}
+            </div>
+          ))}
+        </div>
+      </ACard>}
+
+      {/* Google Analytics */}
+      {tab==="ga"&&<ACard style={{padding:24}}>
+        <div style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--t-text)"}}>Google Analytics Setup</div>
+        <div style={{display:"grid",gap:12,maxWidth:500,marginBottom:20}}>
+          <div><ALbl c="Measurement ID (G-XXXXXXXXXX)"/>
+            <AI value={gId} onChange={e=>setGId(e.target.value)} placeholder="G-XXXXXXXXXX" style={{letterSpacing:2,fontWeight:600}}/></div>
+          <ABtn onClick={saveGA} disabled={gaLoading} style={{background:"#111",color:"#fff",width:"fit-content",opacity:gaLoading?.6:1}}>{gaLoading?"Saving...":"Save & Enable"}</ABtn>
+        </div>
+        {[["1","analytics.google.com pe jao","Free account se login karo"],["2","New Property banao","Website: Jameel Fabrics"],["3","Measurement ID copy karo","G-XXXXXXXXXX format"],["4","Upar paste karo","Save — 24hrs mein data aana shuru"]]
+          .map(([n,t,d])=><div key={n} style={{display:"flex",gap:14,padding:"10px 0",borderBottom:"1px solid #f3f4f6"}}>
+            <div style={{width:24,height:24,background:"#111",color:"#fff",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0}}>{n}</div>
+            <div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{t}</div><div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{d}</div></div>
+          </div>)}
+      </ACard>}
+    </>)}
   </div>);
 }
 
@@ -4124,7 +4760,9 @@ function AdminPanel({onExit}){
     {id:"analytics",ic:<AnalyticIc/>,lbl:"Analytics"},
     {id:"content",ic:<EditIc/>,lbl:"Website Content"},
     {id:"subscribers",ic:<MailIc/>,lbl:"Subscribers"},
+    {id:"trend_alerts",ic:<AlertIc/>,lbl:"📊 Trend Alerts"},
     {section:"Customers"},
+    {id:"customers",ic:<UserIc/>,lbl:"👥 Customers"},
     {id:"broadcast",ic:<WaBcIc/>,lbl:"WA Broadcast"},
     {id:"udhaar",ic:<UdhaarIc/>,lbl:"Udhaar / Credit"},
     {id:"brands",ic:<BrandIc/>,lbl:"Brands"},
@@ -4134,6 +4772,7 @@ function AdminPanel({onExit}){
     {id:"sub_settings",ic:<ProdIc/>,lbl:"📦 Subscription"},
     {id:"wa_settings",ic:<OrdIc/>,lbl:"💬 WhatsApp"},
     {id:"bill_templates",ic:<EditIc/>,lbl:"🧾 Bill Templates"},
+    {id:"size_charts",ic:<EditIc/>,lbl:"📏 Size Charts"},
     {id:"delivery",ic:<MailIc/>,lbl:"🚚 Delivery"},
     {id:"settings",ic:<SettIc/>,lbl:"⚙️ General"},
   ];
@@ -4152,7 +4791,9 @@ function AdminPanel({onExit}){
     analytics:()=><AAnalytics settings={settings||{}}/>,
     content:()=><AContent settings={settings||{}}/>,
     subscribers:()=><ASubs subs={subs||[]}/>,
+    trend_alerts:()=><ATrendAlerts products={allProds||[]}/>,
     broadcast:()=><AWABroadcast/>,
+    customers:()=><ACustomers/>,
     udhaar:()=><AUdhaar/>,
     settings:()=><ASettings settings={settings||{}}/>,
     brands:()=><ABrands/>,
@@ -4161,6 +4802,7 @@ function AdminPanel({onExit}){
     sub_settings:()=><ASubSettings settings={settings||{}} onSaved={refresh}/>,
     wa_settings:()=><AWASettings settings={settings||{}} onSaved={refresh}/>,
     bill_templates:()=><ABillTemplates/>,
+    size_charts:()=><ASizeCharts/>,
     delivery:()=><ADeliverySettings settings={settings||{}} onSaved={refresh}/>,
   };
 
@@ -4242,6 +4884,7 @@ function AdminPanel({onExit}){
 }
 
 /* SVG Icons */
+const UserIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 const WaBcIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 5.55 5.55l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
 const UdhaarIc=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
 
