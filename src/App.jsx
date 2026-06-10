@@ -3684,8 +3684,7 @@ function AWABroadcast(){
   function send(){
     if(!msg.trim())return alert("Message likhna zaroori hai");
     setSending(true);setSent(0);
-    const phones=manual.split(/
-|,/).map(p=>p.trim().replace(/\D/g,"")).filter(p=>p.length>=10);
+    const phones=manual.split(/\n|,/).map(p=>p.trim().replace(/\D/g,"")).filter(p=>p.length>=10);
     const enc=encodeURIComponent(msg);
     let delay=0;
     phones.forEach(ph=>{
@@ -3703,8 +3702,7 @@ function AWABroadcast(){
           <div style={{fontWeight:700,fontSize:13,marginBottom:10}}>Message</div>
           <textarea value={msg} onChange={e=>setMsg(e.target.value)} rows={6} placeholder="Assalam! Jameel Fabrics mein naya stock aa gaya! Aaj hi order karo 🎉" style={{width:"100%",padding:"9px 12px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:13,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box",marginBottom:12}}/>
           <div style={{fontWeight:700,fontSize:13,marginBottom:6}}>Phone Numbers (ek line mein ek)</div>
-          <textarea value={manual} onChange={e=>setManual(e.target.value)} rows={5} placeholder={"0300-1234567
-0321-9876543"} style={{width:"100%",padding:"9px 12px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box",marginBottom:10}}/>
+          <textarea value={manual} onChange={e=>setManual(e.target.value)} rows={5} placeholder="0300-1234567\n0321-9876543" style={{width:"100%",padding:"9px 12px",border:"1px solid #e5e7eb",borderRadius:6,fontSize:12,outline:"none",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box",marginBottom:10}}/>
           <div style={{fontSize:11,color:"#9ca3af",marginBottom:12}}>⚠️ Browser popup blocker allow karo. Har message 600ms gap se khulega.</div>
           <button onClick={send} disabled={sending} style={{width:"100%",background:sending?"#6b7280":"#25D366",color:"#fff",border:"none",padding:12,borderRadius:6,fontSize:13,fontWeight:700,cursor:sending?"not-allowed":"pointer"}}>
             {sending?`Sending... (${sent} sent)`:"📤 Generate & Open WA Links"}
