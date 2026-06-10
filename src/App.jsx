@@ -200,6 +200,7 @@ button{font-family:'Jost',sans-serif}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 @keyframes skeletonShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skeleton{background:linear-gradient(90deg,#f0ede8 25%,#e8e4df 50%,#f0ede8 75%);background-size:200% 100%;animation:skeletonShimmer 1.4s ease infinite}
+.show-mob{display:none}
 
 @keyframes revealUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
 .rv{opacity:0;transform:translateY(36px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
@@ -231,6 +232,7 @@ button{font-family:'Jost',sans-serif}
   .four-col{grid-template-columns:1fr 1fr!important;}
   .footer-grid{grid-template-columns:1fr 1fr!important;}
   .hide-mob{display:none!important;}
+  .show-mob{display:flex!important;}
   .search-bar{max-width:140px!important;}
   .stat-grid{grid-template-columns:1fr 1fr!important;}
   .adm-sb{position:fixed;z-index:200;transform:translateX(-100%);transition:transform .3s}
@@ -851,6 +853,23 @@ function Intro({onEnter,siteTheme,themeName}){
     @keyframes jfSlideR{from{opacity:0;transform:translateX(-25px)}to{opacity:1;transform:translateX(0)}}
     @keyframes jfSlideL{from{opacity:0;transform:translateX(25px)}to{opacity:1;transform:translateX(0)}}
     @keyframes jfTickScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @media(max-width:767px){
+      .jf-intro{display:flex!important;flex-direction:column!important;overflow-y:auto!important;overflow-x:hidden!important}
+      .jf-left{position:relative!important;clip-path:none!important;padding:2.5rem 1.5rem 2rem!important;width:100%!important;inset:auto!important;height:auto!important;min-height:0!important;flex-shrink:0}
+      .jf-left::before{clip-path:none!important}
+      .jf-left-inner{max-width:100%!important}
+      .jf-brand{font-size:clamp(2.6rem,13vw,3.5rem)!important}
+      .jf-sub{max-width:100%!important;font-size:.78rem!important}
+      .jf-stats{gap:1rem!important}
+      .jf-right{position:relative!important;inset:auto!important;padding:2rem 1.5rem 3.5rem!important;display:flex!important;flex-direction:column!important;align-items:center!important;width:100%!important;flex:1}
+      .jf-right-inner{max-width:100%!important;text-align:center!important;width:100%!important}
+      .jf-bg-text{display:none!important}
+      .jf-enter{font-size:clamp(2rem,10vw,3rem)!important;letter-spacing:-1px!important}
+      .jf-store{font-size:clamp(2rem,10vw,3rem)!important;letter-spacing:-1px!important}
+      .jf-btn{padding:.9rem 2rem!important}
+      .jf-tags{position:static!important;width:100%!important;padding:1.5rem 0 0!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important}
+      .jf-eyebrow{margin-bottom:1.2rem!important}
+    }
   `;
 
   return(
@@ -1934,12 +1953,14 @@ function ThemeStyle({TH}){
       const accent=TH.accent||"#c9a84c";
       const dark=TH.dark||"#1a1612";
       const dt=TH.darkText||"#f5efe0";
+      const hf=(TH.headingFont||"'Playfair Display',serif").replace(/"/g,"");
+      const bf=(TH.bodyFont||"'Jost',sans-serif").replace(/"/g,"");
       // Inject style
       let el=document.getElementById("jf-ts");
       if(!el){el=document.createElement("style");el.id="jf-ts";document.head.appendChild(el);}
       el.textContent=`
-        :root{--t-bg:${bg};--t-card:${card};--t-surface:${surface};--t-text:${text};--t-muted:${muted};--t-border:${border};--t-accent:${accent};--t-dark:${dark};--t-dt:${dt}}
-        body{background:${bg}!important;color:${text}!important}
+        :root{--t-bg:${bg};--t-card:${card};--t-surface:${surface};--t-text:${text};--t-muted:${muted};--t-border:${border};--t-accent:${accent};--t-dark:${dark};--t-dt:${dt};--t-hf:${hf};--t-bf:${bf}}
+        body{background:${bg}!important;color:${text}!important;font-family:${bf}!important}
         *{transition:background-color .3s,color .3s,border-color .3s}
         .jf-nav-bar,.jf-cat-bar,.jf-filter-row,.jf-brand-bar{background:${card}!important;border-color:${border}!important}
         .jf-prods-section{background:${bg}!important}
@@ -2016,6 +2037,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       "--t-bg":TH.bg,"--t-card":TH.card,"--t-surface":TH.surface,
       "--t-text":TH.text,"--t-muted":TH.muted,"--t-border":TH.border,
       "--t-accent":TH.accent,"--t-dark":TH.dark,"--t-dt":TH.darkText,
+      "--t-hf":(TH.headingFont||"'Playfair Display',serif").replace(/"/g,""),
+      "--t-bf":(TH.bodyFont||"'Jost',sans-serif").replace(/"/g,""),
     };
     Object.entries(vars).forEach(([k,v])=>r.setProperty(k,v));
     document.body.style.background=TH.bg;
@@ -2168,7 +2191,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* Countdown banner */}
     <CountdownBanner settings={settings}/>
     {/* NAV */}
-    <nav style={{position:"sticky",top:0,zIndex:100,background:"rgba(250,249,247,.97)",backdropFilter:"blur(24px)",borderBottom:"1px solid #e8e4df",height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
+    <nav style={{position:"sticky",top:0,zIndex:100,background:`${TH.card}f5`,backdropFilter:"blur(24px)",borderBottom:`1px solid ${TH.border}`,height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
       <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0}}>
         <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(13px,1.5vw,17px)",fontWeight:900,letterSpacing:"clamp(2px,1vw,6px)",color:`${TH.text}`,lineHeight:1.1}}>{settings.store_name||"JAMEEL FABRICS"}</div>
         <div style={{fontSize:7,letterSpacing:"clamp(2px,.8vw,5px)",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500}}>KUNJAH · PUNJAB</div>
@@ -2179,16 +2202,24 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         {search&&<button onClick={()=>setSearch("")} style={{background:"none",border:"none",cursor:"pointer",color:"var(--t-muted)",fontSize:16,padding:0}}>x</button>}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
-        <button onClick={()=>user?onAccount():setAuthModal("login")} style={{background:"none",border:"none",cursor:"pointer",width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",color:"#6b6358",borderRadius:4,transition:"background .2s",position:"relative"}} onMouseEnter={e=>e.currentTarget.style.background="#f0ede8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+        {/* Account icon */}
+        <button onClick={()=>user?onAccount():setAuthModal("login")} style={{background:"none",border:"none",cursor:"pointer",width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",color:`${TH.muted}`,borderRadius:4,transition:"background .2s"}} onMouseEnter={e=>e.currentTarget.style.background=TH.surface} onMouseLeave={e=>e.currentTarget.style.background="none"}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          {wish.size>0&&<span style={{position:"absolute",top:5,right:5,background:"#b91c1c",color:"#fff",borderRadius:"50%",width:14,height:14,fontSize:8,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{wish.size}</span>}
         </button>
-        <button onClick={()=>setCartOpen(true)} style={{background:"#111",color:"#fff",border:"none",padding:"9px 14px",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",fontFamily:"inherit",display:"flex",alignItems:"center",gap:7,cursor:"pointer",transition:"background .2s",whiteSpace:"nowrap",flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
+        {/* Wishlist heart icon — always visible */}
+        <button onClick={()=>user?onAccount():setAuthModal("login")} style={{background:"none",border:"none",cursor:"pointer",width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:4,transition:"background .2s",position:"relative",flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.background=TH.surface} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill={wish.size>0?"#e53e3e":"none"} stroke={wish.size>0?"#e53e3e":`${TH.muted}`} strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          {wish.size>0&&<span style={{position:"absolute",top:4,right:4,background:"#e53e3e",color:"#fff",borderRadius:"50%",width:14,height:14,fontSize:7,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>{wish.size}</span>}
+        </button>
+        {/* Cart — full text on desktop, icon+badge on mobile */}
+        <button onClick={()=>setCartOpen(true)} style={{background:`${TH.dark}`,color:`${TH.darkText}`,border:"none",padding:"9px 14px",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",fontFamily:"inherit",display:"flex",alignItems:"center",gap:7,cursor:"pointer",transition:"background .2s",whiteSpace:"nowrap",flexShrink:0,position:"relative"}} onMouseEnter={e=>e.currentTarget.style.background=TH.accent} onMouseLeave={e=>e.currentTarget.style.background=TH.dark}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          Cart ({cartCount})
+          <span className="hide-mob">CART ({cartCount})</span>
+          {cartCount>0&&<span className="show-mob" style={{background:"#e53e3e",color:"#fff",borderRadius:"50%",width:16,height:16,fontSize:8,fontWeight:700,alignItems:"center",justifyContent:"center",lineHeight:1}}>{cartCount}</span>}
         </button>
-        <button onClick={()=>setMenuOpen(true)} style={{background:"none",border:"none",cursor:"pointer",width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:5,flexShrink:0,borderRadius:4,transition:"background .2s",marginLeft:2}} onMouseEnter={e=>e.currentTarget.style.background="#f0ede8"} onMouseLeave={e=>e.currentTarget.style.background="none"}>
-          <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><rect y="0" width="18" height="2" rx="1" fill="#111"/><rect y="6" width="12" height="2" rx="1" fill="#111"/><rect y="12" width="18" height="2" rx="1" fill="#111"/></svg>
+        {/* Hamburger */}
+        <button onClick={()=>setMenuOpen(true)} style={{background:"none",border:"none",cursor:"pointer",width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:5,flexShrink:0,borderRadius:4,transition:"background .2s",marginLeft:2}} onMouseEnter={e=>e.currentTarget.style.background=TH.surface} onMouseLeave={e=>e.currentTarget.style.background="none"}>
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><rect y="0" width="18" height="2" rx="1" fill={TH.text}/><rect y="6" width="12" height="2" rx="1" fill={TH.text}/><rect y="12" width="18" height="2" rx="1" fill={TH.text}/></svg>
         </button>
       </div>
     </nav>
