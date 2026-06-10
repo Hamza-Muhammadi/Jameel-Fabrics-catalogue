@@ -1738,7 +1738,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const heroImgs=["👗","✨","🌸","🧵","💎"];
   const[modalProd,setModalProd]=useState(null);
   const[recentlyViewed,setRecentlyViewed]=useState(()=>{try{return JSON.parse(localStorage.getItem("jf_rv")||"[]");}catch{return [];}});
-  
+  const[cdTime,setCdTime]=useState(null);
+
   const searchRef=useRef(null);
   useReveal();
   const heroLines=["Exclusive Collections","Premium Pakistani Fabric","Handpicked Quality","Timeless Elegance","Limited Edition Pieces"];
