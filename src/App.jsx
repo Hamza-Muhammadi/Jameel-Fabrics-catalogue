@@ -1271,8 +1271,6 @@ function ReviewsSection(){
   const[showForm,setShowForm]=useState(false);
   const[form,setForm]=useState({name:"",city:"",text:"",rating:5,photo:""});
   const[submitting,setSub]=useState(false);
-  const sb=typeof createClient!=="undefined"&&process.env.REACT_APP_SUPABASE_URL?createClient(process.env.REACT_APP_SUPABASE_URL,process.env.REACT_APP_SUPABASE_ANON_KEY):null;
-
   useEffect(()=>{
     if(!sb)return;
     sb.from("reviews").select("*").eq("approved",true).order("created_at",{ascending:false}).limit(20).then(({data})=>setReviews(data||[]));
@@ -1739,6 +1737,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const[modalProd,setModalProd]=useState(null);
   const[recentlyViewed,setRecentlyViewed]=useState(()=>{try{return JSON.parse(localStorage.getItem("jf_rv")||"[]");}catch{return [];}});
   const[cdTime,setCdTime]=useState(null);
+  const[showTop,setShowTop]=useState(false);
 
   const searchRef=useRef(null);
   useReveal();
