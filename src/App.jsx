@@ -510,8 +510,11 @@ function AIOutfitSuggester({prods,onFilter}){
       </button>
       {open&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:1000,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setOpen(false)}>
         <div style={{background:"#fff",borderRadius:"16px 16px 0 0",padding:24,width:"100%",maxWidth:500,maxHeight:"88vh",overflow:"auto"}} onClick={e=>e.stopPropagation()}>
-          <div style={{fontWeight:700,fontSize:16,color:"#1a1612",marginBottom:2}}>✨ Style Finder</div>
-          <div style={{fontSize:11,color:"#7a6e65",marginBottom:16}}>Apni zaroorat batao — hum matching products dhundhtein hain</div>
+          <div style={{fontWeight:700,fontSize:16,color:"#1a1612",marginBottom:6}}>✨ Style Finder</div>
+          <div style={{fontSize:11,color:"#7a6e65",marginBottom:10}}>Apni zaroorat batao — hum matching products dhundhtein hain</div>
+          <div style={{display:"inline-flex",alignItems:"center",gap:5,background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:20,padding:"4px 12px",fontSize:10,color:"#15803d",fontWeight:600,marginBottom:14}}>
+            🛡️ Real products — Admin ne personally select ki hain
+          </div>
 
           <div style={{marginBottom:12}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1,color:"#9a8f83",textTransform:"uppercase",marginBottom:6}}>Kiske liye?</div>
@@ -1233,14 +1236,6 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
   );
 }
 
-function PolicyCard({ic,title,desc,color}){
-  const[hov,setHov]=useState(false);
-  return(<div className="rv" style={{background:hov?"#fff":color||"#faf9f7",border:"1px solid "+(hov?"#c0b9b0":"#e8e4df"),padding:"clamp(20px,2.5vw,28px)",transition:"all .35s cubic-bezier(.16,1,.3,1)",transform:hov?"translateY(-6px)":"none",boxShadow:hov?"0 16px 44px rgba(0,0,0,.08)":"none",cursor:"default"}} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
-    <div style={{fontSize:28,marginBottom:14}}>{ic}</div>
-    <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:"#111",marginBottom:8}}>{title}</div>
-    <div style={{fontSize:12,color:"#7a6e65",lineHeight:1.9}}>{desc}</div>
-  </div>);
-}
 
 
 
@@ -2415,7 +2410,8 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         </>
       }
       {/* Content */}
-      <div style={{position:"relative",zIndex:2,width:"100%",padding:"clamp(48px,8vw,100px) clamp(20px,6vw,100px)",maxWidth:900}}>
+      <div style={{position:"relative",zIndex:2,width:"100%",maxWidth:1300,padding:"clamp(48px,8vw,100px) clamp(20px,6vw,80px)",display:"flex",alignItems:"center",gap:"clamp(32px,5vw,72px)"}}>
+      <div style={{flex:1,minWidth:0}}>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16,animation:"fadeUp .8s ease .1s both"}}>
           <div style={{width:28,height:1,background:"#c9a84c"}}/>
           <div style={{fontSize:9,letterSpacing:4,color:settings.hero_banner_url?"rgba(255,255,255,.8)":"var(--t-accent)",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
@@ -2448,7 +2444,30 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
             </div>
           ))}
         </div>
-      </div>
+      </div>{/* end left text col */}
+      {/* Right: first featured product — desktop only */}
+      {(()=>{
+        const fp=(prods||[]).find(p=>p.featured&&p.active!==false&&(p.img1||p.photo_url));
+        if(!fp)return null;
+        const fpImg=fp.img1||fp.photo_url;
+        const fpPrice=Number(fp.sale_price||fp.price||0);
+        return(
+          <div className="hide-mob" style={{flexShrink:0,width:"clamp(200px,22vw,280px)",cursor:"pointer"}} onClick={()=>openModal(fp)}>
+            <div style={{position:"relative",aspectRatio:"3/4",overflow:"hidden",borderRadius:4,boxShadow:"0 24px 64px rgba(0,0,0,.45)"}}>
+              <img src={fpImg} alt={fp.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 55%)"}}/>
+              {fp.badge&&<div style={{position:"absolute",top:10,left:10,background:fp.badge==="SALE"?"#b91c1c":"#111",color:"#fff",padding:"3px 9px",fontSize:8,fontWeight:800,letterSpacing:2}}>{fp.badge}</div>}
+              <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"14px 16px"}}>
+                <div style={{fontSize:9,color:"rgba(255,255,255,.6)",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>{CAT_L[fp.cat]||fp.category||""}</div>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:700,color:"#fff",lineHeight:1.3,marginBottom:6}}>{fp.name}</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#c9a84c"}}>Rs.{fpPrice.toLocaleString()}</div>
+              </div>
+            </div>
+            <div style={{marginTop:10,textAlign:"center",fontSize:9,color:settings.hero_banner_url?"rgba(255,255,255,.5)":"var(--t-muted)",letterSpacing:2,textTransform:"uppercase"}}>⭐ Featured Pick</div>
+          </div>
+        );
+      })()}
+      </div>{/* end flex row */}
       <div onClick={adminTrigger} onTouchEnd={adminTrigger} style={{position:"absolute",bottom:0,left:0,width:50,height:50,opacity:0,cursor:"default",zIndex:10}}/>
     </section>
     {/* CATEGORY BAR */}
@@ -3823,7 +3842,6 @@ function AContent({settings}){
     {t:"🗺️ Countdown Timer",fields:[["sale_title","Sale Title"],["sale_text","Sale Subtitle"],["sale_end_date","End Date",false,true]],visKey:"show_countdown",visDefault:"true"},
     {t:"📖 Our Story",fields:[["our_story_title","Section Title"],["story_text","Story Text",true],["story_stat1","Stat 1 Number"],["story_label1","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_label2","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_label3","Stat 3 Label"]],visKey:"show_our_story",visDefault:"true"},
     {t:"✨ Why Choose Us",fields:[["why_us_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Desc"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Desc"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Desc"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Desc"]],visKey:"show_why_us",visDefault:"true"},
-    {t:"✨ Features Section",fields:[["features_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Description"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Description"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Description"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Description"],["feat5_title","Feature 5 Title"],["feat5_desc","Feature 5 Description"],["feat6_title","Feature 6 Title"],["feat6_desc","Feature 6 Description"]]},
   ];
 
   // Visibility-only sections (no text content to edit)
