@@ -85,6 +85,19 @@ const SITE_THEMES = {
     headingFont:"'DM Serif Display',serif", bodyFont:"'DM Sans',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap",
   },
+  "Midnight": {
+    id:"midnight",
+    iLeft:"#09101f", iRight:"#141d35", iBrand:"#e8924a",
+    iAccent:"rgba(232,146,74,.8)", iBtn:"#e8924a", iBtnText:"#ffffff",
+    iTicker:"rgba(232,146,74,.45)", iTag:"rgba(232,146,74,.08)",
+    iEnter:"#e8924a", iStore:"rgba(9,16,31,.88)",
+    iEyebrow:"rgba(232,146,74,.55)", iBg:"#09101f",
+    bg:"#0b0f1e", card:"#131929", surface:"#1e2640",
+    text:"#f2ede0", muted:"#8a94b8", border:"#2a3560",
+    accent:"#e8924a", dark:"#09101f", darkText:"#f2ede0",
+    headingFont:"'Cinzel',serif", bodyFont:"'Raleway',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap",
+  },
 };
 
 
