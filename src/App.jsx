@@ -139,6 +139,7 @@ function useDB(queryFn,deps=[]){
 
 
 const CAT_L={WU:"Women Unstitched",WS:"Women Stitched",M:"Men's Unstitched",K:"Kids Unstitch",HOT:"Hot Sale",NEW:"New Arrivals","2PC":"2-Piece Sets"};
+const CAT_EMOJI={WU:"🧶",WS:"👗",RS:"🥻",AB:"🧕",MP:"👔",ME:"🪡",KU:"🧸",BS:"🛏️",BL:"🧣",OT:"🛍️",HOT:"🔥",NEW:"✨","2PC":"👘",M:"👔",K:"🧸"};
 const CATS=[
   ["All","All"],
   ["WU","Women Unstitch"],
@@ -540,8 +541,9 @@ function AIOutfitSuggester({prods,onFilter}){
                     const price=Number(p.sale_price||p.price||0);
                     return(
                       <div key={p.id} style={{border:"1px solid #e0d8cc",borderRadius:8,overflow:"hidden",background:"#fdfcf8"}}>
-                        <div style={{aspectRatio:"3/4",background:"#f5f0e8",display:"flex",alignItems:"center",justifyContent:"center",fontSize:36,overflow:"hidden"}}>
-                          {img?<img src={img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:"👗"}
+                        <div style={{aspectRatio:"3/4",background:"#f5f0e8",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+                          {img?<img src={img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.outerHTML='<span style="font-size:36px">'+(CAT_EMOJI[p.cat]||"🛍️")+"</span>";}}/>
+                          :<span style={{fontSize:36}}>{CAT_EMOJI[p.cat]||CAT_EMOJI[p.category]||"🛍️"}</span>}
                         </div>
                         <div style={{padding:"8px 10px"}}>
                           <div style={{fontSize:11,fontWeight:600,color:"#1a1612",lineHeight:1.3,marginBottom:3}}>{p.name}</div>
@@ -587,14 +589,20 @@ function ImageZoom({src,alt,onClose}){
 // ══════════════════════════════════════════════════════════════
 // GIFT OPTION COMPONENT
 // ══════════════════════════════════════════════════════════════
-function GiftOption({value,onChange,prods=[]}){
-  const opts=[{id:"box",l:"Gift Box",p:200},{id:"sheet",l:"Wrapping Sheet",p:100},{id:"card",l:"Greeting Card",p:50}];
-  const extra=opts.filter(o=>value?.extras?.includes(o.id)).reduce((a,o)=>a+o.p,0)+(value?.enabled?200:0);
+function GiftOption({value,onChange,prods=[],settings={}}){
+  const base=Number(settings.gift_base_price||200);
+  const opts=[
+    {id:"box",l:settings.gift_box_label||"Gift Box",p:Number(settings.gift_box_price||200)},
+    {id:"sheet",l:settings.gift_sheet_label||"Wrapping Sheet",p:Number(settings.gift_sheet_price||100)},
+    {id:"card",l:settings.gift_card_label||"Greeting Card",p:Number(settings.gift_card_price||50)}
+  ];
+  const extra=opts.filter(o=>value?.extras?.includes(o.id)).reduce((a,o)=>a+o.p,0)+(value?.enabled?base:0);
+  if(settings.gift_active==="false")return null;
   return(
     <div className="gift-box" style={{marginTop:12}}>
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:value?.enabled?12:0}}>
         <input type="checkbox" id="gift-cb" checked={!!value?.enabled} onChange={e=>onChange({...value,enabled:e.target.checked})} style={{width:16,height:16,accentColor:"#c9a84c"}}/>
-        <label htmlFor="gift-cb" style={{fontWeight:600,fontSize:13,color:"#1a1612",cursor:"pointer"}}>🎁 Send as Gift <span style={{color:"#c9a84c",fontWeight:700}}>+Rs. 200</span></label>
+        <label htmlFor="gift-cb" style={{fontWeight:600,fontSize:13,color:"#1a1612",cursor:"pointer"}}>🎁 {settings.gift_title||"Send as Gift"} <span style={{color:"#c9a84c",fontWeight:700}}>+Rs. {base}</span></label>
       </div>
       {value?.enabled&&<>
         <div style={{fontSize:12,color:"#7a6e65",marginBottom:8}}>Recipient Details</div>
@@ -1004,7 +1012,7 @@ function LastSecondAddon({cart,setCart,settings}){
       {addons.map(p=>(
         <div key={p.id} style={{flexShrink:0,width:90,textAlign:"center"}}>
           <div style={{width:90,height:80,background:"#f0ede8",overflow:"hidden",borderRadius:4,marginBottom:4}}>
-            {p.img1?<img src={p.img1} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:<div style={{height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24}}>👗</div>}
+            {p.img1?<img src={p.img1} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:<div style={{height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24}}>{CAT_EMOJI[p.cat]||CAT_EMOJI[p.category]||"🛍️"}</div>}
           </div>
           <div style={{fontSize:9,fontWeight:600,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
           <div style={{fontSize:10,color:"#c9a84c",fontWeight:700,marginBottom:4}}>Rs.{Number(p.price||0).toLocaleString()}</div>
@@ -1079,7 +1087,7 @@ function CartPanel({cart,setCart,wa,onClose,user,settings,gift,setGift}){
         cart.map(item=>(
           <div key={item.id} style={{display:"flex",gap:14,marginBottom:18,paddingBottom:18,borderBottom:"1px solid #e8e4df"}}>
             <div style={{width:60,height:72,background:"#f0ede8",flexShrink:0,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>
-              {(item.img1||item.photo_url)?<img src={item.img1||item.photo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(item.icon||"👗")}
+              {(item.img1||item.photo_url)?<img src={item.img1||item.photo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(item.icon||CAT_EMOJI[item.cat]||CAT_EMOJI[item.category]||"🛍️")}
             </div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontWeight:600,fontSize:14,marginBottom:2}}>{item.name}</div>
@@ -1125,7 +1133,7 @@ function CartPanel({cart,setCart,wa,onClose,user,settings,gift,setGift}){
           <div style={{background:"#fef9c3",border:"1px solid #fde68a",padding:"8px 12px",fontSize:10,color:"#92400e",marginBottom:12,lineHeight:1.6}}>
             💰 <strong>Advance Payment:</strong> Product price advance. Delivery (Pak Post) charges alag.
           </div>
-          <GiftOption value={gift} onChange={setGift} prods={cart.map(i=>({id:i.id,name:i.name,sale_price:i.price}))}/>
+          <GiftOption value={gift} onChange={setGift} prods={cart.map(i=>({id:i.id,name:i.name,sale_price:i.price}))} settings={settings}/>
           <LastSecondAddon cart={cart} setCart={setCart} settings={settings}/>
           <button onClick={checkout} style={{width:"100%",padding:15,background:"#111",color:"#fff",border:"none",fontFamily:"inherit",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:12}} onMouseEnter={e=>e.currentTarget.style.background="#2a2520"} onMouseLeave={e=>e.currentTarget.style.background="#111"}>
             <WaSvg/> Order via WhatsApp
@@ -1157,8 +1165,9 @@ function PCardSkeleton(){
 
 
 function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
-  const[hov,setHov]=useState(false);const[added,setAdded]=useState(false);
+  const[hov,setHov]=useState(false);const[added,setAdded]=useState(false);const[imgErr,setImgErr]=useState(false);
   const img=prod.img1||prod.photo_url||"";
+  const catEmoji=prod.icon||(CAT_EMOJI[prod.cat]||CAT_EMOJI[prod.category]||"🛍️");
   const price=Number(prod.sale_price||prod.price||0);
   const old=prod.old_price?Number(prod.old_price):null;
   const lowStock=prod.display_stock_text&&(prod.display_stock_text.includes("2")||prod.display_stock_text.includes("3")||prod.display_stock_text.toLowerCase().includes("last")||prod.display_stock_text.toLowerCase().includes("sirf"));
@@ -1167,8 +1176,14 @@ function PCard({prod,onAdd,onWish,wished,idx,onOpenModal,onPriceDrop}){
   return(
     <div className="rv" onClick={()=>onOpenModal&&onOpenModal(prod)} style={{background:"var(--t-card,#fff)",border:`1px solid ${hov?"var(--t-border,#b8b0a6)":"rgba(26,22,18,.07)"}`,cursor:"pointer",transition:"all .45s cubic-bezier(.16,1,.3,1)",position:"relative",overflow:"hidden",transform:hov?"translateY(-8px)":"none",boxShadow:hov?"0 20px 56px rgba(0,0,0,.1)":"0 1px 4px rgba(0,0,0,.04)"}}>
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{position:"relative",aspectRatio:"3/4",overflow:"hidden",background:"#f5f2ee"}}>
-        <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"clamp(48px,7vw,72px)",transition:"transform .7s cubic-bezier(.16,1,.3,1)",transform:hov?"scale(1.1)":"scale(1)"}}>
-          {img?<img src={img} alt={prod.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(prod.icon||"👗")}
+        <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"transform .7s cubic-bezier(.16,1,.3,1)",transform:hov?"scale(1.1)":"scale(1)",overflow:"hidden"}}>
+          {img&&!imgErr
+            ?<img src={img} alt={prod.name} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={()=>setImgErr(true)}/>
+            :<div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:6,background:"linear-gradient(135deg,var(--t-surface,#f5f2ee) 0%,var(--t-card,#faf9f7) 100%)"}}>
+               <span style={{fontSize:"clamp(44px,7vw,68px)",lineHeight:1}}>{catEmoji}</span>
+               <span style={{fontSize:9,color:"var(--t-muted,#9a8f83)",letterSpacing:1.5,textTransform:"uppercase",fontWeight:600}}>{CAT_L[prod.cat]||prod.category||"Fabric"}</span>
+             </div>
+          }
         </div>
         <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(17,17,17,.72),transparent 55%)",opacity:hov?1:0,transition:"opacity .4s",display:"flex",flexDirection:"column",justifyContent:"flex-end",alignItems:"center",paddingBottom:20,gap:8}}>
           <button onClick={e=>{e.stopPropagation();onOpenModal&&onOpenModal(prod);}} style={{background:"var(--t-card,#fff)",color:"var(--t-text,#111)",border:"none",padding:"9px 28px",fontSize:9,fontWeight:700,letterSpacing:2,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase",transform:hov?"translateY(0)":"translateY(16px)",transition:"transform .35s"}}>QUICK VIEW</button>
@@ -1223,6 +1238,9 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
   const[added,setAdded]=useState(false);
   const[alertEmail,setAlertEmail]=useState("");
   const[alertDone,setAlertDone]=useState(false);
+  const[dropAlertOpen,setDropAlertOpen]=useState(false);
+  const[dropWA,setDropWA]=useState("");
+  const[dropDone,setDropDone]=useState(false);
   const[copied,setCopied]=useState(false);
   const[sizeGuide,setSizeGuide]=useState(false);
   const autoRef=useRef(null);
@@ -1232,6 +1250,15 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
     if(!alertEmail.trim())return;
     if(sb)await sb.from("stock_alerts").insert({product_id:prod.id,product_name:prod.name,email:alertEmail,created_at:new Date().toISOString()}).catch(()=>{});
     setAlertDone(true);
+  }
+  async function saveDropAlert(){
+    if(!dropWA.trim())return;
+    const num=dropWA.replace(/\D/g,"");
+    if(sb)await sb.from("price_drop_alerts").insert({product_id:prod.id,product_name:prod.name,wa_number:num,price_at_alert:Number(prod.sale_price||prod.price||0),created_at:new Date().toISOString()}).catch(()=>{});
+    const local=JSON.parse(localStorage.getItem("jf_pricedrop")||"{}");
+    local[prod.id]={price:Number(prod.sale_price||prod.price||0),name:prod.name,wa:num};
+    localStorage.setItem("jf_pricedrop",JSON.stringify(local));
+    setDropDone(true);
   }
   function copyLink(){
     const url=window.location.origin+"?product="+prod.id;
@@ -1400,6 +1427,26 @@ function ProductModal({prod,onClose,onAdd,onWish,wished}){
             <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
             Add to Cart & Order
           </button>
+          {/* Price Drop Alert */}
+          {!isOutOfStock&&(
+            <div style={{marginBottom:14}}>
+              {!dropDone?(
+                <div>
+                  <button onClick={()=>setDropAlertOpen(o=>!o)} style={{background:"none",border:"1px solid #e0d8cc",borderRadius:6,padding:"7px 14px",fontSize:11,cursor:"pointer",color:"#7a6e65",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}>
+                    🔔 {dropAlertOpen?"Cancel":"Alert me if price drops"}
+                  </button>
+                  {dropAlertOpen&&(
+                    <div style={{marginTop:8,display:"flex",gap:6}}>
+                      <input value={dropWA} onChange={e=>setDropWA(e.target.value)} placeholder="WhatsApp number (03xxxxxxxxx)" style={{flex:1,padding:"8px 10px",border:"1px solid #d0ccc5",borderRadius:6,fontSize:12,outline:"none"}}/>
+                      <button onClick={saveDropAlert} style={{background:"#111",color:"#fff",border:"none",padding:"8px 14px",borderRadius:6,fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Set Alert</button>
+                    </div>
+                  )}
+                </div>
+              ):(
+                <div style={{fontSize:12,color:"#16a34a",fontWeight:600}}>✓ Price drop alert set! We'll contact you on WhatsApp.</div>
+              )}
+            </div>
+          )}
           {/* Share */}
           <div style={{paddingTop:12,borderTop:"1px solid #e8e4df"}}>
             <div style={{fontSize:10,color:"#7a6e65",letterSpacing:1,marginBottom:8}}>Share this product:</div>
@@ -1500,7 +1547,7 @@ function PWAInstallBtn(){
 }
 
 
-function ReviewsSection(){
+function ReviewsSection({googleMapsUrl,googleRating}){
   const[reviews,setReviews]=useState([]);
   const[showForm,setShowForm]=useState(false);
   const[form,setForm]=useState({name:"",city:"",text:"",rating:5,photo:""});
@@ -1550,6 +1597,17 @@ function ReviewsSection(){
           ))}
         </div>
 
+        {googleMapsUrl&&(
+          <div style={{textAlign:"center",marginBottom:24}}>
+            <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:10,background:"#fff",border:"1px solid #e0d8cc",borderRadius:10,padding:"10px 20px",textDecoration:"none",boxShadow:"0 2px 8px rgba(0,0,0,.07)"}}>
+              <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#1a1612"}}>See Our Reviews on Google</div>
+                {googleRating&&<div style={{display:"flex",alignItems:"center",gap:3,marginTop:1}}><span style={{color:"#f59e0b",fontSize:12}}>{"★".repeat(Math.round(Number(googleRating||5)))}</span><span style={{fontSize:11,color:"#6b7280"}}>{googleRating}/5</span></div>}
+              </div>
+            </a>
+          </div>
+        )}
         <div style={{textAlign:"center"}}>
           {!showForm
             ?<button onClick={()=>setShowForm(true)} style={{background:"#1a1612",color:"#fff",border:"none",padding:"12px 28px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",letterSpacing:1}}>Write a Review</button>
@@ -2031,8 +2089,6 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const[vipUnlocked,setVipUnlocked]=useState(false);
   const[abandonPopup,setAbandonPopup]=useState(false);
 
-  const[heroImgIdx,setHeroImgIdx]=useState(0);
-  const heroImgs=["👗","✨","🌸","🧵","💎"];
   const[modalProd,setModalProd]=useState(null);
   const[recentlyViewed,setRecentlyViewed]=useState(()=>{try{return JSON.parse(localStorage.getItem("jf_rv")||"[]");}catch{return [];}});
   const[cdTime,setCdTime]=useState(null);
@@ -2044,7 +2100,6 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   useReveal();
   const heroLines=["Exclusive Collections","Premium Pakistani Fabric","Handpicked Quality","Timeless Elegance","Limited Edition Pieces"];
   useEffect(()=>{const t=setInterval(()=>setHeroIdx(i=>(i+1)%heroLines.length),3000);return()=>clearInterval(t);},[]);
-  useEffect(()=>{const t=setInterval(()=>setHeroImgIdx(i=>(i+1)%heroImgs.length),2000);return()=>clearInterval(t);},[]);
   // Countdown timer
   useEffect(()=>{
     function tick(){
@@ -2135,7 +2190,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     const saved=JSON.parse(localStorage.getItem("jf_pricedrop")||"{}");
     saved[prod.id]={price:Number(prod.sale_price||prod.price||0),name:prod.name,wa:settings?.wa_number||WA_NUM};
     localStorage.setItem("jf_pricedrop",JSON.stringify(saved));
-    toast("Price drop alert set for "+prod.name+" 🔔","success");
+    toast("Open product to set WhatsApp alert 🔔","info");
   }
   async function toggleWish(id){if(!user){setAuthModal("login");toast("Login karke wishlist save karo");return;}const has=wish.has(id);if(has){setWish(w=>{const n=new Set(w);n.delete(id);return n;});if(sb)await sb.from("wishlists").delete().eq("customer_id",user.id).eq("product_id",id);}else{setWish(w=>new Set([...w,id]));if(sb)await sb.from("wishlists").insert({customer_id:user.id,product_id:id});}}
 
@@ -2333,65 +2388,50 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           {settings.hero_banner_caption&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(to top,rgba(0,0,0,.5),transparent)",padding:"20px 30px",color:"#fff",fontSize:"clamp(16px,2.5vw,24px)",fontFamily:"'Cormorant Garamond',serif",fontWeight:600}}>{settings.hero_banner_caption}</div>}
         </div>
       )}
-      {/* HERO */}
-    <section className="hero-grid" style={{minHeight:"95vh",display:"grid",gridTemplateColumns:"1fr 1fr",alignItems:"center",padding:"80px clamp(16px,5vw,80px) 60px",position:"relative",overflow:"hidden",gap:"clamp(24px,4vw,60px)"}}>
-      <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(#e8e4df 1px,transparent 1px),linear-gradient(90deg,#e8e4df 1px,transparent 1px)",backgroundSize:"52px 52px",WebkitMaskImage:"radial-gradient(ellipse 90% 90% at 30% 50%,#000 20%,transparent 100%)",opacity:.4,pointerEvents:"none"}}/>
-      <div className="hero-text" style={{zIndex:1}}>
-        {/* Mobile full-width image banner - shows only on mobile */}
-        <div className="mob-hero-banner" style={{width:"100%",background:"var(--t-surface)",border:"1px solid var(--t-border)",aspectRatio:"4/3",marginBottom:20,position:"relative",overflow:"hidden",display:"none",alignItems:"center",justifyContent:"center",fontSize:72}}>
-          <span style={{transition:"all .4s"}}>{heroImgs[heroImgIdx]}</span>
-          <div style={{position:"absolute",top:10,left:10,background:"#111",color:"#fff",padding:"4px 10px",fontSize:7,fontWeight:800,letterSpacing:2}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",top:10,right:10,background:"#c9a84c",color:"var(--t-text)",padding:"4px 10px",fontSize:7,fontWeight:800,letterSpacing:2}}>LIMITED EDITION</div>
-          <div style={{position:"absolute",bottom:10,left:"50%",transform:"translateX(-50%)",display:"flex",gap:5}}>
-            {heroImgs.map((_,i)=><span key={i} style={{width:i===heroImgIdx?14:5,height:5,borderRadius:3,background:i===heroImgIdx?"#111":"rgba(0,0,0,.25)",transition:"width .3s",display:"inline-block"}}/>)}
-          </div>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18,animation:"fadeUp .8s ease .1s both"}}>
+      {/* HERO — Full width, admin banner image or text */}
+    <section className="jf-hero-section" style={{position:"relative",overflow:"hidden",minHeight:"clamp(420px,70vh,700px)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      {/* Background: banner image or grid pattern */}
+      {settings.hero_banner_url
+        ?<>
+          <img src={settings.hero_banner_url} alt="Banner" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center"}} onError={e=>e.target.style.display="none"}/>
+          <div style={{position:"absolute",inset:0,background:"linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 60%,rgba(0,0,0,.1) 100%)"}}/>
+        </>
+        :<>
+          <div style={{position:"absolute",inset:0,background:"var(--t-bg)"}}/>
+          <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(var(--t-border,#e8e4df) 1px,transparent 1px),linear-gradient(90deg,var(--t-border,#e8e4df) 1px,transparent 1px)",backgroundSize:"52px 52px",opacity:.4,pointerEvents:"none"}}/>
+        </>
+      }
+      {/* Content */}
+      <div style={{position:"relative",zIndex:2,width:"100%",padding:"clamp(48px,8vw,100px) clamp(20px,6vw,100px)",maxWidth:900}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16,animation:"fadeUp .8s ease .1s both"}}>
           <div style={{width:28,height:1,background:"#c9a84c"}}/>
-          <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
+          <div style={{fontSize:9,letterSpacing:4,color:settings.hero_banner_url?"rgba(255,255,255,.8)":"var(--t-accent)",textTransform:"uppercase",fontWeight:600}}>{settings.hlabel||"Winter Collection 2026"}</div>
         </div>
-        <h1 style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(40px,6.5vw,84px)",fontWeight:900,lineHeight:.88,color:"var(--t-text)",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:14}}>
-          JAMEEL<br/>
-          <span style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:300,fontStyle:"italic",color:"#6b6358",fontSize:"clamp(30px,5vw,64px)",letterSpacing:"clamp(6px,2vw,16px)"}}>Fabrics</span>
+        <h1 style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(38px,7vw,88px)",fontWeight:900,lineHeight:.9,color:settings.hero_banner_url?"#fff":"var(--t-text)",letterSpacing:"clamp(1px,.8vw,5px)",animation:"fadeUp .8s ease .2s both",marginBottom:12}}>
+          {settings.store_name||"JAMEEL FABRICS"}
         </h1>
-        <div style={{height:"clamp(20px,2.2vw,28px)",overflow:"hidden",marginBottom:22,animation:"fadeUp .8s ease .35s both"}}>
-          <div key={heroIdx} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.5vw,18px)",color:"var(--t-muted)",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:300,fontStyle:"italic",color:settings.hero_banner_url?"rgba(255,255,255,.7)":"var(--t-muted)",fontSize:"clamp(18px,2.8vw,32px)",letterSpacing:"clamp(4px,1.5vw,14px)",marginBottom:14,animation:"fadeUp .8s ease .28s both"}}>
+          Kunjah · Punjab
         </div>
-        <div style={{width:44,height:1,background:"#c9a84c",marginBottom:22,animation:"fadeUp .6s ease .5s both"}}/>
-        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.4vw,17px)",color:"var(--t-muted)",lineHeight:2,marginBottom:32,animation:"fadeUp .8s ease .55s both"}}>{settings.about||"Premium Pakistani fabrics — each piece handpicked for quality, exclusivity and timeless elegance."}</p>
-        <div className="hero-btns" style={{display:"flex",gap:12,flexWrap:"wrap",animation:"fadeUp .8s ease .65s both"}}>
-          <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#111",color:"#fff",border:"none",padding:"13px 36px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s"}} onMouseEnter={e=>{e.currentTarget.style.background="#2a2520";e.currentTarget.style.letterSpacing="5px";}} onMouseLeave={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.letterSpacing="4px";}}>View Collection</button>
+        <div style={{height:"clamp(20px,2.2vw,28px)",overflow:"hidden",marginBottom:20,animation:"fadeUp .8s ease .35s both"}}>
+          <div key={heroIdx} style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.5vw,18px)",color:settings.hero_banner_url?"rgba(255,255,255,.65)":"var(--t-muted)",fontStyle:"italic",letterSpacing:2,animation:"textSlide 3s ease both"}}>{heroLines[heroIdx]}</div>
+        </div>
+        <div style={{width:44,height:1,background:"#c9a84c",marginBottom:20,animation:"fadeUp .6s ease .5s both"}}/>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(13px,1.4vw,17px)",color:settings.hero_banner_url?"rgba(255,255,255,.7)":"var(--t-muted)",lineHeight:1.9,marginBottom:28,animation:"fadeUp .8s ease .55s both",maxWidth:520}}>{settings.about||"Premium branded fabrics for Men, Women & Kids — Est. 1975."}</p>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap",animation:"fadeUp .8s ease .65s both"}}>
+          <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"#c9a84c",color:"#111",border:"none",padding:"13px 36px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s"}} onMouseEnter={e=>{e.currentTarget.style.background="#b8963e";}} onMouseLeave={e=>{e.currentTarget.style.background="#c9a84c";}}>View Collection</button>
           <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
-            <button style={{background:"transparent",color:"var(--t-text)",border:"1px solid #111",padding:"13px 28px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.background="#111";e.currentTarget.style.color="#fff";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#111";}}>
-              <WaSvg/> WhatsApp Us
+            <button style={{background:"transparent",color:settings.hero_banner_url?"#fff":"var(--t-text)",border:`1px solid ${settings.hero_banner_url?"rgba(255,255,255,.5)":"var(--t-border)"}`,padding:"13px 28px",fontSize:9,fontWeight:700,letterSpacing:4,textTransform:"uppercase",cursor:"pointer",fontFamily:"inherit",transition:"all .35s",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.background=settings.hero_banner_url?"rgba(255,255,255,.15)":"var(--t-surface)";}} onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
+              <WaSvg/> WhatsApp
             </button>
           </a>
         </div>
-      </div>
-      <div className="hero-right" style={{zIndex:1,animation:"fadeUp 1.2s ease .4s both"}}>
-        <div style={{background:"var(--t-surface)",border:"1px solid var(--t-border)",aspectRatio:"3/4",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",top:16,right:16,background:"#111",color:"#fff",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge1 3s ease-in-out infinite",boxShadow:"0 4px 16px rgba(0,0,0,.3)"}}>NEW ARRIVAL</div>
-          <div style={{position:"absolute",bottom:20,left:16,background:"#c9a84c",color:"var(--t-text)",padding:"7px 16px",fontSize:8,fontWeight:800,letterSpacing:2,textTransform:"uppercase",zIndex:3,animation:"floatBadge2 3.5s ease-in-out infinite",boxShadow:"0 4px 16px rgba(201,168,76,.4)"}}>LIMITED EDITION</div>
-          <div style={{fontSize:"clamp(72px,12vw,130px)",opacity:.12,position:"absolute",bottom:-20,right:-10,fontFamily:"var(--t-hf,'Playfair Display',serif)",fontWeight:900,color:"var(--t-text)",lineHeight:1,userSelect:"none"}}>JF</div>
-          <div style={{textAlign:"center",padding:"20px 14px",zIndex:2}}>
-            {settings?.hero_box_img
-              ?<img src={settings.hero_box_img} alt={settings.hero_box_title||"Featured"} style={{width:"100%",height:"clamp(80px,10vw,120px)",objectFit:"cover",borderRadius:6,marginBottom:10}}/>
-              :<div style={{fontSize:"clamp(36px,6vw,56px)",marginBottom:10}}>👗</div>
-            }
-            <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(12px,1.4vw,16px)",fontWeight:700,color:`${TH.text}`,marginBottom:5}}>{settings?.hero_box_title||"Exclusive Designs"}</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(10px,1.1vw,13px)",color:`${TH.muted}`,fontStyle:"italic",lineHeight:1.7}}>{settings?.hero_box_sub||"Once sold, never repeated"}<br/>{settings?.hero_box_sub2||"Crafted for the discerning"}</div>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginTop:18}}>
-              <div style={{width:20,height:1,background:"#c9a84c"}}/>
-              <div style={{fontSize:9,color:"var(--t-accent)",letterSpacing:3,textTransform:"uppercase",fontWeight:600}}>Kunjah</div>
-              <div style={{width:20,height:1,background:"#c9a84c"}}/>
-            </div>
-          </div>
-        </div>
-        <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
-          {[["500+","Happy Customers"],["100%","Exclusive Designs"],["4.9★","Customer Rating"],["5+","Years Trusted"]].map(([n,l])=>(
-            <div key={l} style={{background:"var(--t-card)",border:"1px solid var(--t-border)",padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:700,color:"var(--t-text)"}}>{n}</div>
-              <div style={{fontSize:9,color:"var(--t-muted)",letterSpacing:1,marginTop:2}}>{l}</div>
+        {/* Stats row */}
+        <div style={{display:"flex",gap:clamp=>clamp,flexWrap:"wrap",marginTop:28,paddingTop:20,borderTop:`1px solid ${settings.hero_banner_url?"rgba(255,255,255,.15)":"var(--t-border)"}`,animation:"fadeUp .8s ease .75s both"}}>
+          {[["500+","Customers"],["50+","Brands"],["Est. 1975","Trusted"],["PK","Delivery"]].map(([n,l])=>(
+            <div key={l} style={{marginRight:24,marginBottom:8}}>
+              <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(16px,2vw,22px)",fontWeight:700,color:settings.hero_banner_url?"#c9a84c":"var(--t-text)",lineHeight:1}}>{n}</div>
+              <div style={{fontSize:8,color:settings.hero_banner_url?"rgba(255,255,255,.5)":"var(--t-muted)",letterSpacing:1.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
             </div>
           ))}
         </div>
@@ -2409,6 +2449,29 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         ))}
       </div>
     </div>
+    {/* FEATURED PRODUCTS */}
+    {(()=>{
+      const featured=(prods||[]).filter(p=>p.featured&&p.active!==false);
+      if(!featured.length)return null;
+      return(
+        <section style={{padding:"clamp(48px,6vw,72px) clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid var(--t-border)"}}>
+          <div style={{textAlign:"center",marginBottom:36}}>
+            <div className="rv" style={{fontSize:9,letterSpacing:5,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Hand-Picked for You</div>
+            <div className="rv" style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Featured Pieces</div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:20,maxWidth:1200,margin:"0 auto"}}>
+            {featured.slice(0,4).map(p=>(
+              <PCard key={p.id} prod={p} onAdd={addToCart} onWish={toggleWish} wished={wish.has(p.id)} onOpenModal={openModal} onPriceDrop={savePriceDrop}/>
+            ))}
+          </div>
+          {featured.length>4&&(
+            <div style={{textAlign:"center",marginTop:28}}>
+              <button onClick={()=>document.getElementById("prods")?.scrollIntoView({behavior:"smooth"})} style={{background:"none",border:`1px solid ${TH.accent}`,color:TH.accent,padding:"11px 32px",fontSize:11,fontWeight:700,letterSpacing:2,cursor:"pointer",fontFamily:"inherit",textTransform:"uppercase"}}>View All Collection →</button>
+            </div>
+          )}
+        </section>
+      );
+    })()}
     {/* VIDEO */}
     {settings.video_show==="true"&&settings.video_url&&(
       <section style={{padding:"clamp(56px,7vw,88px) clamp(16px,4vw,60px)",borderBottom:"1px solid #e8e4df",background:"var(--t-card)"}}>
@@ -2542,7 +2605,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div style={{fontSize:9,letterSpacing:4,color:"var(--t-accent)",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>Happy Customers</div>
         <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,color:"var(--t-text)"}}>Customer Reviews</div>
       </div>
-      {settings.show_reviews!=="false"&&<ReviewsSection/>}
+      {settings.show_reviews!=="false"&&<ReviewsSection googleMapsUrl={settings.google_maps_url} googleRating={settings.google_rating}/>}
     </section>
 
 <RecentlyViewedStrip items={recentlyViewed} onOpenModal={openModal}/>
@@ -3506,6 +3569,7 @@ function AProducts({products,onRefresh}){
     toast("✅ Saved!","success");setEditP(null);onRefresh();
   }
   async function toggle(p){if(!sb)return;await sb.from("products").update({active:!p.active}).eq("id",p.id);onRefresh();}
+  async function toggleFeatured(p){if(!sb)return;await sb.from("products").update({featured:!p.featured}).eq("id",p.id);toast(p.featured?"Removed from featured":"⭐ Marked featured!");onRefresh();}
   async function del(p){if(!sb||!window.confirm("Delete "+p.name+"?"))return;await sb.from("products").delete().eq("id",p.id);toast("Deleted");onRefresh();}
   return(<div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
@@ -3582,7 +3646,7 @@ function AProducts({products,onRefresh}){
         <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Product","Category","Price","Stock Text","Status","Actions"].map(h=><th key={h} style={{padding:"10px 16px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
         <tbody>
           {products.map(p=><tr key={p.id} style={{borderBottom:"1px solid #f3f4f6"}}>
-            <td style={{padding:"12px 16px"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:48,background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>{(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||"👗")}</div><div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{p.name}</div><div style={{fontSize:11,color:"#9ca3af"}}>{p.color||""}</div></div></div></td>
+            <td style={{padding:"12px 16px"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:48,background:"#f5f2ee",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,border:"1px solid #e5e7eb",flexShrink:0,overflow:"hidden"}}>{(p.img1||p.photo_url)?<img src={p.img1||p.photo_url} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>:(p.icon||CAT_EMOJI[p.cat]||"🛍️")}</div><div><div style={{fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{p.name}{p.featured&&<span style={{marginLeft:6,fontSize:10,background:"#fef3c7",color:"#d97706",padding:"1px 6px",borderRadius:4,border:"1px solid #fbbf24",fontWeight:700}}>⭐ Featured</span>}</div><div style={{fontSize:11,color:"#9ca3af"}}>{p.color||""}</div></div></div></td>
             <td style={{padding:"12px 16px",fontSize:12,color:"#6b7280"}}>{CAT_L[p.cat]||p.category||""}</td>
             <td style={{padding:"12px 16px"}}><div style={{fontWeight:600,color:p.old_price?"#b91c1c":"#111"}}>Rs.{Number(p.sale_price||p.price||0).toLocaleString()}</div>{p.old_price&&<div style={{fontSize:11,textDecoration:"line-through",color:"#9ca3af"}}>Rs.{Number(p.old_price).toLocaleString()}</div>}</td>
             <td style={{padding:"12px 16px",fontSize:12,color:"var(--t-muted)",fontStyle:"italic"}}>{p.display_stock_text||"In Stock"}</td>
@@ -3590,6 +3654,7 @@ function AProducts({products,onRefresh}){
             <td style={{padding:"12px 16px"}}><div style={{display:"flex",gap:4}}>
               <ABtn sm onClick={()=>open(p)} style={{background:"transparent",border:"1px solid #e5e7eb",color:"#374151"}}>Edit</ABtn>
               <ABtn sm onClick={()=>toggle(p)} style={{background:"transparent",border:"1px solid #e5e7eb",color:"#374151"}}>{p.active?"Hide":"Show"}</ABtn>
+              <ABtn sm onClick={()=>toggleFeatured(p)} title="Toggle featured" style={{background:p.featured?"#fef3c7":"transparent",border:"1px solid "+(p.featured?"#fbbf24":"#e5e7eb"),color:p.featured?"#d97706":"#9ca3af"}}>{p.featured?"⭐":"☆"}</ABtn>
               <ABtn sm onClick={()=>del(p)} style={{background:"#fee2e2",color:"#dc2626"}}>Del</ABtn>
             </div></td>
           </tr>)}
@@ -3736,7 +3801,7 @@ function AContent({settings}){
 
   // Sections config — visKey = the setting key for show/hide toggle
   const sections=[
-    {t:"🏪 Store Info",fields:[["store_name","Store Name"],["addr1","Address Line 1"],["addr2","Address Line 2"],["map_url","Google Map Link (paste from Google Maps)"],["hours","Working Hours"],["phone","Phone Number"]]},
+    {t:"🏪 Store Info",fields:[["store_name","Store Name"],["addr1","Address Line 1"],["addr2","Address Line 2"],["map_url","Google Map Link (paste from Google Maps)"],["hours","Working Hours"],["phone","Phone Number"],["google_maps_url","Google Business Reviews URL"],["google_rating","Google Rating (e.g. 4.8)"]]},
     {t:"🔗 Social Links",fields:[["wa_number","WhatsApp Number"],["insta","Instagram URL"],["fb","Facebook URL"],["tiktok","TikTok URL"]]},
     {t:"📢 Announcement Bar",fields:[["announcement","Messages (pipe | se alag karo)",true]],visKey:"show_announcement",visDefault:"true"},
     {t:"🏠 Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},
@@ -3745,7 +3810,6 @@ function AContent({settings}){
     {t:"🗺️ Countdown Timer",fields:[["sale_title","Sale Title"],["sale_text","Sale Subtitle"],["sale_end_date","End Date",false,true]],visKey:"show_countdown",visDefault:"true"},
     {t:"📖 Our Story",fields:[["our_story_title","Section Title"],["story_text","Story Text",true],["story_stat1","Stat 1 Number"],["story_label1","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_label2","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_label3","Stat 3 Label"]],visKey:"show_our_story",visDefault:"true"},
     {t:"✨ Why Choose Us",fields:[["why_us_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Desc"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Desc"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Desc"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Desc"]],visKey:"show_why_us",visDefault:"true"},
-    {t:"🖼️ Hero Box (Right Panel)",fields:[["hero_box_title","Title"],["hero_box_sub","Line 1"],["hero_box_sub2","Line 2"]]},
     {t:"✨ Features Section",fields:[["features_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Description"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Description"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Description"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Description"],["feat5_title","Feature 5 Title"],["feat5_desc","Feature 5 Description"],["feat6_title","Feature 6 Title"],["feat6_desc","Feature 6 Description"]]},
   ];
 
@@ -3816,25 +3880,6 @@ function AContent({settings}){
           <input type="checkbox" checked={f.hero_banner_show==="true"} onChange={e=>updateF("hero_banner_show",e.target.checked?"true":"false")} style={{accentColor:"#c9a84c"}}/>
           <span style={{fontWeight:500}}>Website pe dikhao</span>
         </label>
-      </ACard>
-
-      {/* Hero Featured Box */}
-      <ACard style={{padding:16}}>
-        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>⭐ Hero Featured Box (right side)</div>
-        <ALbl c="Box Image (optional)"/>
-        <input type="file" accept="image/*" onChange={e=>{const file=e.target.files[0];if(!file)return;if(file.size>500*1024){alert("Image too large — max 500KB");return;}
-          const r=new FileReader();r.onload=async ev=>{updateF("hero_box_img",ev.target.result);};r.readAsDataURL(file);}} style={{fontSize:11,marginBottom:8,display:"block",width:"100%"}}/>
-        {f.hero_box_img&&<img src={f.hero_box_img} alt="" style={{width:"100%",maxHeight:80,objectFit:"cover",borderRadius:4,marginBottom:8}}/>}
-        <ALbl c="Title"/><AI value={f.hero_box_title||""} onChange={e=>updateF("hero_box_title",e.target.value)} placeholder="Exclusive Designs"/>
-        <div style={{marginTop:8}}><ALbl c="Sub Line 1"/><AI value={f.hero_box_sub||""} onChange={e=>updateF("hero_box_sub",e.target.value)} placeholder="Once sold, never repeated"/></div>
-        <div style={{marginTop:8}}><ALbl c="Sub Line 2"/><AI value={f.hero_box_sub2||""} onChange={e=>updateF("hero_box_sub2",e.target.value)} placeholder="Crafted for the discerning"/></div>
-      </ACard>
-
-      {/* Hero Box Image */}
-      <ACard style={{padding:16}}>
-        <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--t-text)"}}>🖼️ Hero Box Image</div>
-        <input type="file" accept="image/*" onChange={e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>updateF("hero_box_img",ev.target.result);r.readAsDataURL(file);}} style={{fontSize:11,marginBottom:8,display:"block",width:"100%"}}/>
-        {f.hero_box_img&&<img src={f.hero_box_img} alt="" style={{width:"100%",maxHeight:80,objectFit:"cover",borderRadius:4,marginBottom:6}}/>}
       </ACard>
 
       {/* Video Upload */}
@@ -4665,6 +4710,86 @@ function AUdhaar(){
 }
 
 
+function APriceDropAlerts(){
+  const{data:alerts,loading}=useDB(()=>sb.from("price_drop_alerts").select("*").order("created_at",{ascending:false}),[]);
+  async function del(id){if(!sb||!window.confirm("Delete?"))return;await sb.from("price_drop_alerts").delete().eq("id",id);toast("Deleted");}
+  const wa=WA_NUM;
+  return(<div>
+    <AH title="🔔 Price Drop Alerts" sub="Customers jo price drop chahte hain"/>
+    <ACard><div style={{overflowX:"auto"}}>
+      {loading?<div style={{padding:32,textAlign:"center",color:"#9ca3af"}}>Loading...</div>:(
+        alerts?.length?(
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead><tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>{["Product","Price at Alert","WA Number","Date","Action"].map(h=><th key={h} style={{padding:"10px 14px",fontSize:11,fontWeight:600,color:"#6b7280",textAlign:"left",textTransform:"uppercase",letterSpacing:.5,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {alerts.map(a=>(
+                <tr key={a.id} style={{borderBottom:"1px solid #f3f4f6"}}>
+                  <td style={{padding:"12px 14px",fontWeight:600,fontSize:13,color:"var(--t-text)"}}>{a.product_name}</td>
+                  <td style={{padding:"12px 14px",color:"#b91c1c",fontWeight:700}}>Rs.{Number(a.price_at_alert||0).toLocaleString()}</td>
+                  <td style={{padding:"12px 14px",fontSize:12}}><a href={"https://wa.me/92"+String(a.wa_number||"").replace(/^0/,"")+"?text="+encodeURIComponent("Assalam! "+a.product_name+" ka price drop hogaya. Jameel Fabrics pe dekhen!")} target="_blank" rel="noopener noreferrer" style={{color:"#16a34a",fontWeight:700}}>📱 {a.wa_number}</a></td>
+                  <td style={{padding:"12px 14px",fontSize:11,color:"#9ca3af"}}>{new Date(a.created_at).toLocaleDateString("en-PK",{day:"2-digit",month:"short",year:"numeric"})}</td>
+                  <td style={{padding:"12px 14px"}}><ABtn sm onClick={()=>del(a.id)} style={{background:"#fee2e2",color:"#dc2626"}}>Del</ABtn></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ):<div style={{padding:"44px",textAlign:"center",color:"#9ca3af"}}>No price drop alerts yet</div>
+      )}
+    </div></ACard>
+  </div>);
+}
+
+function AGiftSettings({settings,onSaved}){
+  const[f,setF]=useState({
+    gift_base_price:settings.gift_base_price||"200",
+    gift_box_price:settings.gift_box_price||"200",
+    gift_box_label:settings.gift_box_label||"Gift Box",
+    gift_sheet_price:settings.gift_sheet_price||"100",
+    gift_sheet_label:settings.gift_sheet_label||"Wrapping Sheet",
+    gift_card_price:settings.gift_card_price||"50",
+    gift_card_label:settings.gift_card_label||"Greeting Card",
+    gift_title:settings.gift_title||"Send as Gift",
+    gift_active:settings.gift_active||"true",
+  });
+  const[saving,setSaving]=useState(false);const[saved,setSaved]=useState(false);
+  async function saveAll(){
+    setSaving(true);
+    if(sb){for(const[k,v]of Object.entries(f)){await sb.from("website_settings").upsert({key:k,value:v},{onConflict:"key"});}}
+    setSaving(false);setSaved(true);setTimeout(()=>setSaved(false),2200);
+    toast("Gift settings saved!","success");
+    onSaved&&onSaved();
+  }
+  const upd=k=>e=>setF(p=>({...p,[k]:e.target.value}));
+  return(<div>
+    <AH title="🎁 Gift Option Settings" sub="Cart mein gift feature ke prices aur labels edit karo"/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}}>
+      <ACard style={{padding:20}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:14,color:"var(--t-text)"}}>💰 Pricing (Rs.)</div>
+        <ALbl c="Base Gift Fee"/><AI type="number" value={f.gift_base_price} onChange={upd("gift_base_price")} placeholder="200"/>
+        <div style={{marginTop:10}}><ALbl c="Gift Box Price"/><AI type="number" value={f.gift_box_price} onChange={upd("gift_box_price")} placeholder="200"/></div>
+        <div style={{marginTop:10}}><ALbl c="Wrapping Sheet Price"/><AI type="number" value={f.gift_sheet_price} onChange={upd("gift_sheet_price")} placeholder="100"/></div>
+        <div style={{marginTop:10}}><ALbl c="Greeting Card Price"/><AI type="number" value={f.gift_card_price} onChange={upd("gift_card_price")} placeholder="50"/></div>
+      </ACard>
+      <ACard style={{padding:20}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:14,color:"var(--t-text)"}}>🏷️ Labels</div>
+        <ALbl c="Gift Section Title"/><AI value={f.gift_title} onChange={upd("gift_title")} placeholder="Send as Gift"/>
+        <div style={{marginTop:10}}><ALbl c="Gift Box Label"/><AI value={f.gift_box_label} onChange={upd("gift_box_label")} placeholder="Gift Box"/></div>
+        <div style={{marginTop:10}}><ALbl c="Wrapping Sheet Label"/><AI value={f.gift_sheet_label} onChange={upd("gift_sheet_label")} placeholder="Wrapping Sheet"/></div>
+        <div style={{marginTop:10}}><ALbl c="Greeting Card Label"/><AI value={f.gift_card_label} onChange={upd("gift_card_label")} placeholder="Greeting Card"/></div>
+        <label style={{display:"flex",alignItems:"center",gap:8,marginTop:14,cursor:"pointer",fontSize:13,paddingTop:12,borderTop:"1px solid #f3f4f6"}}>
+          <input type="checkbox" checked={f.gift_active!=="false"} onChange={e=>setF(p=>({...p,gift_active:e.target.checked?"true":"false"}))} style={{accentColor:"#c9a84c",width:15,height:15}}/>
+          <span style={{fontWeight:500}}>Gift Option Active</span>
+        </label>
+      </ACard>
+    </div>
+    <div style={{textAlign:"right"}}>
+      <ABtn onClick={saveAll} style={{background:saving?"#6b7280":saved?"#16a34a":"#111",color:"#fff",minWidth:120,transition:"background .3s"}}>
+        {saving?"Saving...":saved?"✅ Saved":"💾 Save"}
+      </ABtn>
+    </div>
+  </div>);
+}
+
 function AdminPanel({onExit}){
   const[page,setPage]=useState("dashboard");
   const[col,setCol]=useState(false);
@@ -4692,14 +4817,15 @@ function AdminPanel({onExit}){
     {id:"pending",ic:<PendIc/>,lbl:"Pending (ERP)",badge:pC,bc:"#c9a84c"},
     {id:"products",ic:<ProdIc/>,lbl:"Products"},
     {id:"alerts",ic:<AlertIc/>,lbl:"Stock Alerts",badge:aC,bc:"#ef4444"},
+    {id:"price_drop_alerts",ic:<AlertIc/>,lbl:"🔔 Price Drops"},
     {id:"coupons",ic:<CoupIc/>,lbl:"Coupons"},
     {section:"Content"},
     {id:"reviews",ic:<StarIc/>,lbl:"Reviews"},
     {id:"sold",ic:<ChartIc/>,lbl:"Sold Counter"},
     {id:"analytics",ic:<AnalyticIc/>,lbl:"Analytics"},
     {id:"content",ic:<EditIc/>,lbl:"Website Content"},
+    {id:"gift_settings",ic:<StarIc/>,lbl:"🎁 Gift Option"},
     {id:"subscribers",ic:<MailIc/>,lbl:"Subscribers"},
-    {id:"trend_alerts",ic:<AlertIc/>,lbl:"📊 Trend Alerts"},
     {section:"Customers"},
     {id:"customers",ic:<UserIc/>,lbl:"👥 Customers"},
     {id:"broadcast",ic:<WaBcIc/>,lbl:"WA Broadcast"},
@@ -4722,6 +4848,7 @@ function AdminPanel({onExit}){
     dashboard:()=><ADash prods={allProds||[]} orders={orders||[]} alerts={alerts||[]} pending={pending||[]} todayOrders={todayOrders||[]} todayRev={todayRev||0} onNav={setPage}/>,
     pending:()=><APending pending={pending||[]} onRefresh={refresh}/>,
     alerts:()=><AAlerts alerts={alerts||[]} onRefresh={refresh}/>,
+    price_drop_alerts:()=><APriceDropAlerts/>,
     products:()=><AProducts products={allProds||[]} onRefresh={refresh}/>,
     orders:()=><AOrders orders={orders||[]} wa={settings.wa_number||WA_NUM}/>,
     coupons:()=><ACoupons coupons={coupons||[]} onRefresh={refresh}/>,
@@ -4729,8 +4856,8 @@ function AdminPanel({onExit}){
     sold:()=><ASoldCounter onRefresh={refresh}/>,
     analytics:()=><AAnalytics settings={settings||{}}/>,
     content:()=><AContent settings={settings||{}}/>,
+    gift_settings:()=><AGiftSettings settings={settings||{}} onSaved={refresh}/>,
     subscribers:()=><ASubs/>,
-    trend_alerts:()=><ATrendAlerts products={allProds||[]}/>,
     broadcast:()=><AWABroadcast/>,
     customers:()=><ACustomers/>,
     udhaar:()=><AUdhaar/>,
