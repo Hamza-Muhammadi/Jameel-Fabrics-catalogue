@@ -98,6 +98,20 @@ const SITE_THEMES = {
     headingFont:"'Cinzel',serif", bodyFont:"'Raleway',sans-serif",
     fontImport:"https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap",
   },
+  "Couture": {
+    id:"couture",
+    iLeft:"#1a1410", iRight:"#ece3d5", iBrand:"#fefcf7",
+    iAccent:"rgba(172,108,52,.88)", iBtn:"#9a6030", iBtnText:"#fefcf7",
+    iTicker:"rgba(172,108,52,.48)", iTag:"rgba(172,108,52,.09)",
+    iEnter:"#9a6030", iStore:"rgba(26,20,16,.13)",
+    iEyebrow:"rgba(26,20,16,.38)", iBg:"#ece3d5",
+    bg:"#fefcf7", card:"#ffffff", surface:"#f4ece0",
+    text:"#1a1410", muted:"#7c6e5e", border:"#e0d4c4",
+    accent:"#9a6030", dark:"#1a1410", darkText:"#fefcf7",
+    headingFont:"'Bodoni Moda',serif", bodyFont:"'Raleway',sans-serif",
+    fontImport:"https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,900;1,6..96,400;1,6..96,600&family=Raleway:wght@300;400;500;600&display=swap",
+    customCSS:"button:not(.adm-btn):not(.adm-sb-item){border-radius:28px!important} .pprice{font-style:italic!important} .pname{letter-spacing:0.03em!important} .rv{border:0.5px solid var(--t-border)!important} .feel-badge{border-radius:100px!important}",
+  },
 };
 
 
@@ -2004,6 +2018,7 @@ function ThemeStyle({TH}){
         .jf-tag-pill{background:${surface}!important;color:${muted}!important;border-color:${border}!important}
         .jf-hero-section{background:${bg}!important}
         section{background:${bg}}
+        ${TH.customCSS||""}
       `;
       // Also set body directly
       document.body.style.background=bg;
