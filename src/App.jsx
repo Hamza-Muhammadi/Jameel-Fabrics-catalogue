@@ -863,10 +863,8 @@ function SubscriptionBox({settings,user,onAuth}){
 
 function Intro({onEnter,siteTheme,themeName}){
   const TH=siteTheme||SITE_THEMES["Blue Beige"];
-  const[tickerText,setTickerText]=useState("Gul Ahmed · Bonanza · Sapphire · Khaadi · Sana Safinaz · Alkaram · Nishat · Orient");
-  useEffect(()=>{
-    if(sb)sb.from("website_settings").select("value").eq("key","ticker_brands").single().then(({data})=>{if(data?.value)setTickerText(data.value);});
-  },[]);
+  const settings=useSettings();
+  const tickerText=settings.ticker_brands||"Gul Ahmed · Bonanza · Sapphire · Khaadi · Sana Safinaz · Alkaram · Nishat · Orient";
   const brands=tickerText.split("·").map(b=>b.trim()).filter(Boolean);
   const ticker=[...brands,...brands];
 
@@ -938,15 +936,15 @@ function Intro({onEnter,siteTheme,themeName}){
       {/* LEFT */}
       <div className="jf-left">
         <div className="jf-left-inner">
-          <div className="jf-tag">Est. 1975 · Kunjah, Distt. Gujrat</div>
-          <h1 className="jf-brand">JAMEEL<br/><span className="jf-accent">FABRICS</span></h1>
-          <p className="jf-sub">Premium branded clothing for Men, Women & Kids. Trusted by families since 1975.</p>
+          <div className="jf-tag">{settings.intro_tagline||"Est. 1975 · Kunjah, Distt. Gujrat"}</div>
+          <h1 className="jf-brand">{settings.intro_brand1||"JAMEEL"}<br/><span className="jf-accent">{settings.intro_brand2||"FABRICS"}</span></h1>
+          <p className="jf-sub">{settings.intro_description||"Premium branded clothing for Men, Women & Kids. Trusted by families since 1975."}</p>
           <div className="jf-stats">
-            <div className="jf-sitem"><div className="jf-snum">50+</div><div className="jf-slabel">Yrs Trust</div></div>
-            <div className="jf-sitem"><div className="jf-snum">500+</div><div className="jf-slabel">Products</div></div>
-            <div className="jf-sitem"><div className="jf-snum">PK</div><div className="jf-slabel">Delivery</div></div>
+            <div className="jf-sitem"><div className="jf-snum">{settings.intro_stat1_num||"50+"}</div><div className="jf-slabel">{settings.intro_stat1_label||"Yrs Trust"}</div></div>
+            <div className="jf-sitem"><div className="jf-snum">{settings.intro_stat2_num||"500+"}</div><div className="jf-slabel">{settings.intro_stat2_label||"Products"}</div></div>
+            <div className="jf-sitem"><div className="jf-snum">{settings.intro_stat3_num||"PK"}</div><div className="jf-slabel">{settings.intro_stat3_label||"Delivery"}</div></div>
           </div>
-          <div className="jf-loc">📍 Kunjah, District Gujrat, Punjab</div>
+          <div className="jf-loc">{settings.intro_location||"📍 Kunjah, District Gujrat, Punjab"}</div>
         </div>
       </div>
 
@@ -955,19 +953,19 @@ function Intro({onEnter,siteTheme,themeName}){
         <div className="jf-bg-text">JF</div>
         {/* Mobile-only brand header (left panel is hidden on mobile) */}
         <div className="jf-mob-header">
-          <div className="jf-mob-brand">JAMEEL<br/><span className="jf-mob-accent">FABRICS</span></div>
-          <div className="jf-mob-meta">Est. 1975 · Kunjah, Punjab</div>
+          <div className="jf-mob-brand">{settings.intro_brand1||"JAMEEL"}<br/><span className="jf-mob-accent">{settings.intro_brand2||"FABRICS"}</span></div>
+          <div className="jf-mob-meta">{settings.intro_tagline||"Est. 1975 · Kunjah, Punjab"}</div>
           <div className="jf-mob-stats">
-            <div className="jf-mob-sitem"><div className="jf-mob-snum">50+</div><div className="jf-mob-slabel">Yrs Trust</div></div>
-            <div className="jf-mob-sitem"><div className="jf-mob-snum">500+</div><div className="jf-mob-slabel">Products</div></div>
-            <div className="jf-mob-sitem"><div className="jf-mob-snum">PK</div><div className="jf-mob-slabel">Delivery</div></div>
+            <div className="jf-mob-sitem"><div className="jf-mob-snum">{settings.intro_stat1_num||"50+"}</div><div className="jf-mob-slabel">{settings.intro_stat1_label||"Yrs Trust"}</div></div>
+            <div className="jf-mob-sitem"><div className="jf-mob-snum">{settings.intro_stat2_num||"500+"}</div><div className="jf-mob-slabel">{settings.intro_stat2_label||"Products"}</div></div>
+            <div className="jf-mob-sitem"><div className="jf-mob-snum">{settings.intro_stat3_num||"PK"}</div><div className="jf-mob-slabel">{settings.intro_stat3_label||"Delivery"}</div></div>
           </div>
         </div>
         <div className="jf-right-inner">
-          <div className="jf-eyebrow">Shop the full collection</div>
-          <div className="jf-enter">Enter</div>
-          <div className="jf-store">The Store</div>
-          <button className="jf-btn" onClick={onEnter}>Shop Now</button>
+          <div className="jf-eyebrow">{settings.intro_eyebrow||"Shop the full collection"}</div>
+          <div className="jf-enter">{settings.intro_enter1||"Enter"}</div>
+          <div className="jf-store">{settings.intro_enter2||"The Store"}</div>
+          <button className="jf-btn" onClick={onEnter}>{settings.intro_btn_text||"Shop Now"}</button>
           <div className="jf-divider"/>
           <div className="jf-ticker-wrap">
             <div className="jf-ticker-label">Brands we carry</div>
@@ -985,7 +983,7 @@ function Intro({onEnter,siteTheme,themeName}){
 
       {/* BOTTOM TAGS */}
       <div className="jf-tags">
-        {["100% Authentic","50+ Brands","WhatsApp Orders","Nationwide Delivery"].map(t=>(
+        {(settings.intro_tags||"100% Authentic|50+ Brands|WhatsApp Orders|Nationwide Delivery").split("|").map(t=>t.trim()).filter(Boolean).map(t=>(
           <span key={t} className="jf-rtag">{t}</span>
         ))}
       </div>
@@ -2488,7 +2486,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {/* CATEGORY BAR */}
     <div style={{background:"var(--t-card)",borderTop:"1px solid var(--t-border)",borderBottom:"1px solid var(--t-border)",position:"sticky",top:0,zIndex:99,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
       <div className="cat-bar-inner" style={{display:"flex",justifyContent:"center",minWidth:"max-content",margin:"0 auto",padding:"0 clamp(8px,2vw,24px)"}}>
-        {CATS.map(([c,lbl])=>(
+        {CATS.filter(([c])=>settings[`cat_show_${c}`]!=="false").map(([c,lbl])=>[c,settings[`cat_label_${c}`]||lbl]).map(([c,lbl])=>(
           <button key={c} onClick={()=>{setCat(c);document.getElementById("prods")?.scrollIntoView({behavior:"smooth"});}}
             style={{padding:"13px clamp(10px,2vw,22px)",border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:cat===c?TH.accent:TH.muted,borderBottom:cat===c?`2px solid ${TH.accent}`:"2px solid transparent",transition:"all .2s",whiteSpace:"nowrap",flexShrink:0,position:"relative"}}>
             {lbl}
@@ -2551,9 +2549,9 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       {/* ── ADVANCED FILTERS ─────────────────────────── */}
       <div style={{padding:"12px clamp(16px,4vw,60px)",background:"var(--t-card)",borderBottom:"1px solid #f0ece0"}}>
         <div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",marginBottom:10}}>
-          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"var(--t-card)",color:"#4a4035",cursor:"pointer"}}>
+          {settings.show_sort!=="false"&&<select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"var(--t-card)",color:"#4a4035",cursor:"pointer"}}>
             {SORT_OPTS.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
-          </select>
+          </select>}
           {allBrands.length>2&&<select value={brandFilter} onChange={e=>setBrandFilter(e.target.value)} style={{padding:"7px 12px",border:"1px solid #e0d8cc",borderRadius:8,fontSize:12,outline:"none",background:"var(--t-card)",color:"#4a4035",cursor:"pointer"}}>
             {allBrands.map(b=><option key={b} value={b}>{b==="All"?"All Brands":b}</option>)}
           </select>}
@@ -2690,7 +2688,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         <div>
           <div style={{fontSize:8,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Our Policies</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[["🔄","Exchange Policy","3 days exchange on all products"],["💰","Payment","Advance payment required. EasyPaisa / JazzCash / Bank"],["🚚","Delivery","Pak Post, TCS, Leopard — 3-5 days"],["📦","Mystery Box","Non-refundable — quality guaranteed"],["🎁","Gift Orders","Dispatched in 2-3 business days"],["📞","Contact","WhatsApp: "+(settings?.phone||"03228722232")]].map(([ic,t,d])=>(
+            {[["🔄","Exchange Policy",settings.policy_exchange||"3 days exchange on all products"],["💰","Payment",settings.policy_payment||"Advance payment required. EasyPaisa / JazzCash / Bank"],["🚚","Delivery",settings.policy_delivery||"Pak Post, TCS, Leopard — 3-5 days"],["📦","Mystery Box",settings.policy_mystery||"Non-refundable — quality guaranteed"],["🎁","Gift Orders",settings.policy_gift||"Dispatched in 2-3 business days"],["📞","Contact","WhatsApp: "+(settings?.phone||"03228722232")]].map(([ic,t,d])=>(
               <div key={t} style={{display:"flex",gap:8,alignItems:"flex-start",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,.04)"}}>
                 <span style={{fontSize:12,flexShrink:0,opacity:.7}}>{ic}</span>
                 <div><div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)"}}>{t}</div><div style={{fontSize:10,color:"rgba(255,255,255,.25)",lineHeight:1.5}}>{d}</div></div>
@@ -2727,7 +2725,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       </div>
     </footer>
     {/* Browsing counter */}
-      <ScrollUpBtn/>
+      {settings.show_backtotop!=="false"&&<ScrollUpBtn/>}
     <BrowsingBadge/>
     <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:28,right:28,width:54,height:54,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 28px rgba(37,211,102,.4)",cursor:"pointer",textDecoration:"none",zIndex:700,transition:"transform .3s,box-shadow .3s",color:"#fff"}} onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.14)";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";}}><WaSvg/></a>
     {/* Recently Viewed */}
@@ -2743,12 +2741,12 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {authModal&&<AuthModal mode={authModal} onClose={()=>setAuthModal(null)} onSuccess={()=>setAuthModal(null)}/>}
 
     {/* ABANDONED CART POPUP */}
-    {abandonPopup&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setAbandonPopup(false)}>
+    {abandonPopup&&settings.show_abandon_popup!=="false"&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setAbandonPopup(false)}>
       <div style={{background:"#fff",borderRadius:16,padding:28,width:"100%",maxWidth:360,textAlign:"center"}} onClick={e=>e.stopPropagation()}>
         <div style={{fontSize:40,marginBottom:12}}>🛍️</div>
-        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#1a1612",marginBottom:8}}>Apni cart bhool gaye?</div>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#1a1612",marginBottom:8}}>{settings.abandon_title||"Apni cart bhool gaye?"}</div>
         <p style={{fontSize:13,color:"#7a6e65",lineHeight:1.7,marginBottom:20}}>Aapki cart mein {cart.length} item(s) hain. Abhi order karo aur apna pasandida fabric paao!</p>
-        <div style={{background:"#dcfce7",border:"1px solid #86efac",borderRadius:8,padding:"10px 16px",marginBottom:20,fontSize:13,fontWeight:600,color:"#16a34a"}}>🎁 10% discount available on selected items</div>
+        <div style={{background:"#dcfce7",border:"1px solid #86efac",borderRadius:8,padding:"10px 16px",marginBottom:20,fontSize:13,fontWeight:600,color:"#16a34a"}}>{settings.abandon_offer||"🎁 10% discount available on selected items"}</div>
         <button onClick={()=>{setAbandonPopup(false);setCartOpen(true);}} style={{width:"100%",background:"#111",color:"#fff",border:"none",padding:"13px",fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",borderRadius:6,marginBottom:8}}>Complete My Order</button>
         <button onClick={()=>setAbandonPopup(false)} style={{width:"100%",background:"none",border:"1px solid #e0d8cc",padding:"10px",fontSize:12,cursor:"pointer",borderRadius:6,color:"#7a6e65"}}>Maybe Later</button>
       </div>
@@ -3859,6 +3857,10 @@ function AContent({settings}){
     {t:"📖 Our Story",fields:[["our_story_title","Section Title"],["story_text","Story Text",true],["story_stat1","Stat 1 Number"],["story_label1","Stat 1 Label"],["story_stat2","Stat 2 Number"],["story_label2","Stat 2 Label"],["story_stat3","Stat 3 Number"],["story_label3","Stat 3 Label"]],visKey:"show_our_story",visDefault:"true"},
     {t:"✨ Why Choose Us",fields:[["why_us_title","Section Title"],["feat1_title","Feature 1 Title"],["feat1_desc","Feature 1 Desc"],["feat2_title","Feature 2 Title"],["feat2_desc","Feature 2 Desc"],["feat3_title","Feature 3 Title"],["feat3_desc","Feature 3 Desc"],["feat4_title","Feature 4 Title"],["feat4_desc","Feature 4 Desc"]],visKey:"show_why_us",visDefault:"true"},
     {t:"🌙 Eid Countdown",fields:[["eid_title","Banner Title (e.g. Eid Collection)"],["eid_subtitle","Subtitle Text"],["eid_date","Countdown Target Date",false,true]],visKey:"eid_show",visDefault:"false"},
+    {t:"🚪 Intro Page — Left Panel",fields:[["intro_brand1","Brand Name Line 1 (e.g. JAMEEL)"],["intro_brand2","Brand Name Line 2 (e.g. FABRICS)"],["intro_tagline","Tagline / Est. line"],["intro_description","Description Text",true],["intro_stat1_num","Stat 1 Number"],["intro_stat1_label","Stat 1 Label"],["intro_stat2_num","Stat 2 Number"],["intro_stat2_label","Stat 2 Label"],["intro_stat3_num","Stat 3 Number"],["intro_stat3_label","Stat 3 Label"],["intro_location","Location Line (bottom)"]]},
+    {t:"🚪 Intro Page — Right Panel",fields:[["intro_eyebrow","Eyebrow Text (small top line)"],["intro_enter1","Big Line 1 (e.g. Enter)"],["intro_enter2","Big Line 2 (e.g. The Store)"],["intro_btn_text","Button Text"],["intro_tags","Bottom Tags (pipe | se alag karo)",true]]},
+    {t:"📜 Footer Policies",fields:[["policy_exchange","Exchange Policy Text"],["policy_payment","Payment Policy Text"],["policy_delivery","Delivery Policy Text"],["policy_mystery","Mystery Box Policy Text"],["policy_gift","Gift Orders Policy Text"]]},
+    {t:"🛍️ Abandoned Cart Popup",fields:[["abandon_title","Popup Heading"],["abandon_offer","Promo Text (green box)"]],visKey:"show_abandon_popup",visDefault:"true"},
   ];
 
   // Visibility-only sections (no text content to edit)
@@ -3868,6 +3870,8 @@ function AContent({settings}){
     {label:"⭐ Reviews Section",key:"show_reviews",def:"true"},
     {label:"👑 VIP Collection",key:"show_vip",def:"true"},
     {label:"📦 Mystery Subscription Active",key:"sub_active",def:"true"},
+    {label:"↕️ Sort Dropdown",key:"show_sort",def:"true"},
+    {label:"⬆️ Back to Top Button",key:"show_backtotop",def:"true"},
   ];
 
   const AI2=({k,placeholder,rows=1})=>rows>1
@@ -3916,6 +3920,21 @@ function AContent({settings}){
           </label>
         </ACard>
       ))}
+
+      {/* Category Bar Management */}
+      <ACard style={{padding:16,gridColumn:"1/-1"}}>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:4,color:"var(--t-text)"}}>📂 Category Bar Management</div>
+        <div style={{fontSize:11,color:"#6b7280",marginBottom:12}}>Checkbox = show on website. Right side = rename the label. Auto-saves.</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:8}}>
+          {CATS.map(([c,defaultLabel])=>(
+            <div key={c} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",border:"1px solid #e5e7eb",borderRadius:6,background:"#fafafa"}}>
+              <input type="checkbox" checked={f[`cat_show_${c}`]!=="false"} onChange={e=>updateF(`cat_show_${c}`,e.target.checked?"true":"false")} style={{accentColor:"#c9a84c",width:14,height:14,flexShrink:0}}/>
+              <span style={{fontSize:10,fontWeight:800,color:"#9ca3af",minWidth:30,fontFamily:"monospace"}}>{c}</span>
+              <input value={f[`cat_label_${c}`]||defaultLabel} onChange={e=>updateF(`cat_label_${c}`,e.target.value)} style={{flex:1,padding:"3px 8px",border:"1px solid #e5e7eb",borderRadius:4,fontSize:11,outline:"none",minWidth:0}}/>
+            </div>
+          ))}
+        </div>
+      </ACard>
 
       {/* Hero Banner Upload */}
       <ACard style={{padding:16}}>
