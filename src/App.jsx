@@ -2086,6 +2086,10 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     document.body.style.color=TH.text;
   },[TH]);
   const settings=useSettings();
+  // V2 design: read localStorage immediately (no async wait), then sync with Supabase
+  const[v2active,setV2active]=useState(()=>{try{return localStorage.getItem("jf_v2")==="true";}catch{return false;}});
+  useEffect(()=>{if(settings.design_v2!==undefined)setV2active(settings.design_v2==="true");},[settings.design_v2]);
+  useEffect(()=>{const fn=e=>setV2active(e.detail===true||e.detail==="true");window.addEventListener("jf-v2-change",fn);return()=>window.removeEventListener("jf-v2-change",fn);},[]);
   const[prods,setProds]=useState([]);
   const[cat,setCat]=useState("All");
   const[cart,setCart]=useState([]);
@@ -2743,7 +2747,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     {authModal&&<AuthModal mode={authModal} onClose={()=>setAuthModal(null)} onSuccess={()=>setAuthModal(null)}/>}
 
     {/* WEBSITE V2 OVERLAY — enabled via Admin → Theme Settings */}
-    {settings.design_v2==="true"&&<WebsiteV2
+    {v2active&&<WebsiteV2
       prods={prods} settings={settings} cart={cart} addToCart={addToCart}
       toggleWish={toggleWish} wish={wish} cat={cat} setCat={setCat}
       filtered={filtered} setCartOpen={setCartOpen} user={user}
@@ -2885,6 +2889,8 @@ function AThemeSettings({settings,onSaved}){
     await save(["site_theme","design_v2"]);
     if(f.site_theme&&typeof localStorage!=="undefined"){
       localStorage.setItem("jf_theme",f.site_theme);
+      localStorage.setItem("jf_v2",f.design_v2==="true"?"true":"false");
+      window.dispatchEvent(new CustomEvent("jf-v2-change",{detail:f.design_v2==="true"}));
       window.dispatchEvent(new CustomEvent("jf-theme-change",{detail:f.site_theme}));
     }
     onSaved&&onSaved();
