@@ -2028,6 +2028,7 @@ function ThemeStyle({TH}){
 
 
 function NewsletterBar(){
+  const settings=useSettings();
   const[email,setEmail]=useState("");
   const[done,setDone]=useState(false);
   const[loading,setLoading]=useState(false);
@@ -2052,8 +2053,8 @@ function NewsletterBar(){
   return(
     <div style={{maxWidth:1200,margin:"0 auto 32px",borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:28}}>
       <div style={{textAlign:"center",marginBottom:16}}>
-        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:4}}>Newsletter</div>
-        <div style={{fontSize:14,fontWeight:600,color:"rgba(255,255,255,.7)"}}>Exclusive deals aur new arrivals pehle paao</div>
+        <div style={{fontSize:9,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:4}}>{settings.newsletter_label||"Newsletter"}</div>
+        <div style={{fontSize:14,fontWeight:600,color:"rgba(255,255,255,.7)"}}>{settings.newsletter_heading||"Exclusive deals aur new arrivals pehle paao"}</div>
       </div>
       <div style={{display:"flex",gap:0,maxWidth:400,margin:"0 auto"}}>
         <input value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sub()} placeholder="apna@email.com" type="email" style={{flex:1,padding:"10px 14px",border:"1px solid rgba(201,168,76,.3)",borderRight:"none",background:"rgba(255,255,255,.05)",color:"#fff",fontSize:12,outline:"none",fontFamily:"inherit"}}/>
@@ -2496,6 +2497,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     </div>
     {/* FEATURED PRODUCTS */}
     {(()=>{
+      if(settings.show_featured==="false")return null;
       const featured=(prods||[]).filter(p=>p.featured&&p.active!==false);
       if(!featured.length)return null;
       return(
@@ -2653,7 +2655,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
       {settings.show_reviews!=="false"&&<ReviewsSection googleMapsUrl={settings.google_maps_url} googleRating={settings.google_rating}/>}
     </section>
 
-<RecentlyViewedStrip items={recentlyViewed} onOpenModal={openModal}/>
+{settings.show_recently_viewed!=="false"&&<RecentlyViewedStrip items={recentlyViewed} onOpenModal={openModal}/>}
 
     {/* ══ FOOTER ══ */}
     <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 0"}}>
@@ -2710,7 +2712,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
             ))}
           </div>
         </div>
-        {[{title:"Collections",items:["Men's Unstitched","Women Unstitched","Women Stitched","Kids Unstitch Wear","New Arrivals"]},{title:"Information",items:["About Us","Our Policies","Delivery Info","Exchange Policy","Contact Us"]},{title:"Contact",items:["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon-Sat: 10am-8pm")]}].map(col=>(
+        {[{title:"Collections",items:(settings.footer_collections||"Men's Unstitched|Women Unstitched|Women Stitched|Kids Unstitch Wear|New Arrivals").split("|").map(s=>s.trim()).filter(Boolean)},{title:"Information",items:["About Us","Our Policies","Delivery Info","Exchange Policy","Contact Us"]},{title:"Contact",items:["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon-Sat: 10am-8pm")]}].map(col=>(
           <div key={col.title}>
             <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.6)",textTransform:"uppercase",fontWeight:700,marginBottom:16}}>{col.title}</div>
             {col.items.map(l=><div key={l} style={{fontSize:11,color:"rgba(255,255,255,.28)",padding:"5px 0",cursor:"pointer",transition:"color .2s",lineHeight:1.6}} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.7)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.28)"}>{l}</div>)}
@@ -2718,7 +2720,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         ))}
       </div>
       {/* Newsletter */}
-      <NewsletterBar/>
+      {settings.show_newsletter!=="false"&&<NewsletterBar/>}
       <div style={{borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:20,paddingBottom:28,maxWidth:1200,margin:"0 auto",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
         <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>© 2026 {settings.store_name||"JAMEEL FABRICS KUNJAH"}. All Rights Reserved.</div>
         <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>Premium Pakistani Clothing · Est. 1975 · Kunjah, Gujrat</div>
@@ -3861,6 +3863,8 @@ function AContent({settings}){
     {t:"🚪 Intro Page — Right Panel",fields:[["intro_eyebrow","Eyebrow Text (small top line)"],["intro_enter1","Big Line 1 (e.g. Enter)"],["intro_enter2","Big Line 2 (e.g. The Store)"],["intro_btn_text","Button Text"],["intro_tags","Bottom Tags (pipe | se alag karo)",true]]},
     {t:"📜 Footer Policies",fields:[["policy_exchange","Exchange Policy Text"],["policy_payment","Payment Policy Text"],["policy_delivery","Delivery Policy Text"],["policy_mystery","Mystery Box Policy Text"],["policy_gift","Gift Orders Policy Text"]]},
     {t:"🛍️ Abandoned Cart Popup",fields:[["abandon_title","Popup Heading"],["abandon_offer","Promo Text (green box)"]],visKey:"show_abandon_popup",visDefault:"true"},
+    {t:"📧 Newsletter Bar",fields:[["newsletter_label","Top Label (small caps)"],["newsletter_heading","Heading Text"]],visKey:"show_newsletter",visDefault:"true"},
+    {t:"🔗 Footer Collections Links",fields:[["footer_collections","Collection Links (pipe | se alag karo)",true]]},
   ];
 
   // Visibility-only sections (no text content to edit)
@@ -3872,6 +3876,8 @@ function AContent({settings}){
     {label:"📦 Mystery Subscription Active",key:"sub_active",def:"true"},
     {label:"↕️ Sort Dropdown",key:"show_sort",def:"true"},
     {label:"⬆️ Back to Top Button",key:"show_backtotop",def:"true"},
+    {label:"⭐ Featured Products Section",key:"show_featured",def:"true"},
+    {label:"🕐 Recently Viewed Strip",key:"show_recently_viewed",def:"true"},
   ];
 
   const AI2=({k,placeholder,rows=1})=>rows>1
