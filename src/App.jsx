@@ -2119,7 +2119,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
   const mobSearchRef=useRef(null);
   const[mobSearchOpen,setMobSearchOpen]=useState(false);
   useReveal();
-  const heroLines=["Exclusive Collections","Premium Pakistani Fabric","Handpicked Quality","Timeless Elegance","Limited Edition Pieces"];
+  const heroLines=(settings.hero_taglines||"Exclusive Collections|Premium Pakistani Fabric|Handpicked Quality|Timeless Elegance|Limited Edition Pieces").split("|").map(s=>s.trim()).filter(Boolean);
   useEffect(()=>{const t=setInterval(()=>setHeroIdx(i=>(i+1)%heroLines.length),3000);return()=>clearInterval(t);},[]);
   // Countdown timer
   useEffect(()=>{
@@ -2232,7 +2232,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
     <nav style={{position:"sticky",top:0,zIndex:100,background:`${TH.card}f5`,backdropFilter:"blur(24px)",borderBottom:`1px solid ${TH.border}`,height:64,display:"flex",alignItems:"center",padding:"0 clamp(14px,3vw,52px)",gap:12,boxShadow:"0 1px 16px rgba(0,0,0,.06)"}}>
       <button onClick={()=>{setCat("All");window.scrollTo({top:0,behavior:"smooth"});}} style={{cursor:"pointer",flexShrink:1,minWidth:0,background:"none",border:"none",textAlign:"left",marginRight:"auto",padding:0,overflow:"hidden"}}>
         <div style={{fontFamily:"'Jost',sans-serif",fontSize:"clamp(9px,2.6vw,14px)",fontWeight:700,letterSpacing:"clamp(.4px,.18vw,1.8px)",color:`${TH.text}`,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-        <div style={{fontSize:"5px",letterSpacing:".6px",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500,whiteSpace:"nowrap",marginTop:"1px"}}>KUNJAH · PUNJAB</div>
+        <div style={{fontSize:"5px",letterSpacing:".6px",color:`${TH.accent}`,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1,fontWeight:500,whiteSpace:"nowrap",marginTop:"1px"}}>{settings.nav_subtitle||"KUNJAH · PUNJAB"}</div>
       </button>
       <div className="search-bar hide-mob" style={{display:"flex",alignItems:"center",gap:8,background:"var(--t-surface)",border:"1px solid var(--t-border)",padding:"7px 14px",flex:1,maxWidth:200}}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a8f83" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -2450,7 +2450,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
         </div>
         {/* Stats row */}
         <div style={{display:"flex",gap:clamp=>clamp,flexWrap:"wrap",marginTop:28,paddingTop:20,borderTop:`1px solid ${settings.hero_banner_url?"rgba(255,255,255,.15)":"var(--t-border)"}`,animation:"fadeUp .8s ease .75s both"}}>
-          {[["500+","Customers"],["50+","Brands"],["Est. 1975","Trusted"],["PK","Delivery"]].map(([n,l])=>(
+          {[[settings.hstat1_num||"500+",settings.hstat1_label||"Customers"],[settings.hstat2_num||"50+",settings.hstat2_label||"Brands"],[settings.hstat3_num||"Est. 1975",settings.hstat3_label||"Trusted"],[settings.hstat4_num||"PK",settings.hstat4_label||"Delivery"]].map(([n,l])=>(
             <div key={l} style={{marginRight:24,marginBottom:8}}>
               <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(16px,2vw,22px)",fontWeight:700,color:settings.hero_banner_url?"#c9a84c":"var(--t-text)",lineHeight:1}}>{n}</div>
               <div style={{fontSize:8,color:settings.hero_banner_url?"rgba(255,255,255,.5)":"var(--t-muted)",letterSpacing:1.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
@@ -2656,73 +2656,66 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
 
 {settings.show_recently_viewed!=="false"&&<RecentlyViewedStrip items={recentlyViewed} onOpenModal={openModal}/>}
 
-    {/* ══ FOOTER ══ */}
-    <footer style={{background:"#0a0907",color:"#e0dbd3",padding:"clamp(52px,6vw,80px) clamp(16px,4vw,60px) 0"}}>
-
-      {/* Our Story + Why Choose Us */}
-      <div style={{maxWidth:1200,margin:"0 auto",paddingBottom:"clamp(40px,5vw,64px)",borderBottom:"1px solid rgba(255,255,255,.07)",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:"clamp(28px,4vw,52px)"}}>
-        <div>
-          <div style={{fontSize:8,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:8}}>Since 1975</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(20px,2.5vw,28px)",fontWeight:600,color:"#fff",lineHeight:1.2,marginBottom:12}}>{settings?.story_title||"Our Story"}</div>
-          <p style={{fontSize:12,color:"rgba(255,255,255,.45)",lineHeight:1.9,marginBottom:20}}>{settings?.story_text||"From elegant unstitched suits to fine embroidered fabric — every piece reflects our commitment to quality and trust."}</p>
-          <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-            {[[settings?.story_stat1||"50+",settings?.story_label1||"Years of Trust"],[settings?.story_stat2||"10K+",settings?.story_label2||"Happy Customers"],[settings?.story_stat3||"500+",settings?.story_label3||"Products"]].map(([n,l],i)=>(
-              <div key={i} style={{textAlign:"center"}}>
-                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#c9a84c",lineHeight:1}}>{n}</div>
-                <div style={{fontSize:9,letterSpacing:1.5,textTransform:"uppercase",color:"rgba(255,255,255,.3)",marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div style={{fontSize:8,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Why Choose Us</div>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {[["🔄","Easy Exchange","Exchange within 3 days. No questions asked."],["✅","Quality Assured","Every piece personally inspected."],["📦","Careful Packaging","Packed with care, arrives perfect."],["💬","WhatsApp Support","Direct access to the owner — real human."],["🚚","Fast Delivery","Nationwide delivery in 3-5 working days."],["🔒","Privacy Guaranteed","Your info is never shared."]].map(([ic,t,d])=>(
-              <div key={t} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-                <span style={{fontSize:14,flexShrink:0,marginTop:1,opacity:.85}}>{ic}</span>
-                <div><div style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,.75)",marginBottom:1}}>{t}</div><div style={{fontSize:11,color:"rgba(255,255,255,.3)",lineHeight:1.5}}>{d}</div></div>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Policies */}
-        <div>
-          <div style={{fontSize:8,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Our Policies</div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[["🔄","Exchange Policy",settings.policy_exchange||"3 days exchange on all products"],["💰","Payment",settings.policy_payment||"Advance payment required. EasyPaisa / JazzCash / Bank"],["🚚","Delivery",settings.policy_delivery||"Pak Post, TCS, Leopard — 3-5 days"],["📦","Mystery Box",settings.policy_mystery||"Non-refundable — quality guaranteed"],["🎁","Gift Orders",settings.policy_gift||"Dispatched in 2-3 business days"],["📞","Contact","WhatsApp: "+(settings?.phone||"03228722232")]].map(([ic,t,d])=>(
-              <div key={t} style={{display:"flex",gap:8,alignItems:"flex-start",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,.04)"}}>
-                <span style={{fontSize:12,flexShrink:0,opacity:.7}}>{ic}</span>
-                <div><div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.6)"}}>{t}</div><div style={{fontSize:10,color:"rgba(255,255,255,.25)",lineHeight:1.5}}>{d}</div></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main footer links row */}
-      <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"1.8fr 1fr 1fr 1fr",gap:"clamp(24px,3.5vw,52px)",padding:"clamp(36px,4vw,52px) 0 clamp(24px,3vw,40px)",maxWidth:1200,margin:"0 auto"}}>
-        <div>
-          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:18,fontWeight:900,letterSpacing:4,color:"#fff",marginBottom:4}}>{settings.store_name||"JAMEEL FABRICS"}</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:16,fontStyle:"italic"}}>Kunjah · Est. Punjab</div>
-          <p style={{fontSize:11,color:"rgba(255,255,255,.6)",lineHeight:2,marginBottom:20}}>Premium Pakistani fabrics. Exclusive designs, exceptional quality, trusted by families since 1975.</p>
-          <div style={{display:"flex",gap:10}}>
-            {[{url:settings.insta||"#",bg:"linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",ic:<IgSvg/>},{url:"https://wa.me/"+wa,bg:"#25D366",ic:<WaSvg/>},{url:settings.tiktok||"#",bg:"#010101",ic:<TkSvg/>,border:"1px solid rgba(255,255,255,.15)"},{url:settings.fb||"#",bg:"#1877F2",ic:<FbSvg/>}].map((s,i)=>(
-              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{width:36,height:36,borderRadius:4,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"transform .2s,opacity .2s",textDecoration:"none",color:"#fff",border:s.border||"none"}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.opacity=".85";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.opacity="1";}}>{s.ic}</a>
-            ))}
-          </div>
-        </div>
-        {[{title:"Collections",items:(settings.footer_collections||"Men's Unstitched|Women Unstitched|Women Stitched|Kids Unstitch Wear|New Arrivals").split("|").map(s=>s.trim()).filter(Boolean)},{title:"Information",items:["About Us","Our Policies","Delivery Info","Exchange Policy","Contact Us"]},{title:"Contact",items:["📍 "+(settings.addr1||"Circular Road, Kunjah"),"📍 "+(settings.addr2||"Distt Gujrat, Punjab"),"📞 "+(settings.phone||"03228722232"),"⏰ "+(settings.hours||"Mon-Sat: 10am-8pm")]}].map(col=>(
-          <div key={col.title}>
-            <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.6)",textTransform:"uppercase",fontWeight:700,marginBottom:16}}>{col.title}</div>
-            {col.items.map(l=><div key={l} style={{fontSize:11,color:"rgba(255,255,255,.28)",padding:"5px 0",cursor:"pointer",transition:"color .2s",lineHeight:1.6}} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.7)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.28)"}>{l}</div>)}
+    {/* ══ POLICIES STRIP ══ */}
+    <div style={{background:"#0f0d0b",borderTop:"1px solid rgba(255,255,255,.05)"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",padding:"0 clamp(16px,4vw,60px)"}}>
+        {[["🔄","Easy Exchange",settings.policy_exchange||"3 days, no questions asked"],["💰","Payment",settings.policy_payment||"EasyPaisa · JazzCash · Bank"],["🚚","Delivery",settings.policy_delivery||"TCS · Pak Post · 3-5 days"],["📦","Mystery Box",settings.policy_mystery||"Quality guaranteed"],["🎁","Gift Orders",settings.policy_gift||"Dispatched in 2-3 days"]].map(([ic,t,d],idx,arr)=>(
+          <div key={t} style={{padding:"24px 16px",borderRight:idx<arr.length-1?"1px solid rgba(255,255,255,.05)":"none",borderBottom:"1px solid rgba(255,255,255,.04)"}}>
+            <div style={{fontSize:22,marginBottom:10,lineHeight:1}}>{ic}</div>
+            <div style={{fontSize:9,fontWeight:800,letterSpacing:2,color:"rgba(255,255,255,.75)",textTransform:"uppercase",marginBottom:5}}>{t}</div>
+            <div style={{fontSize:10,color:"rgba(255,255,255,.28)",lineHeight:1.7}}>{d}</div>
           </div>
         ))}
       </div>
+    </div>
+
+    {/* ══ FOOTER ══ */}
+    <footer style={{background:"#0a0907",color:"#e0dbd3"}}>
+      {/* Main 3-col grid */}
+      <div className="footer-grid" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:"clamp(28px,5vw,64px)",maxWidth:1200,margin:"0 auto",padding:"52px clamp(16px,4vw,60px) 40px"}}>
+        {/* Col 1 — Brand + About + Social */}
+        <div>
+          <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:22,fontWeight:900,letterSpacing:3,color:"#fff",marginBottom:3}}>{settings.store_name||"JAMEEL FABRICS"}</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:9,letterSpacing:4,color:"rgba(255,255,255,.3)",marginBottom:18,fontStyle:"italic"}}>Est. 1975 · Kunjah, Punjab</div>
+          <p style={{fontSize:11,color:"rgba(255,255,255,.45)",lineHeight:2,marginBottom:24,maxWidth:290}}>{settings.about||"Premium branded fabrics for Men, Women & Kids — trusted by families since 1975."}</p>
+          <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.3)",textTransform:"uppercase",marginBottom:12}}>Follow Us</div>
+          <div style={{display:"flex",gap:10}}>
+            {[{url:settings.insta||"#",bg:"linear-gradient(135deg,#f09433,#e6683c,#dc2743,#bc1888)",ic:<IgSvg/>,label:"Instagram"},{url:"https://wa.me/"+wa,bg:"#25D366",ic:<WaSvg/>,label:"WhatsApp"},{url:settings.tiktok||"#",bg:"#1a1a1a",ic:<TkSvg/>,border:"1px solid rgba(255,255,255,.18)",label:"TikTok"},{url:settings.fb||"#",bg:"#1877F2",ic:<FbSvg/>,label:"Facebook"}].map((s,i)=>(
+              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" title={s.label} style={{width:46,height:46,borderRadius:8,background:s.bg,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",color:"#fff",border:s.border||"none",transition:"transform .2s,box-shadow .2s",boxShadow:"0 4px 14px rgba(0,0,0,.4)",flexShrink:0}} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 12px 28px rgba(0,0,0,.55)";}} onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="0 4px 14px rgba(0,0,0,.4)";}}>
+                {s.ic}
+              </a>
+            ))}
+          </div>
+        </div>
+        {/* Col 2 — Collections */}
+        <div>
+          <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.5)",textTransform:"uppercase",fontWeight:700,marginBottom:18}}>Collections</div>
+          {(settings.footer_collections||"Men's Unstitched|Women Unstitched|Women Stitched|Kids Unstitch Wear|New Arrivals").split("|").map(s=>s.trim()).filter(Boolean).map(l=>(
+            <div key={l} style={{fontSize:11,color:"rgba(255,255,255,.32)",padding:"6px 0",cursor:"pointer",transition:"color .2s",lineHeight:1.5,borderBottom:"1px solid rgba(255,255,255,.04)"}} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.8)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.32)"}>{l}</div>
+          ))}
+        </div>
+        {/* Col 3 — Contact */}
+        <div>
+          <div style={{fontSize:8,letterSpacing:3,color:"rgba(255,255,255,.5)",textTransform:"uppercase",fontWeight:700,marginBottom:18}}>Contact</div>
+          <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:22}}>
+            {[["📍",settings.addr1||"Circular Road, Kunjah"],["📍",settings.addr2||"Distt Gujrat, Punjab"],["📞",settings.phone||"03228722232"],["⏰",settings.hours||"Mon–Sat: 10am–8pm"]].map(([ic,val])=>(
+              <div key={val} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                <span style={{fontSize:13,opacity:.45,flexShrink:0,marginTop:1}}>{ic}</span>
+                <span style={{fontSize:11,color:"rgba(255,255,255,.38)",lineHeight:1.6}}>{val}</span>
+              </div>
+            ))}
+          </div>
+          <a href={"https://wa.me/"+wa} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#25D366",color:"#000",padding:"11px 20px",fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",textDecoration:"none",borderRadius:4,transition:"background .2s,transform .2s"}} onMouseEnter={e=>{e.currentTarget.style.background="#1db954";e.currentTarget.style.transform="translateY(-2px)";}} onMouseLeave={e=>{e.currentTarget.style.background="#25D366";e.currentTarget.style.transform="none;";}}>
+            <WaSvg/> Order on WhatsApp
+          </a>
+        </div>
+      </div>
       {/* Newsletter */}
       {settings.show_newsletter!=="false"&&<NewsletterBar settings={settings}/>}
-      <div style={{borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:20,paddingBottom:28,maxWidth:1200,margin:"0 auto",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-        <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>© 2026 {settings.store_name||"JAMEEL FABRICS KUNJAH"}. All Rights Reserved.</div>
-        <div style={{fontSize:9,color:"rgba(255,255,255,.18)",letterSpacing:1}}>Premium Pakistani Clothing · Est. 1975 · Kunjah, Gujrat</div>
+      {/* Bottom bar */}
+      <div style={{borderTop:"1px solid rgba(255,255,255,.06)",padding:"18px clamp(16px,4vw,60px)",maxWidth:1200,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+        <div style={{fontSize:9,color:"rgba(255,255,255,.2)",letterSpacing:1}}>© 2026 {settings.store_name||"JAMEEL FABRICS KUNJAH"}. All Rights Reserved.</div>
+        <div style={{fontSize:9,color:"rgba(255,255,255,.2)",letterSpacing:1}}>Premium Pakistani Clothing · Est. 1975 · Kunjah, Gujrat</div>
       </div>
     </footer>
     {/* Browsing counter */}
@@ -3851,7 +3844,7 @@ function AContent({settings}){
     {t:"🏪 Store Info",fields:[["store_name","Store Name"],["addr1","Address Line 1"],["addr2","Address Line 2"],["map_url","Google Map Link (paste from Google Maps)"],["hours","Working Hours"],["phone","Phone Number"],["google_maps_url","Google Business Reviews URL"],["google_rating","Google Rating (e.g. 4.8)"]]},
     {t:"🔗 Social Links",fields:[["wa_number","WhatsApp Number"],["insta","Instagram URL"],["fb","Facebook URL"],["tiktok","TikTok URL"]]},
     {t:"📢 Announcement Bar",fields:[["announcement","Messages (pipe | se alag karo)",true]],visKey:"show_announcement",visDefault:"true"},
-    {t:"🏠 Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true]]},
+    {t:"🏠 Hero Section",fields:[["hlabel","Hero Label"],["hsub","Tagline"],["about","About Text",true],["nav_subtitle","Nav Subtitle (below store name)"],["hero_taglines","Rotating Lines (pipe | se alag karo)",true],["hstat1_num","Stat 1 Number"],["hstat1_label","Stat 1 Label"],["hstat2_num","Stat 2 Number"],["hstat2_label","Stat 2 Label"],["hstat3_num","Stat 3 Number"],["hstat3_label","Stat 3 Label"],["hstat4_num","Stat 4 Number"],["hstat4_label","Stat 4 Label"]]},
     {t:"🏷️ Brand Ticker",fields:[["ticker_brands","Brands (· se alag karo)",true]],visKey:"show_brand_ticker",visDefault:"true"},
     {t:"📊 Stats",fields:[["sold_count","Sold Count Text"]]},
     {t:"🗺️ Countdown Timer",fields:[["sale_title","Sale Title"],["sale_text","Sale Subtitle"],["sale_end_date","End Date",false,true]],visKey:"show_countdown",visDefault:"true"},
