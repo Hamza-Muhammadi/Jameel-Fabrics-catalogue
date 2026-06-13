@@ -149,15 +149,18 @@ function useDB(queryFn,deps=[]){
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState(null);
   useEffect(()=>{
-    if(!sb){setLoading(false);return;}
+    let alive=true;
+    if(!sb){setLoading(false);return()=>{alive=false;};}
     setLoading(true);
     queryFn()
       .then(({data:d,error:e})=>{
+        if(!alive)return;
         if(e){setError(e);console.error("useDB error:",e);}
         else setData(d);
         setLoading(false);
       })
-      .catch(e=>{setError(e);setLoading(false);});
+      .catch(e=>{if(alive){setError(e);setLoading(false);}});
+    return()=>{alive=false;};
   // eslint-disable-next-line
   },deps);
   return{data,loading,error};
@@ -2449,7 +2452,7 @@ function Store({user,onLogout,onAccount,onAdmin,siteTheme,themeName}){
           </a>
         </div>
         {/* Stats row */}
-        <div style={{display:"flex",gap:clamp=>clamp,flexWrap:"wrap",marginTop:28,paddingTop:20,borderTop:`1px solid ${settings.hero_banner_url?"rgba(255,255,255,.15)":"var(--t-border)"}`,animation:"fadeUp .8s ease .75s both"}}>
+        <div style={{display:"flex",gap:"clamp(16px,2vw,28px)",flexWrap:"wrap",marginTop:28,paddingTop:20,borderTop:`1px solid ${settings.hero_banner_url?"rgba(255,255,255,.15)":"var(--t-border)"}`,animation:"fadeUp .8s ease .75s both"}}>
           {[[settings.hstat1_num||"500+",settings.hstat1_label||"Customers"],[settings.hstat2_num||"50+",settings.hstat2_label||"Brands"],[settings.hstat3_num||"Est. 1975",settings.hstat3_label||"Trusted"],[settings.hstat4_num||"PK",settings.hstat4_label||"Delivery"]].map(([n,l])=>(
             <div key={l} style={{marginRight:24,marginBottom:8}}>
               <div style={{fontFamily:"var(--t-hf,'Playfair Display',serif)",fontSize:"clamp(16px,2vw,22px)",fontWeight:700,color:settings.hero_banner_url?"#c9a84c":"var(--t-text)",lineHeight:1}}>{n}</div>
